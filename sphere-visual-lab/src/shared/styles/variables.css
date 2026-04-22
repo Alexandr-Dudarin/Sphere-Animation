@@ -1,0 +1,19 @@
+:root {
+  --app-bg: #040710;
+  --panel-bg: rgba(10, 14, 28, 0.78);
+  --panel-border: rgba(255, 255, 255, 0.08);
+
+  --text-primary: #f4f7ff;
+  --text-secondary: rgba(232, 238, 255, 0.72);
+  --text-muted: rgba(232, 238, 255, 0.5);
+
+  --accent: #59c2ff;
+  --accent-soft: rgba(89, 194, 255, 0.16);
+
+  --shadow-lg: 0 20px 80px rgba(0, 0, 0, 0.38);
+  --radius-lg: 28px;
+  --radius-md: 20px;
+  --radius-sm: 14px;
+
+  --container-width: 1280px;
+}
