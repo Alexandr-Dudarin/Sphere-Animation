@@ -46,10 +46,10 @@ const modeSettings: Record<SphereMode, MotionSettings> = {
   },
   thinking: {
     swirlSpeed: 1,
-    pulse: 0.9,
+    pulse: 0.94,
   },
   searching: {
-    swirlSpeed: 1.24,
+    swirlSpeed: 1.26,
     pulse: 1,
   },
 };
@@ -57,13 +57,13 @@ const modeSettings: Record<SphereMode, MotionSettings> = {
 const glowBoostMap: Record<GlowIntensity, number> = {
   low: 0.82,
   medium: 1,
-  high: 1.22,
+  high: 1.24,
 };
 
 const segmentMap: Record<SphereQuality, number> = {
-  low: 72,
-  medium: 112,
-  high: 160,
+  low: 80,
+  medium: 128,
+  high: 192,
 };
 
 const vertexShader = `
@@ -89,9 +89,44 @@ const fragmentShader = `
   uniform vec3 uColorB;
   uniform vec3 uColorC;
 
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+
+    vec2 u = f * f * (3.0 - 2.0 * f);
+
+    float a = hash(i + vec2(0.0, 0.0));
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+  }
+
+  float fbm(vec2 p) {
+    float value = 0.0;
+    float amplitude = 0.5;
+
+    for (int i = 0; i < 4; i++) {
+      value += amplitude * noise(p);
+      p *= 2.0;
+      amplitude *= 0.5;
+    }
+
+    return value;
+  }
+
   float ringBand(float r, float center, float width) {
     float d = abs(r - center);
     return 1.0 - smoothstep(width, width * 1.9, d);
+  }
+
+  float sharpPulse(float x, float power) {
+    return pow(clamp(x, 0.0, 1.0), power);
   }
 
   void main() {
@@ -102,51 +137,77 @@ const fragmentShader = `
     float a = atan(uv.y, uv.x);
     float t = uTime;
 
-    float flowA = sin(a * (4.0 + uTwist * 0.45) - r * (10.0 + uTwist * 1.8) + t * (1.5 + uTwist * 0.18));
-    float flowB = sin(a * (8.5 + uTwist * 0.6) + r * (8.0 + uTwist * 0.8) - t * (2.2 + uTwist * 0.22));
-    float flowC = sin(a * 13.0 - r * 18.0 + t * 1.15);
+    vec2 polar = vec2(cos(a), sin(a)) * r;
+    float n = fbm(polar * 4.0 + vec2(t * 0.09, -t * 0.07));
 
-    float bandOuter = ringBand(r, 0.72 + 0.035 * flowA, 0.07);
-    float bandMid   = ringBand(r, 0.50 + 0.035 * flowB, 0.055);
-    float bandInner = ringBand(r, 0.30 + 0.025 * flowC, 0.04);
-    float bandCore  = ringBand(r, 0.16 + 0.018 * flowA, 0.028);
+    float flowA = sin(a * (4.1 + uTwist * 0.34) - r * (10.4 + uTwist * 1.5) + t * (1.45 + uTwist * 0.15) + n * 1.25);
+    float flowB = sin(a * (8.0 + uTwist * 0.46) + r * (9.0 + uTwist * 0.55) - t * (2.0 + uTwist * 0.16) + n * 1.0);
+    float flowC = sin(a * 11.2 - r * 16.8 + t * 0.95 - n * 0.9);
+    float flowD = sin(a * 6.2 - r * 11.0 - t * 1.25 + n * 1.15);
 
-    float edgeBand  = ringBand(r, 0.88 + 0.018 * sin(a * 7.0 + t * 0.9), 0.035);
+    float bandOuter = ringBand(r, 0.84 + 0.032 * flowA, 0.078);
+    float bandMid   = ringBand(r, 0.63 + 0.030 * flowB, 0.058);
+    float bandInner = ringBand(r, 0.43 + 0.022 * flowC, 0.042);
+    float bandCore  = ringBand(r, 0.26 + 0.016 * flowD, 0.028);
+    float rimBand   = ringBand(r, 0.95 + 0.010 * sin(a * 5.0 + t * 0.65 + n), 0.020);
 
-    float ribbon1 = 0.5 + 0.5 * sin(a * 7.0 - r * 15.0 - t * (1.9 + uTwist * 0.14));
-    float ribbon2 = 0.5 + 0.5 * sin(a * 10.0 + r * 12.0 + t * (1.45 + uTwist * 0.12));
-    float ribbon3 = 0.5 + 0.5 * sin(a * 5.0 - r * 8.0 + t * 0.9);
+    float lineA = 0.5 + 0.5 * sin(a * 12.0 - r * 24.0 - t * 2.35 + n * 2.3);
+    float lineB = 0.5 + 0.5 * sin(a * 9.0 + r * 15.5 + t * 1.85 - n * 1.8);
+    float lineC = 0.5 + 0.5 * sin(a * 6.5 - r * 10.2 + t * 1.05 + n * 1.3);
+    float lineD = 0.5 + 0.5 * sin(a * 14.0 - r * 20.0 + t * 2.15 - n * 2.0);
 
-    float fill = smoothstep(0.18, 0.96, ribbon1 * 0.42 + ribbon2 * 0.38 + ribbon3 * 0.2);
+    float filamentA = sharpPulse(lineA, 5.0);
+    float filamentB = sharpPulse(lineB, 5.4);
+    float filamentC = sharpPulse(lineC, 4.4);
+    float filamentD = sharpPulse(lineD, 5.8);
+
+    float arcField =
+      bandOuter * filamentA +
+      bandMid   * filamentB +
+      bandInner * filamentC +
+      bandCore  * filamentD * 0.62;
+
+    float softFill =
+      smoothstep(0.30, 0.96, filamentA * 0.42 + filamentB * 0.34 + filamentC * 0.24) *
+      smoothstep(0.16, 0.96, r) *
+      (1.0 - smoothstep(0.96, 1.05, r));
+
+    float outerVeil =
+      smoothstep(0.60, 0.96, 0.5 + 0.5 * sin(a * 2.4 - t * 0.48 + n * 1.8)) *
+      smoothstep(0.54, 0.92, r) *
+      (1.0 - smoothstep(0.96, 1.05, r));
+
+    float centerMist =
+      (1.0 - smoothstep(0.0, 0.18, r)) *
+      smoothstep(0.42, 0.82, 0.5 + 0.5 * sin(a * 4.4 + t * 1.0 - n * 1.1));
 
     float structure =
-      bandOuter * mix(0.4, 1.0, ribbon1) +
-      bandMid   * mix(0.36, 0.92, ribbon2) +
-      bandInner * mix(0.3, 0.88, ribbon3) +
-      bandCore  * 0.6 +
-      edgeBand  * 0.28 +
-      fill      * 0.12;
+      arcField * 0.96 +
+      softFill * 0.14 +
+      outerVeil * 0.10 +
+      rimBand * 0.18 +
+      centerMist * 0.08;
 
-    float outerFade = 1.0 - smoothstep(0.98, 1.03, r);
-    float innerHole = smoothstep(0.01, 0.05, r);
-    float centerGlow = 1.0 - smoothstep(0.0, 0.14, r);
+    float outerFade = 1.0 - smoothstep(0.995, 1.05, r);
+    float innerFade = smoothstep(0.0, 0.02, r);
 
-    float fresnel = pow(1.0 - abs(vNormalW.z), 1.9);
+    float fresnel = pow(1.0 - abs(vNormalW.z), 1.85);
 
-    float alpha = structure * outerFade * innerHole * uOpacity;
-    alpha += edgeBand * 0.08 * uOpacity * uIntensity;
-    alpha += centerGlow * 0.12 * uOpacity * uIntensity;
+    float alpha = structure * outerFade * innerFade * uOpacity;
+    alpha += rimBand * 0.055 * uOpacity * uIntensity;
+    alpha += centerMist * 0.03 * uOpacity * uIntensity;
 
-    vec3 color = mix(uColorA, uColorB, smoothstep(0.2, 0.95, ribbon1));
-    color = mix(color, uColorC, smoothstep(0.24, 0.95, ribbon2));
+    vec3 color = mix(uColorA, uColorB, smoothstep(0.2, 0.95, filamentA));
+    color = mix(color, uColorC, smoothstep(0.26, 0.95, filamentB));
 
-    color += uColorA * bandOuter * 0.22 * uIntensity;
-    color += uColorB * bandMid   * 0.28 * uIntensity;
-    color += uColorC * bandInner * 0.24 * uIntensity;
-    color += uColorA * edgeBand  * 0.16 * uIntensity;
-    color += uColorB * bandCore  * 0.34 * uIntensity;
+    color += uColorA * bandOuter * filamentA * 0.30 * uIntensity;
+    color += uColorB * bandMid   * filamentB * 0.32 * uIntensity;
+    color += uColorC * bandInner * filamentC * 0.28 * uIntensity;
+    color += uColorA * bandCore  * filamentD * 0.18 * uIntensity;
+    color += uColorA * rimBand   * 0.14 * uIntensity;
+    color += uColorC * outerVeil * 0.07 * uIntensity;
     color += uColorA * fresnel   * 0.06 * uIntensity;
-    color += vec3(1.0) * centerGlow * 0.05 * uIntensity;
+    color += vec3(1.0) * centerMist * 0.02 * uIntensity;
 
     gl_FragColor = vec4(color, alpha);
   }
@@ -191,8 +252,6 @@ export default function VortexCore({
   const groupRef = useRef<THREE.Group>(null);
   const shellRefs = useRef<Array<THREE.Mesh | null>>([]);
   const coreGlowRef = useRef<THREE.Mesh>(null);
-  const eyeRef = useRef<THREE.Mesh>(null);
-  const coreRef = useRef<THREE.Mesh>(null);
 
   const motion = modeSettings[mode];
   const glowBoost = glowBoostMap[glowIntensity];
@@ -202,44 +261,64 @@ export default function VortexCore({
   const layerConfigs = useMemo<LayerConfig[]>(() => {
     return [
       {
-        scale: 1.08,
-        opacity: 0.16 * glowBoost,
-        speed: 0.7,
-        twist: 0.62,
-        intensity: 0.86,
+        scale: 1.22,
+        opacity: 0.075 * glowBoost,
+        speed: 0.42,
+        twist: 0.28,
+        intensity: 0.58,
         colorA: colors.halo,
         colorB: colors.accent,
         colorC: colors.violet,
       },
       {
-        scale: 0.98,
-        opacity: 0.2 * glowBoost,
-        speed: 0.96,
-        twist: 0.95,
-        intensity: 1.0,
+        scale: 1.12,
+        opacity: 0.105 * glowBoost,
+        speed: 0.60,
+        twist: 0.54,
+        intensity: 0.72,
         colorA: colors.halo,
         colorB: colors.accent,
         colorC: colors.mint,
       },
       {
-        scale: 0.84,
-        opacity: 0.18 * glowBoost,
-        speed: 1.22,
-        twist: 1.34,
-        intensity: 1.12,
+        scale: 1.02,
+        opacity: 0.13 * glowBoost,
+        speed: 0.84,
+        twist: 0.86,
+        intensity: 0.88,
+        colorA: colors.halo,
+        colorB: colors.accent,
+        colorC: colors.violet,
+      },
+      {
+        scale: 0.91,
+        opacity: 0.15 * glowBoost,
+        speed: 1.08,
+        twist: 1.18,
+        intensity: 1.0,
         colorA: colors.violet,
         colorB: colors.halo,
         colorC: colors.pink,
       },
       {
-        scale: 0.7,
-        opacity: 0.16 * glowBoost,
-        speed: 1.52,
-        twist: 1.76,
-        intensity: 1.2,
+        scale: 0.80,
+        opacity: 0.13 * glowBoost,
+        speed: 1.34,
+        twist: 1.52,
+        intensity: 1.1,
         colorA: colors.pink,
         colorB: colors.accent,
         colorC: colors.violet,
+      },
+      {
+        scale: 0.69,
+        opacity: 0.09 * glowBoost,
+        speed: 1.64,
+        twist: 1.88,
+        intensity: 1.16,
+        colorA: colors.mint,
+        colorB: colors.halo,
+        colorC: colors.accent,
       },
     ];
   }, [colors, glowBoost]);
@@ -268,8 +347,8 @@ export default function VortexCore({
     const timeFactor = reducedMotion ? 0.2 : 1;
 
     if (groupRef.current && !reducedMotion) {
-      groupRef.current.rotation.y += delta * 0.06 * safeSpeed * motion.swirlSpeed;
-      groupRef.current.rotation.z += delta * 0.04 * safeSpeed * motion.swirlSpeed;
+      groupRef.current.rotation.y += delta * 0.044 * safeSpeed * motion.swirlSpeed;
+      groupRef.current.rotation.z += delta * 0.030 * safeSpeed * motion.swirlSpeed;
     }
 
     materials.forEach((material, index) => {
@@ -284,13 +363,18 @@ export default function VortexCore({
       const layer = layerConfigs[index];
       const breath =
         1 +
-        Math.sin(elapsed * (1.0 + index * 0.18) * safeSpeed) *
-          0.018 *
+        Math.sin(elapsed * (0.90 + index * 0.14) * safeSpeed) *
+          0.012 *
           motion.pulse;
 
       if (!reducedMotion) {
-        mesh.rotation.y += delta * 0.03 * safeSpeed * layer.speed;
-        mesh.rotation.z += delta * 0.05 * safeSpeed * layer.speed * (index % 2 === 0 ? 1 : -1);
+        mesh.rotation.y += delta * 0.020 * safeSpeed * layer.speed;
+        mesh.rotation.z +=
+          delta *
+          0.032 *
+          safeSpeed *
+          layer.speed *
+          (index % 2 === 0 ? 1 : -1);
       }
 
       mesh.scale.setScalar(layer.scale * breath);
@@ -298,20 +382,8 @@ export default function VortexCore({
 
     if (coreGlowRef.current) {
       const glowScale =
-        1.06 + Math.sin(elapsed * 2.15 * safeSpeed) * 0.12 * motion.pulse;
+        1.01 + Math.sin(elapsed * 1.6 * safeSpeed) * 0.045 * motion.pulse;
       coreGlowRef.current.scale.setScalar(glowScale);
-    }
-
-    if (eyeRef.current) {
-      const eyeScale =
-        1 + Math.sin(elapsed * 1.55 * safeSpeed) * 0.028 * motion.pulse;
-      eyeRef.current.scale.setScalar(eyeScale);
-    }
-
-    if (coreRef.current) {
-      const coreScale =
-        1 + Math.sin(elapsed * 2.95 * safeSpeed) * 0.08 * motion.pulse;
-      coreRef.current.scale.setScalar(coreScale);
     }
   });
 
@@ -329,36 +401,15 @@ export default function VortexCore({
         </mesh>
       ))}
 
-      <mesh ref={eyeRef}>
-        <sphereGeometry args={[0.17, 28, 28]} />
-        <meshBasicMaterial
-          color="#07101d"
-          transparent
-          opacity={0.86}
-          depthWrite={false}
-        />
-      </mesh>
-
       <mesh ref={coreGlowRef}>
-        <sphereGeometry args={[0.26, 28, 28]} />
+        <sphereGeometry args={[0.10, 20, 20]} />
         <meshBasicMaterial
           color={colors.halo}
           transparent
-          opacity={0.28 * glowBoost}
+          opacity={0.05 * glowBoost}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
-        />
-      </mesh>
-
-      <mesh ref={coreRef}>
-        <sphereGeometry args={[0.09, 32, 32]} />
-        <meshStandardMaterial
-          color={colors.white}
-          emissive={colors.accent}
-          emissiveIntensity={3.5 * glowBoost}
-          roughness={0.08}
-          metalness={0.02}
         />
       </mesh>
     </group>
