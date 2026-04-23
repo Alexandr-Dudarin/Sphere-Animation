@@ -29,11 +29,9 @@ interface MotionSettings {
 }
 
 interface LayerConfig {
-  z: number;
   scale: number;
   opacity: number;
   speed: number;
-  direction: 1 | -1;
   twist: number;
   intensity: number;
   colorA: THREE.Color;
@@ -48,7 +46,7 @@ const modeSettings: Record<SphereMode, MotionSettings> = {
   },
   thinking: {
     swirlSpeed: 1,
-    pulse: 0.88,
+    pulse: 0.9,
   },
   searching: {
     swirlSpeed: 1.24,
@@ -59,26 +57,29 @@ const modeSettings: Record<SphereMode, MotionSettings> = {
 const glowBoostMap: Record<GlowIntensity, number> = {
   low: 0.82,
   medium: 1,
-  high: 1.2,
+  high: 1.22,
 };
 
-const circleSegmentsMap: Record<SphereQuality, number> = {
-  low: 96,
-  medium: 128,
-  high: 192,
+const segmentMap: Record<SphereQuality, number> = {
+  low: 72,
+  medium: 112,
+  high: 160,
 };
 
 const vertexShader = `
   varying vec2 vUv;
+  varying vec3 vNormalW;
 
   void main() {
     vUv = uv;
+    vNormalW = normalize(normalMatrix * normal);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
 const fragmentShader = `
   varying vec2 vUv;
+  varying vec3 vNormalW;
 
   uniform float uTime;
   uniform float uOpacity;
@@ -90,7 +91,7 @@ const fragmentShader = `
 
   float ringBand(float r, float center, float width) {
     float d = abs(r - center);
-    return 1.0 - smoothstep(width, width * 1.8, d);
+    return 1.0 - smoothstep(width, width * 1.9, d);
   }
 
   void main() {
@@ -101,44 +102,57 @@ const fragmentShader = `
     float a = atan(uv.y, uv.x);
     float t = uTime;
 
-    float phaseA = a * (4.0 + uTwist * 0.6) - t * (1.4 + uTwist * 0.2);
-    float phaseB = a * (7.0 + uTwist * 0.8) + t * (1.1 + uTwist * 0.22);
+    float flowA = sin(a * (4.0 + uTwist * 0.45) - r * (10.0 + uTwist * 1.8) + t * (1.5 + uTwist * 0.18));
+    float flowB = sin(a * (8.5 + uTwist * 0.6) + r * (8.0 + uTwist * 0.8) - t * (2.2 + uTwist * 0.22));
+    float flowC = sin(a * 13.0 - r * 18.0 + t * 1.15);
 
-    float ring1Center = 0.56 + 0.05 * sin(phaseA + r * 8.0);
-    float ring2Center = 0.36 + 0.045 * sin(phaseB - r * 10.0);
-    float ring3Center = 0.2 + 0.03 * sin(phaseA * 1.4 + phaseB * 0.5);
+    float bandOuter = ringBand(r, 0.72 + 0.035 * flowA, 0.07);
+    float bandMid   = ringBand(r, 0.50 + 0.035 * flowB, 0.055);
+    float bandInner = ringBand(r, 0.30 + 0.025 * flowC, 0.04);
+    float bandCore  = ringBand(r, 0.16 + 0.018 * flowA, 0.028);
 
-    float ring1 = ringBand(r, ring1Center, 0.055);
-    float ring2 = ringBand(r, ring2Center, 0.045);
-    float ring3 = ringBand(r, ring3Center, 0.038);
+    float edgeBand  = ringBand(r, 0.88 + 0.018 * sin(a * 7.0 + t * 0.9), 0.035);
 
-    float ribbon1 = 0.5 + 0.5 * sin(a * 8.0 - r * 18.0 - t * (2.2 + uTwist * 0.18));
-    float ribbon2 = 0.5 + 0.5 * sin(a * 11.0 + r * 14.0 + t * (1.7 + uTwist * 0.15));
+    float ribbon1 = 0.5 + 0.5 * sin(a * 7.0 - r * 15.0 - t * (1.9 + uTwist * 0.14));
+    float ribbon2 = 0.5 + 0.5 * sin(a * 10.0 + r * 12.0 + t * (1.45 + uTwist * 0.12));
+    float ribbon3 = 0.5 + 0.5 * sin(a * 5.0 - r * 8.0 + t * 0.9);
+
+    float fill = smoothstep(0.18, 0.96, ribbon1 * 0.42 + ribbon2 * 0.38 + ribbon3 * 0.2);
 
     float structure =
-      ring1 * mix(0.45, 1.0, ribbon1) +
-      ring2 * mix(0.38, 0.95, ribbon2) +
-      ring3 * mix(0.32, 0.88, ribbon1);
+      bandOuter * mix(0.4, 1.0, ribbon1) +
+      bandMid   * mix(0.36, 0.92, ribbon2) +
+      bandInner * mix(0.3, 0.88, ribbon3) +
+      bandCore  * 0.6 +
+      edgeBand  * 0.28 +
+      fill      * 0.12;
 
-    float outerFade = 1.0 - smoothstep(0.86, 1.0, r);
-    float innerHole = smoothstep(0.02, 0.09, r);
-    float centerGlow = 1.0 - smoothstep(0.0, 0.16, r);
+    float outerFade = 1.0 - smoothstep(0.98, 1.03, r);
+    float innerHole = smoothstep(0.01, 0.05, r);
+    float centerGlow = 1.0 - smoothstep(0.0, 0.14, r);
+
+    float fresnel = pow(1.0 - abs(vNormalW.z), 1.9);
 
     float alpha = structure * outerFade * innerHole * uOpacity;
-    alpha += centerGlow * 0.16 * uOpacity * uIntensity;
+    alpha += edgeBand * 0.08 * uOpacity * uIntensity;
+    alpha += centerGlow * 0.12 * uOpacity * uIntensity;
 
     vec3 color = mix(uColorA, uColorB, smoothstep(0.2, 0.95, ribbon1));
-    color = mix(color, uColorC, smoothstep(0.3, 0.95, ribbon2));
-    color += uColorA * ring1 * 0.25 * uIntensity;
-    color += uColorB * ring2 * 0.28 * uIntensity;
-    color += uColorC * ring3 * 0.22 * uIntensity;
-    color += vec3(1.0) * centerGlow * 0.06 * uIntensity;
+    color = mix(color, uColorC, smoothstep(0.24, 0.95, ribbon2));
+
+    color += uColorA * bandOuter * 0.22 * uIntensity;
+    color += uColorB * bandMid   * 0.28 * uIntensity;
+    color += uColorC * bandInner * 0.24 * uIntensity;
+    color += uColorA * edgeBand  * 0.16 * uIntensity;
+    color += uColorB * bandCore  * 0.34 * uIntensity;
+    color += uColorA * fresnel   * 0.06 * uIntensity;
+    color += vec3(1.0) * centerGlow * 0.05 * uIntensity;
 
     gl_FragColor = vec4(color, alpha);
   }
 `;
 
-function createVortexMaterial(config: {
+function createSphereMaterial(config: {
   opacity: number;
   twist: number;
   intensity: number;
@@ -149,7 +163,7 @@ function createVortexMaterial(config: {
   return new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    side: THREE.DoubleSide,
+    side: THREE.FrontSide,
     blending: THREE.AdditiveBlending,
     toneMapped: false,
     uniforms: {
@@ -175,50 +189,54 @@ export default function VortexCore({
   reducedMotion,
 }: VortexCoreProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const layerRefs = useRef<Array<THREE.Mesh | null>>([]);
-  const coreRef = useRef<THREE.Mesh>(null);
+  const shellRefs = useRef<Array<THREE.Mesh | null>>([]);
   const coreGlowRef = useRef<THREE.Mesh>(null);
   const eyeRef = useRef<THREE.Mesh>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
 
   const motion = modeSettings[mode];
-  const safeSpeed = Math.max(speed, 0.15);
   const glowBoost = glowBoostMap[glowIntensity];
-  const circleSegments = circleSegmentsMap[quality];
+  const safeSpeed = Math.max(speed, 0.15);
+  const segments = segmentMap[quality];
 
   const layerConfigs = useMemo<LayerConfig[]>(() => {
     return [
       {
-        z: -0.14,
-        scale: 1.18,
-        opacity: 0.28 * glowBoost,
-        speed: 0.92,
-        direction: 1,
-        twist: 0.9,
-        intensity: 1.02,
+        scale: 1.08,
+        opacity: 0.16 * glowBoost,
+        speed: 0.7,
+        twist: 0.62,
+        intensity: 0.86,
+        colorA: colors.halo,
+        colorB: colors.accent,
+        colorC: colors.violet,
+      },
+      {
+        scale: 0.98,
+        opacity: 0.2 * glowBoost,
+        speed: 0.96,
+        twist: 0.95,
+        intensity: 1.0,
         colorA: colors.halo,
         colorB: colors.accent,
         colorC: colors.mint,
       },
       {
-        z: 0,
-        scale: 0.92,
-        opacity: 0.26 * glowBoost,
-        speed: 1.18,
-        direction: -1,
-        twist: 1.32,
-        intensity: 1.16,
+        scale: 0.84,
+        opacity: 0.18 * glowBoost,
+        speed: 1.22,
+        twist: 1.34,
+        intensity: 1.12,
         colorA: colors.violet,
         colorB: colors.halo,
         colorC: colors.pink,
       },
       {
-        z: 0.12,
-        scale: 0.68,
-        opacity: 0.24 * glowBoost,
-        speed: 1.46,
-        direction: 1,
+        scale: 0.7,
+        opacity: 0.16 * glowBoost,
+        speed: 1.52,
         twist: 1.76,
-        intensity: 1.26,
+        intensity: 1.2,
         colorA: colors.pink,
         colorB: colors.accent,
         colorC: colors.violet,
@@ -228,7 +246,7 @@ export default function VortexCore({
 
   const materials = useMemo(() => {
     return layerConfigs.map((layer) =>
-      createVortexMaterial({
+      createSphereMaterial({
         opacity: layer.opacity,
         twist: layer.twist,
         intensity: layer.intensity,
@@ -250,8 +268,8 @@ export default function VortexCore({
     const timeFactor = reducedMotion ? 0.2 : 1;
 
     if (groupRef.current && !reducedMotion) {
-      groupRef.current.rotation.z += delta * 0.12 * safeSpeed * motion.swirlSpeed;
-      groupRef.current.rotation.y += delta * 0.08 * safeSpeed * motion.swirlSpeed;
+      groupRef.current.rotation.y += delta * 0.06 * safeSpeed * motion.swirlSpeed;
+      groupRef.current.rotation.z += delta * 0.04 * safeSpeed * motion.swirlSpeed;
     }
 
     materials.forEach((material, index) => {
@@ -260,29 +278,19 @@ export default function VortexCore({
         elapsed * safeSpeed * layer.speed * timeFactor;
     });
 
-    layerRefs.current.forEach((mesh, index) => {
+    shellRefs.current.forEach((mesh, index) => {
       if (!mesh) return;
 
       const layer = layerConfigs[index];
       const breath =
         1 +
-        Math.sin(elapsed * (1.1 + index * 0.16) * safeSpeed) *
-          0.024 *
+        Math.sin(elapsed * (1.0 + index * 0.18) * safeSpeed) *
+          0.018 *
           motion.pulse;
 
       if (!reducedMotion) {
-        mesh.rotation.z +=
-          delta *
-          layer.speed *
-          safeSpeed *
-          motion.swirlSpeed *
-          layer.direction;
-
-        mesh.rotation.x = Math.sin(elapsed * 0.34 + index * 0.6) * 0.04;
-        mesh.rotation.y = Math.cos(elapsed * 0.3 + index * 0.52) * 0.04;
-
-        mesh.position.z =
-          layer.z + Math.sin(elapsed * (0.64 + index * 0.12)) * 0.008;
+        mesh.rotation.y += delta * 0.03 * safeSpeed * layer.speed;
+        mesh.rotation.z += delta * 0.05 * safeSpeed * layer.speed * (index % 2 === 0 ? 1 : -1);
       }
 
       mesh.scale.setScalar(layer.scale * breath);
@@ -290,20 +298,20 @@ export default function VortexCore({
 
     if (coreGlowRef.current) {
       const glowScale =
-        1.08 + Math.sin(elapsed * 2.3 * safeSpeed) * 0.14 * motion.pulse;
+        1.06 + Math.sin(elapsed * 2.15 * safeSpeed) * 0.12 * motion.pulse;
       coreGlowRef.current.scale.setScalar(glowScale);
-    }
-
-    if (coreRef.current) {
-      const coreScale =
-        1 + Math.sin(elapsed * 3.1 * safeSpeed) * 0.09 * motion.pulse;
-      coreRef.current.scale.setScalar(coreScale);
     }
 
     if (eyeRef.current) {
       const eyeScale =
-        1 + Math.sin(elapsed * 1.6 * safeSpeed) * 0.035 * motion.pulse;
+        1 + Math.sin(elapsed * 1.55 * safeSpeed) * 0.028 * motion.pulse;
       eyeRef.current.scale.setScalar(eyeScale);
+    }
+
+    if (coreRef.current) {
+      const coreScale =
+        1 + Math.sin(elapsed * 2.95 * safeSpeed) * 0.08 * motion.pulse;
+      coreRef.current.scale.setScalar(coreScale);
     }
   });
 
@@ -311,34 +319,32 @@ export default function VortexCore({
     <group ref={groupRef}>
       {layerConfigs.map((layer, index) => (
         <mesh
-          key={`shader-layer-${index}`}
+          key={`sphere-layer-${index}`}
           ref={(mesh) => {
-            layerRefs.current[index] = mesh;
+            shellRefs.current[index] = mesh;
           }}
-          position={[0, 0, layer.z]}
-          scale={layer.scale}
         >
-          <circleGeometry args={[1, circleSegments]} />
+          <sphereGeometry args={[0.98, segments, segments]} />
           <primitive object={materials[index]} attach="material" />
         </mesh>
       ))}
 
       <mesh ref={eyeRef}>
-        <sphereGeometry args={[0.18, 28, 28]} />
+        <sphereGeometry args={[0.17, 28, 28]} />
         <meshBasicMaterial
           color="#07101d"
           transparent
-          opacity={0.88}
+          opacity={0.86}
           depthWrite={false}
         />
       </mesh>
 
       <mesh ref={coreGlowRef}>
-        <sphereGeometry args={[0.28, 28, 28]} />
+        <sphereGeometry args={[0.26, 28, 28]} />
         <meshBasicMaterial
           color={colors.halo}
           transparent
-          opacity={0.3 * glowBoost}
+          opacity={0.28 * glowBoost}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}

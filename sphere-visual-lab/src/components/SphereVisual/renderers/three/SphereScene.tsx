@@ -91,11 +91,11 @@ export default function SphereScene({
 
       <group ref={rootRef}>
         <mesh>
-          <sphereGeometry args={[1.42, 40, 40]} />
+          <sphereGeometry args={[1.18, 40, 40]} />
           <meshBasicMaterial
             color={colors.halo}
             transparent
-            opacity={0.04}
+            opacity={0.01}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.BackSide}
