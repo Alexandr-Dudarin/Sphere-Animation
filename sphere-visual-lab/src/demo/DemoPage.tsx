@@ -63,6 +63,7 @@ export default function DemoPage() {
           <div className="panel previewPanel">
             <div className="previewStage">
               <SphereVisual
+                renderer="three"
                 size={size}
                 mode={mode}
                 preset={preset}
