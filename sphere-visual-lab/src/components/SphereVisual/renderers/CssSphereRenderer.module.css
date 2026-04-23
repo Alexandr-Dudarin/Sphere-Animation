@@ -3,29 +3,36 @@
   --accent-rgb: 68 181 255;
   --halo-rgb: 173 244 255;
   --ring-rgb: 91 143 255;
+  --violet-rgb: 132 111 255;
+  --pink-rgb: 233 116 255;
+  --mint-rgb: 108 255 223;
+  --amber-rgb: 255 196 112;
   --noise-opacity: 0.1;
   --pointer-x: 0;
   --pointer-y: 0;
-  --rotation-duration: 12s;
-  --pulse-duration: 5s;
-  --orbit-opacity: 0.42;
-  --halo-opacity: 0.8;
-  --glow-blur: 44px;
+  --swirl-duration: 12s;
+  --counter-duration: 18s;
+  --micro-duration: 8s;
+  --breath-duration: 5s;
+  --detail-blur: 12px;
+  --shell-opacity: 0.88;
+  --glow-alpha: 0.88;
+  --flare-x: 50%;
+  --flare-y: 22%;
 
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 86%;
+  aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
   isolation: isolate;
   transform-style: preserve-3d;
   will-change: transform;
   transform:
-    perspective(1400px)
-    rotateX(calc(var(--pointer-y) * -16deg))
-    rotateY(calc(var(--pointer-x) * 18deg))
-    scale(1.02);
-  transition: transform 120ms linear;
+    perspective(1700px)
+    rotateX(calc(var(--pointer-y) * -14deg))
+    rotateY(calc(var(--pointer-x) * 16deg));
+  transition: transform 140ms linear;
 }
 
 .reducedMotion {
@@ -38,187 +45,500 @@
   transition: none !important;
 }
 
-.glow,
-.halo,
-.orbit,
-.core,
-.spark {
+.backMist,
+.outerGlow,
+.vortexZone,
+.swirlA,
+.swirlB,
+.swirlC,
+.swirlD,
+.chromaBand,
+.tunnelGlow,
+.texture,
+.centerEye,
+.centerCore,
+.glassShell,
+.shellInner,
+.glassHalo,
+.refraction,
+.frontCaustic,
+.specular,
+.frontRim {
   position: absolute;
   border-radius: 50%;
 }
 
-.glow {
-  inset: 8%;
+.backMist {
+  inset: -6%;
   background:
     radial-gradient(
       circle,
-      rgb(var(--accent-rgb) / 0.62) 0%,
-      rgb(var(--halo-rgb) / 0.24) 32%,
-      transparent 72%
+      rgb(var(--accent-rgb) / calc(0.14 * var(--glow-alpha))) 0%,
+      rgb(var(--halo-rgb) / calc(0.08 * var(--glow-alpha))) 34%,
+      transparent 74%
     );
-  filter: blur(var(--glow-blur));
-  opacity: var(--halo-opacity);
-  animation: glowPulse var(--pulse-duration) ease-in-out infinite;
+  filter: blur(42px);
+  opacity: 0.84;
+  animation: backMistPulse var(--breath-duration) ease-in-out infinite;
 }
 
-.halo {
-  inset: 13%;
-  border: 1px solid rgb(var(--ring-rgb) / 0.24);
-  box-shadow:
-    0 0 34px rgb(var(--halo-rgb) / 0.24),
-    inset 0 0 30px rgb(var(--halo-rgb) / 0.12);
-  opacity: calc(var(--orbit-opacity) + 0.22);
-  animation: haloBreathe calc(var(--pulse-duration) * 1.15) ease-in-out infinite;
+.outerGlow {
+  inset: 6%;
+  background:
+    radial-gradient(
+      circle,
+      rgb(var(--halo-rgb) / calc(0.08 * var(--glow-alpha))) 0%,
+      transparent 68%
+    );
+  filter: blur(26px);
+  opacity: 0.74;
+  animation: outerGlowPulse calc(var(--breath-duration) * 1.1) ease-in-out infinite;
 }
 
-.orbit {
+.vortexZone {
   inset: 18%;
-  border: 1px solid rgb(var(--ring-rgb) / 0.22);
-  border-top-color: rgb(var(--accent-rgb) / 0.94);
-  border-right-color: rgb(var(--halo-rgb) / 0.66);
-  opacity: var(--orbit-opacity);
-  animation: orbitSpin var(--rotation-duration) linear infinite;
-}
-
-.orbit::before,
-.orbit::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-}
-
-.orbit::before {
-  border: 1px solid rgb(var(--ring-rgb) / 0.14);
-  transform: rotate(62deg) scale(1.08);
-}
-
-.orbit::after {
-  border: 1px solid rgb(var(--halo-rgb) / 0.14);
-  transform: rotate(-38deg) scale(0.92);
-}
-
-.core {
-  inset: 22%;
   overflow: hidden;
   background:
     radial-gradient(
-      circle at 34% 26%,
-      rgb(255 255 255 / 0.98),
-      rgb(255 255 255 / 0.42) 12%,
-      transparent 24%
+      circle at 50% 50%,
+      rgb(8 11 26 / 0.12) 0%,
+      rgb(8 12 30 / 0.36) 38%,
+      rgb(6 9 20 / 0.72) 100%
+    );
+  box-shadow:
+    inset 0 0 34px rgb(255 255 255 / 0.04),
+    inset 0 -12px 30px rgb(0 0 0 / 0.24);
+}
+
+.swirlA,
+.swirlB,
+.swirlC,
+.swirlD,
+.chromaBand {
+  mix-blend-mode: screen;
+  filter: blur(var(--detail-blur)) saturate(1.2);
+  transform-origin: center;
+}
+
+.swirlA {
+  inset: -6%;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgb(var(--halo-rgb) / 0.96) 18deg,
+      transparent 50deg,
+      rgb(var(--accent-rgb) / 0.92) 104deg,
+      transparent 144deg,
+      rgb(var(--violet-rgb) / 0.94) 188deg,
+      transparent 240deg,
+      rgb(var(--pink-rgb) / 0.9) 296deg,
+      transparent 342deg,
+      rgb(var(--halo-rgb) / 0.96) 360deg
+    );
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 0 14%,
+    #000 22% 80%,
+    transparent 90%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    transparent 0 14%,
+    #000 22% 80%,
+    transparent 90%
+  );
+  animation: swirlSpin var(--swirl-duration) linear infinite;
+}
+
+.swirlB {
+  inset: 3%;
+  background:
+    conic-gradient(
+      from 36deg,
+      transparent 0deg,
+      rgb(var(--mint-rgb) / 0.8) 30deg,
+      transparent 76deg,
+      rgb(var(--halo-rgb) / 0.72) 126deg,
+      transparent 184deg,
+      rgb(var(--violet-rgb) / 0.86) 238deg,
+      transparent 296deg,
+      rgb(var(--accent-rgb) / 0.78) 340deg,
+      transparent 360deg
+    );
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 0 18%,
+    #000 28% 72%,
+    transparent 84%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    transparent 0 18%,
+    #000 28% 72%,
+    transparent 84%
+  );
+  transform: scale(1.08);
+  animation: swirlSpinReverse var(--counter-duration) linear infinite;
+}
+
+.swirlC {
+  inset: 8%;
+  background:
+    conic-gradient(
+      from 130deg,
+      transparent 0deg,
+      rgb(var(--pink-rgb) / 0.92) 24deg,
+      transparent 68deg,
+      rgb(var(--halo-rgb) / 0.82) 118deg,
+      transparent 178deg,
+      rgb(var(--accent-rgb) / 0.84) 236deg,
+      transparent 298deg,
+      rgb(var(--mint-rgb) / 0.8) 336deg,
+      transparent 360deg
+    );
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 0 10%,
+    #000 24% 64%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    transparent 0 10%,
+    #000 24% 64%,
+    transparent 78%
+  );
+  animation:
+    swirlSpin calc(var(--swirl-duration) * 0.86) linear infinite,
+    swirlBreathe calc(var(--breath-duration) * 1.1) ease-in-out infinite;
+}
+
+.swirlD {
+  inset: 16%;
+  background:
+    conic-gradient(
+      from 70deg,
+      transparent 0deg,
+      rgb(var(--amber-rgb) / 0.42) 20deg,
+      transparent 54deg,
+      rgb(var(--halo-rgb) / 0.56) 112deg,
+      transparent 170deg,
+      rgb(var(--pink-rgb) / 0.48) 232deg,
+      transparent 304deg,
+      rgb(var(--accent-rgb) / 0.42) 346deg,
+      transparent 360deg
+    );
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 0 20%,
+    #000 34% 60%,
+    transparent 76%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    transparent 0 20%,
+    #000 34% 60%,
+    transparent 76%
+  );
+  animation: microSpin var(--micro-duration) linear infinite;
+}
+
+.chromaBand {
+  inset: 10%;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0 20%,
+      rgb(var(--halo-rgb) / 0.14) 34%,
+      transparent 44%
+    ),
+    conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgb(var(--halo-rgb) / 0.16) 40deg,
+      transparent 88deg,
+      rgb(var(--violet-rgb) / 0.18) 138deg,
+      transparent 208deg,
+      rgb(var(--pink-rgb) / 0.16) 272deg,
+      transparent 332deg,
+      rgb(var(--mint-rgb) / 0.16) 360deg
+    );
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 0 16%,
+    #000 28% 74%,
+    transparent 84%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    transparent 0 16%,
+    #000 28% 74%,
+    transparent 84%
+  );
+  animation:
+    swirlSpinReverse calc(var(--counter-duration) * 0.82) linear infinite,
+    chromaPulse calc(var(--breath-duration) * 0.92) ease-in-out infinite;
+}
+
+.tunnelGlow {
+  inset: 14%;
+  background:
+    radial-gradient(
+      circle,
+      rgb(var(--halo-rgb) / 0.22) 0%,
+      rgb(var(--accent-rgb) / 0.12) 34%,
+      rgb(var(--violet-rgb) / 0.08) 50%,
+      transparent 74%
+    );
+  filter: blur(18px);
+  animation: tunnelPulse calc(var(--breath-duration) * 0.92) ease-in-out infinite;
+}
+
+.texture {
+  inset: 0;
+  background-image:
+    radial-gradient(rgb(255 255 255 / 0.11) 0.65px, transparent 0.65px);
+  background-size: 8px 8px;
+  mix-blend-mode: soft-light;
+  opacity: var(--noise-opacity);
+  animation: textureDrift calc(var(--counter-duration) * 1.08) linear infinite;
+}
+
+.centerEye {
+  inset: 34%;
+  background:
+    radial-gradient(
+      circle,
+      rgb(7 10 25 / 0.98) 0%,
+      rgb(10 15 34 / 0.98) 48%,
+      rgb(var(--halo-rgb) / 0.42) 70%,
+      rgb(var(--accent-rgb) / 0.2) 82%,
+      transparent 100%
+    );
+  box-shadow:
+    0 0 22px rgb(var(--halo-rgb) / 0.22),
+    inset 0 0 18px rgb(255 255 255 / 0.06);
+  animation: eyeBreathe calc(var(--breath-duration) * 0.88) ease-in-out infinite;
+}
+
+.centerCore {
+  inset: 43%;
+  background:
+    radial-gradient(
+      circle,
+      rgb(255 255 255 / 1) 0%,
+      rgb(var(--halo-rgb) / 0.98) 22%,
+      rgb(var(--accent-rgb) / 0.94) 48%,
+      rgb(var(--violet-rgb) / 0.54) 72%,
+      transparent 100%
+    );
+  box-shadow:
+    0 0 24px rgb(var(--halo-rgb) / 0.52),
+    0 0 48px rgb(var(--accent-rgb) / 0.28);
+  animation: corePulse calc(var(--breath-duration) * 0.78) ease-in-out infinite;
+}
+
+.glassShell {
+  inset: 9%;
+  border: 1px solid rgb(255 255 255 / calc(0.18 * var(--shell-opacity)));
+  background:
+    radial-gradient(
+      circle at 30% 22%,
+      rgb(255 255 255 / 0.22),
+      transparent 20%
     ),
     radial-gradient(
       circle at 72% 72%,
-      rgb(var(--accent-rgb) / 0.42),
-      transparent 34%
+      rgb(var(--halo-rgb) / 0.09),
+      transparent 22%
     ),
     radial-gradient(
-      circle at 50% 46%,
-      rgb(var(--core-rgb) / 1) 0%,
-      rgb(10 18 46 / 0.98) 62%,
-      rgb(4 7 16 / 1) 100%
+      circle at 50% 50%,
+      transparent 58%,
+      rgb(255 255 255 / 0.035) 76%,
+      transparent 100%
     );
   box-shadow:
-    inset 0 0 55px rgb(255 255 255 / 0.09),
-    inset 0 -22px 34px rgb(0 0 0 / 0.38),
-    0 0 54px rgb(var(--accent-rgb) / 0.24);
-  animation:
-    coreFloat calc(var(--pulse-duration) * 1.1) ease-in-out infinite,
-    coreSpin calc(var(--rotation-duration) * 1.8) linear infinite;
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    inset 0 -18px 28px rgb(0 0 0 / 0.18),
+    0 0 28px rgb(var(--halo-rgb) / 0.08);
+  opacity: var(--shell-opacity);
 }
 
-.innerLight {
-  position: absolute;
-  inset: 7%;
-  border-radius: 50%;
+.shellInner {
+  inset: 14%;
+  border: 1px solid rgb(255 255 255 / 0.08);
   background:
     radial-gradient(
-      circle at 40% 34%,
-      rgb(255 255 255 / 0.76),
-      transparent 38%
-    );
-  mix-blend-mode: screen;
-  opacity: 0.92;
-  transform:
-    translate(
-      calc(var(--pointer-x) * 8%),
-      calc(var(--pointer-y) * 8%)
-    );
-}
-
-.highlight {
-  position: absolute;
-  inset: -2%;
-  border-radius: 50%;
-  background:
-    linear-gradient(140deg, rgb(255 255 255 / 0.24), transparent 38%),
+      circle at 34% 28%,
+      rgb(255 255 255 / 0.08),
+      transparent 18%
+    ),
     radial-gradient(
-      circle at 58% 40%,
-      transparent 0%,
-      transparent 54%,
-      rgb(var(--halo-rgb) / 0.16) 100%
+      circle at 66% 74%,
+      rgb(var(--accent-rgb) / 0.05),
+      transparent 22%
     );
-  opacity: 0.95;
-  transform:
-    translate(
-      calc(var(--pointer-x) * 10%),
-      calc(var(--pointer-y) * 10%)
-    )
-    rotate(calc(var(--pointer-x) * 10deg));
-}
-
-.noise {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background-image:
-    radial-gradient(rgb(255 255 255 / 0.09) 0.7px, transparent 0.7px);
-  background-size: 7px 7px;
-  mix-blend-mode: soft-light;
-  opacity: var(--noise-opacity);
-  animation: noiseDrift calc(var(--rotation-duration) * 1.4) linear infinite;
-}
-
-.spark {
-  inset: 26%;
-  background:
-    radial-gradient(
-      circle at 52% 52%,
-      rgb(var(--halo-rgb) / 0.34),
-      transparent 62%
-    );
-  filter: blur(14px);
-  animation: sparkShift calc(var(--rotation-duration) * 0.82) linear infinite;
-}
-
-.modeIdle .orbit {
-  opacity: 0.26;
-}
-
-.modeThinking .halo {
   box-shadow:
-    0 0 42px rgb(var(--halo-rgb) / 0.28),
-    inset 0 0 26px rgb(var(--halo-rgb) / 0.16);
+    inset 0 0 14px rgb(255 255 255 / 0.04),
+    inset 0 -10px 18px rgb(0 0 0 / 0.12);
+  opacity: 0.82;
 }
 
-.modeThinking .core {
+.glassHalo {
+  inset: 8%;
+  border: 1px solid rgb(var(--halo-rgb) / 0.12);
   box-shadow:
-    inset 0 0 60px rgb(255 255 255 / 0.1),
-    inset 0 -24px 34px rgb(0 0 0 / 0.4),
-    0 0 64px rgb(var(--accent-rgb) / 0.3);
+    0 0 24px rgb(var(--halo-rgb) / calc(0.16 * var(--glow-alpha))),
+    inset 0 0 15px rgb(var(--halo-rgb) / 0.08);
+  opacity: 0.86;
+  animation: shellBreathe calc(var(--breath-duration) * 1.06) ease-in-out infinite;
 }
 
-.modeSearching .orbit {
-  border-top-color: rgb(var(--halo-rgb) / 0.98);
-  border-right-color: rgb(var(--accent-rgb) / 0.94);
-}
-
-.modeSearching .spark {
+.refraction {
+  inset: 10%;
+  background:
+    radial-gradient(
+      circle at 70% 70%,
+      rgb(var(--accent-rgb) / 0.13),
+      transparent 16%
+    ),
+    radial-gradient(
+      circle at 26% 60%,
+      rgb(var(--pink-rgb) / 0.08),
+      transparent 16%
+    ),
+    radial-gradient(
+      circle at 62% 26%,
+      rgb(var(--mint-rgb) / 0.08),
+      transparent 14%
+    );
   filter: blur(16px);
+  opacity: 0.88;
+  animation: refractionShift calc(var(--counter-duration) * 0.92) ease-in-out infinite;
 }
 
-@keyframes orbitSpin {
+.frontCaustic {
+  inset: 15%;
+  background:
+    radial-gradient(
+      circle at 34% 38%,
+      rgb(var(--halo-rgb) / 0.16),
+      transparent 16%
+    ),
+    radial-gradient(
+      circle at 58% 30%,
+      rgb(var(--accent-rgb) / 0.14),
+      transparent 14%
+    ),
+    radial-gradient(
+      circle at 66% 54%,
+      rgb(var(--violet-rgb) / 0.12),
+      transparent 18%
+    );
+  filter: blur(12px);
+  mix-blend-mode: screen;
+  opacity: 0.72;
+  animation: causticShift calc(var(--micro-duration) * 1.2) ease-in-out infinite;
+}
+
+.specular {
+  inset: 10%;
+  background:
+    radial-gradient(
+      circle at var(--flare-x) var(--flare-y),
+      rgb(255 255 255 / 0.88),
+      rgb(255 255 255 / 0.38) 9%,
+      transparent 18%
+    ),
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 0.18),
+      transparent 34%
+    );
+  opacity: 0.9;
+  transform:
+    translate(
+      calc(var(--pointer-x) * 5%),
+      calc(var(--pointer-y) * 5%)
+    );
+}
+
+.frontRim {
+  inset: 9%;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.04),
+    inset 0 0 0 1px rgb(255 255 255 / 0.03);
+  opacity: 0.9;
+}
+
+/* MODE TUNING */
+
+.modeIdle .swirlA,
+.modeIdle .swirlB,
+.modeIdle .swirlC,
+.modeIdle .swirlD,
+.modeIdle .chromaBand {
+  opacity: 0.72;
+}
+
+.modeIdle .centerCore {
+  opacity: 0.82;
+}
+
+.modeIdle .outerGlow {
+  opacity: 0.62;
+}
+
+.modeThinking .swirlA,
+.modeThinking .swirlB,
+.modeThinking .swirlC,
+.modeThinking .swirlD,
+.modeThinking .chromaBand {
+  opacity: 1;
+}
+
+.modeThinking .centerCore {
+  box-shadow:
+    0 0 28px rgb(var(--halo-rgb) / 0.58),
+    0 0 56px rgb(var(--accent-rgb) / 0.34);
+}
+
+.modeThinking .glassHalo {
+  box-shadow:
+    0 0 28px rgb(var(--halo-rgb) / calc(0.18 * var(--glow-alpha))),
+    inset 0 0 16px rgb(var(--halo-rgb) / 0.1);
+}
+
+.modeSearching .swirlA,
+.modeSearching .swirlB,
+.modeSearching .swirlC,
+.modeSearching .swirlD,
+.modeSearching .chromaBand {
+  filter: blur(calc(var(--detail-blur) - 2px)) saturate(1.28);
+}
+
+.modeSearching .glassHalo {
+  box-shadow:
+    0 0 30px rgb(var(--halo-rgb) / calc(0.22 * var(--glow-alpha))),
+    inset 0 0 18px rgb(var(--halo-rgb) / 0.12);
+}
+
+.modeSearching .centerCore {
+  box-shadow:
+    0 0 30px rgb(var(--halo-rgb) / 0.62),
+    0 0 60px rgb(var(--accent-rgb) / 0.42);
+}
+
+.modeSearching .outerGlow {
+  opacity: 0.9;
+}
+
+/* ANIMATIONS */
+
+@keyframes swirlSpin {
   from {
     transform: rotate(0deg) scale(1);
   }
@@ -227,63 +547,85 @@
   }
 }
 
-@keyframes glowPulse {
-  0%,
-  100% {
-    transform: scale(0.95);
-    opacity: calc(var(--halo-opacity) * 0.82);
+@keyframes swirlSpinReverse {
+  from {
+    transform: rotate(36deg) scale(1.08);
   }
-  50% {
-    transform: scale(1.08);
-    opacity: var(--halo-opacity);
+  to {
+    transform: rotate(-324deg) scale(1.08);
   }
 }
 
-@keyframes haloBreathe {
+@keyframes microSpin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1.02);
+  }
+}
+
+@keyframes swirlBreathe {
   0%,
   100% {
-    transform: scale(0.98);
+    transform: scale(1);
+    opacity: 0.82;
   }
   50% {
     transform: scale(1.05);
+    opacity: 1;
   }
 }
 
-@keyframes coreFloat {
+@keyframes chromaPulse {
   0%,
   100% {
-    transform: translateY(0) scale(1);
+    opacity: 0.58;
+    transform: scale(0.98);
   }
   50% {
-    transform: translateY(-1.8%) scale(1.03);
+    opacity: 0.84;
+    transform: scale(1.03);
   }
 }
 
-@keyframes coreSpin {
-  from {
-    rotate: 0deg;
-  }
-  to {
-    rotate: 360deg;
-  }
-}
-
-@keyframes sparkShift {
-  0% {
-    transform: translate(-10%, -6%) scale(0.9);
-    opacity: 0.38;
+@keyframes backMistPulse {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.72;
   }
   50% {
-    transform: translate(10%, 8%) scale(1.1);
+    transform: scale(1.06);
     opacity: 0.96;
   }
+}
+
+@keyframes outerGlowPulse {
+  0%,
   100% {
-    transform: translate(-10%, -6%) scale(0.9);
-    opacity: 0.38;
+    transform: scale(0.98);
+    opacity: 0.62;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.82;
   }
 }
 
-@keyframes noiseDrift {
+@keyframes tunnelPulse {
+  0%,
+  100% {
+    transform: scale(0.94);
+    opacity: 0.48;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.88;
+  }
+}
+
+@keyframes textureDrift {
   from {
     transform: translate(0, 0);
   }
@@ -292,5 +634,63 @@
   }
   to {
     transform: translate(0, 0);
+  }
+}
+
+@keyframes eyeBreathe {
+  0%,
+  100% {
+    transform: scale(0.96);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes corePulse {
+  0%,
+  100% {
+    transform: scale(0.94);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes shellBreathe {
+  0%,
+  100% {
+    transform: scale(0.995);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.012);
+    opacity: 0.98;
+  }
+}
+
+@keyframes refractionShift {
+  0%,
+  100% {
+    transform: translate(-1%, 0) scale(1);
+    opacity: 0.74;
+  }
+  50% {
+    transform: translate(1.5%, -1.5%) scale(1.03);
+    opacity: 0.94;
+  }
+}
+
+@keyframes causticShift {
+  0%,
+  100% {
+    transform: translate(-3%, -2%) scale(0.98);
+    opacity: 0.54;
+  }
+  50% {
+    transform: translate(3%, 2%) scale(1.05);
+    opacity: 0.84;
   }
 }
