@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type {
   GlowIntensity,
@@ -26,20 +26,29 @@ interface MotionSettings {
   glow: number;
 }
 
+interface LayerConfig {
+  z: number;
+  scale: number;
+  opacity: number;
+  speed: number;
+  direction: 1 | -1;
+  texture: 'cyan' | 'violet' | 'pink' | 'mint' | 'halo';
+}
+
 const modeSettings: Record<SphereMode, MotionSettings> = {
   idle: {
-    swirlSpeed: 0.45,
-    pulse: 0.35,
+    swirlSpeed: 0.42,
+    pulse: 0.3,
     glow: 0.7,
   },
   thinking: {
     swirlSpeed: 1,
-    pulse: 0.75,
+    pulse: 0.82,
     glow: 1,
   },
   searching: {
-    swirlSpeed: 1.18,
-    pulse: 0.95,
+    swirlSpeed: 1.2,
+    pulse: 1,
     glow: 1.14,
   },
 };
@@ -51,9 +60,9 @@ const glowStrengthMap: Record<GlowIntensity, number> = {
 };
 
 const shellOpacityMap: Record<SphereQuality, number> = {
-  low: 0.08,
-  medium: 0.11,
-  high: 0.14,
+  low: 0.03,
+  medium: 0.045,
+  high: 0.06,
 };
 
 const segmentMap: Record<SphereQuality, number> = {
@@ -62,8 +71,182 @@ const segmentMap: Record<SphereQuality, number> = {
   high: 96,
 };
 
-function rgbStringToColor(value: string) {
+function rgbStringToCss(value: string) {
   return `rgb(${value.split(' ').join(', ')})`;
+}
+
+function createVortexTexture(options: {
+  size?: number;
+  primary: string;
+  secondary: string;
+  tertiary: string;
+  rotation?: number;
+  arms?: number;
+  turns?: number;
+  innerCut?: number;
+  outerFade?: number;
+  intensity?: number;
+}) {
+  const {
+    size = 1024,
+    primary,
+    secondary,
+    tertiary,
+    rotation = 0,
+    arms = 3,
+    turns = 3.2,
+    innerCut = 0.12,
+    outerFade = 0.9,
+    intensity = 1,
+  } = options;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    return new THREE.CanvasTexture(canvas);
+  }
+
+  const half = size / 2;
+  const radius = size * 0.48;
+
+  ctx.clearRect(0, 0, size, size);
+  ctx.translate(half, half);
+  ctx.rotate(rotation);
+
+  const conic = ctx.createConicGradient(0, 0, 0);
+  conic.addColorStop(0, 'rgba(0,0,0,0)');
+  conic.addColorStop(0.08, primary);
+  conic.addColorStop(0.18, 'rgba(0,0,0,0)');
+  conic.addColorStop(0.34, secondary);
+  conic.addColorStop(0.5, 'rgba(0,0,0,0)');
+  conic.addColorStop(0.66, tertiary);
+  conic.addColorStop(0.82, 'rgba(0,0,0,0)');
+  conic.addColorStop(0.94, primary);
+  conic.addColorStop(1, 'rgba(0,0,0,0)');
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.fillStyle = conic;
+  ctx.fill();
+
+  ctx.globalCompositeOperation = 'screen';
+
+  const spiralColors = [primary, secondary, tertiary];
+
+  for (let arm = 0; arm < arms; arm += 1) {
+    const baseOffset = (Math.PI * 2 * arm) / arms;
+
+    spiralColors.forEach((color, colorIndex) => {
+      ctx.beginPath();
+
+      for (let step = 0; step <= 260; step += 1) {
+        const progress = step / 260;
+        const angle =
+          progress * turns * Math.PI * 2 +
+          baseOffset +
+          colorIndex * 0.28;
+
+        const localRadius =
+          size * 0.06 + progress * radius * 0.86;
+
+        const wobble =
+          Math.sin(progress * 10 + arm * 1.2 + colorIndex) *
+          size *
+          0.008;
+
+        const ellipseY = 0.82 + colorIndex * 0.03;
+
+        const x = Math.cos(angle) * (localRadius + wobble);
+        const y =
+          Math.sin(angle) * (localRadius * ellipseY + wobble * 0.35);
+
+        if (step === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = (10 - colorIndex * 2) * intensity;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 28 * intensity;
+      ctx.globalAlpha = 0.42 - colorIndex * 0.08;
+      ctx.stroke();
+    });
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+  ctx.globalCompositeOperation = 'lighter';
+
+  const centerGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.18);
+  centerGlow.addColorStop(0, 'rgba(255,255,255,0.95)');
+  centerGlow.addColorStop(0.12, primary);
+  centerGlow.addColorStop(0.3, secondary);
+  centerGlow.addColorStop(0.62, 'rgba(0,0,0,0)');
+  ctx.beginPath();
+  ctx.arc(0, 0, size * 0.18, 0, Math.PI * 2);
+  ctx.fillStyle = centerGlow;
+  ctx.fill();
+
+  ctx.globalCompositeOperation = 'destination-in';
+  const mask = ctx.createRadialGradient(0, 0, size * innerCut, 0, 0, radius);
+  mask.addColorStop(0, 'rgba(0,0,0,0)');
+  mask.addColorStop(innerCut + 0.02, 'rgba(0,0,0,0.92)');
+  mask.addColorStop(0.62, 'rgba(0,0,0,0.72)');
+  mask.addColorStop(outerFade, 'rgba(0,0,0,0.08)');
+  mask.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.fillStyle = mask;
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+
+  return texture;
+}
+
+function createHaloTexture(color: string) {
+  const size = 1024;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    return new THREE.CanvasTexture(canvas);
+  }
+
+  const half = size / 2;
+  const radius = size * 0.47;
+
+  const gradient = ctx.createRadialGradient(half, half, size * 0.12, half, half, radius);
+  gradient.addColorStop(0, 'rgba(0,0,0,0)');
+  gradient.addColorStop(0.32, 'rgba(0,0,0,0)');
+  gradient.addColorStop(0.52, color);
+  gradient.addColorStop(0.72, 'rgba(0,0,0,0.08)');
+  gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+  ctx.beginPath();
+  ctx.arc(half, half, radius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+
+  return texture;
 }
 
 export default function SphereScene({
@@ -81,16 +264,10 @@ export default function SphereScene({
   const shellRef = useRef<THREE.Mesh>(null);
   const shellRimRef = useRef<THREE.Mesh>(null);
   const auraRef = useRef<THREE.Mesh>(null);
-
-  const vortexRootRef = useRef<THREE.Group>(null);
-  const ringARef = useRef<THREE.Mesh>(null);
-  const ringBRef = useRef<THREE.Mesh>(null);
-  const ringCRef = useRef<THREE.Mesh>(null);
-  const ringDRef = useRef<THREE.Mesh>(null);
-  const haloBandRef = useRef<THREE.Mesh>(null);
-  const knotRef = useRef<THREE.Mesh>(null);
-  const coreGlowRef = useRef<THREE.Mesh>(null);
   const coreRef = useRef<THREE.Mesh>(null);
+  const coreGlowRef = useRef<THREE.Mesh>(null);
+
+  const layerRefs = useRef<Array<THREE.Mesh | null>>([]);
 
   const motion = modeSettings[mode];
   const glowStrength = glowStrengthMap[glowIntensity];
@@ -98,35 +275,142 @@ export default function SphereScene({
   const segments = segmentMap[quality];
   const safeSpeed = Math.max(speed, 0.15);
 
-  const colors = useMemo(() => {
-    const core = rgbStringToColor(presetConfig.coreRgb);
-    const accent = rgbStringToColor(presetConfig.accentRgb);
-    const halo = rgbStringToColor(presetConfig.haloRgb);
-
+  const cssColors = useMemo(() => {
+    const accent = rgbStringToCss(presetConfig.accentRgb);
+    const halo = rgbStringToCss(presetConfig.haloRgb);
     const violet =
-      mode === 'searching' ? 'rgb(155, 120, 255)' : 'rgb(128, 104, 255)';
+      mode === 'searching' ? 'rgba(158, 122, 255, 0.95)' : 'rgba(128, 104, 255, 0.94)';
     const pink =
-      mode === 'searching' ? 'rgb(255, 98, 186)' : 'rgb(232, 118, 255)';
-    const mint = 'rgb(110, 255, 225)';
-    const amber = 'rgb(255, 196, 112)';
+      mode === 'searching' ? 'rgba(255, 96, 184, 0.95)' : 'rgba(232, 118, 255, 0.94)';
+    const mint = 'rgba(108, 255, 223, 0.9)';
 
     return {
-      core,
       accent,
       halo,
       violet,
       pink,
       mint,
-      amber,
     };
   }, [mode, presetConfig]);
+
+  const threeColors = useMemo(() => {
+    return {
+      halo: new THREE.Color(cssColors.halo),
+      accent: new THREE.Color(cssColors.accent),
+      violet: new THREE.Color(cssColors.violet),
+      pink: new THREE.Color(cssColors.pink),
+      mint: new THREE.Color(cssColors.mint),
+      white: new THREE.Color('#ffffff'),
+    };
+  }, [cssColors]);
+
+  const textures = useMemo(() => {
+    return {
+      cyan: createVortexTexture({
+        primary: cssColors.halo,
+        secondary: cssColors.accent,
+        tertiary: cssColors.mint,
+        rotation: 0,
+        arms: 3,
+        turns: 3.1,
+        innerCut: 0.1,
+        outerFade: 0.88,
+        intensity: 1,
+      }),
+      violet: createVortexTexture({
+        primary: cssColors.violet,
+        secondary: cssColors.halo,
+        tertiary: cssColors.pink,
+        rotation: 0.6,
+        arms: 3,
+        turns: 3.5,
+        innerCut: 0.14,
+        outerFade: 0.9,
+        intensity: 0.9,
+      }),
+      pink: createVortexTexture({
+        primary: cssColors.pink,
+        secondary: cssColors.accent,
+        tertiary: cssColors.violet,
+        rotation: -0.4,
+        arms: 2,
+        turns: 3,
+        innerCut: 0.18,
+        outerFade: 0.86,
+        intensity: 0.8,
+      }),
+      mint: createVortexTexture({
+        primary: cssColors.mint,
+        secondary: cssColors.halo,
+        tertiary: cssColors.accent,
+        rotation: 1,
+        arms: 2,
+        turns: 2.8,
+        innerCut: 0.2,
+        outerFade: 0.82,
+        intensity: 0.65,
+      }),
+      halo: createHaloTexture(cssColors.halo),
+    };
+  }, [cssColors]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(textures).forEach((texture) => texture.dispose());
+    };
+  }, [textures]);
+
+  const layerConfigs = useMemo<LayerConfig[]>(() => {
+    return [
+      {
+        z: -0.34,
+        scale: 1.18,
+        opacity: 0.18,
+        speed: 0.9,
+        direction: 1,
+        texture: 'cyan',
+      },
+      {
+        z: -0.18,
+        scale: 0.94,
+        opacity: 0.24,
+        speed: 1.15,
+        direction: -1,
+        texture: 'violet',
+      },
+      {
+        z: 0,
+        scale: 0.72,
+        opacity: 0.28,
+        speed: 1.45,
+        direction: 1,
+        texture: 'pink',
+      },
+      {
+        z: 0.14,
+        scale: 0.52,
+        opacity: 0.26,
+        speed: 1.8,
+        direction: -1,
+        texture: 'mint',
+      },
+      {
+        z: 0.24,
+        scale: 1.1,
+        opacity: 0.1,
+        speed: 0.42,
+        direction: 1,
+        texture: 'halo',
+      },
+    ];
+  }, []);
 
   useFrame((state, delta) => {
     const elapsed = state.clock.getElapsedTime();
     const pointerFactor = reducedMotion ? 0.08 : interactive ? 1 : 0.18;
 
-    const targetRotX = pointerY * 0.24 * pointerFactor;
-    const targetRotY = pointerX * 0.32 * pointerFactor;
+    const targetRotX = pointerY * 0.18 * pointerFactor;
+    const targetRotY = pointerX * 0.24 * pointerFactor;
 
     if (rootRef.current) {
       rootRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -141,108 +425,85 @@ export default function SphereScene({
       );
       rootRef.current.rotation.z = THREE.MathUtils.lerp(
         rootRef.current.rotation.z,
-        Math.sin(elapsed * 0.4 * safeSpeed) * 0.03,
+        Math.sin(elapsed * 0.36 * safeSpeed) * 0.02,
         0.05,
       );
     }
 
-    if (vortexRootRef.current) {
-      vortexRootRef.current.rotation.z +=
-        delta * 0.18 * safeSpeed * motion.swirlSpeed;
-      vortexRootRef.current.rotation.y +=
-        delta * 0.1 * safeSpeed * motion.swirlSpeed;
-    }
+    layerRefs.current.forEach((mesh, index) => {
+      if (!mesh) return;
 
-    if (shellRef.current) {
-      shellRef.current.rotation.y += delta * 0.04 * safeSpeed;
-      shellRef.current.rotation.x += delta * 0.015 * safeSpeed;
-    }
+      const config = layerConfigs[index];
+      const breath =
+        1 + Math.sin(elapsed * (1.4 + index * 0.16) * safeSpeed) * 0.018 * motion.pulse;
 
-    if (shellRimRef.current) {
-      shellRimRef.current.rotation.y -= delta * 0.025 * safeSpeed;
-    }
+      mesh.rotation.z +=
+        delta * config.speed * safeSpeed * motion.swirlSpeed * config.direction;
 
-    if (auraRef.current) {
-      const auraScale =
-        1.02 + Math.sin(elapsed * 1.4 * safeSpeed) * 0.06 * motion.glow;
-      auraRef.current.scale.setScalar(auraScale);
-    }
+      mesh.rotation.x = Math.sin(elapsed * 0.4 + index * 0.7) * 0.04;
+      mesh.rotation.y = Math.cos(elapsed * 0.35 + index * 0.6) * 0.04;
 
-    if (ringARef.current) {
-      ringARef.current.rotation.z +=
-        delta * 0.95 * safeSpeed * motion.swirlSpeed;
-      ringARef.current.rotation.x += delta * 0.22 * safeSpeed;
-    }
+      mesh.position.z =
+        config.z + Math.sin(elapsed * (0.8 + index * 0.12)) * 0.008;
 
-    if (ringBRef.current) {
-      ringBRef.current.rotation.z -=
-        delta * 0.72 * safeSpeed * motion.swirlSpeed;
-      ringBRef.current.rotation.y += delta * 0.28 * safeSpeed;
-    }
-
-    if (ringCRef.current) {
-      ringCRef.current.rotation.z +=
-        delta * 1.25 * safeSpeed * motion.swirlSpeed;
-      ringCRef.current.rotation.x -= delta * 0.32 * safeSpeed;
-    }
-
-    if (ringDRef.current) {
-      ringDRef.current.rotation.z -=
-        delta * 1.6 * safeSpeed * motion.swirlSpeed;
-      ringDRef.current.rotation.y -= delta * 0.18 * safeSpeed;
-    }
-
-    if (haloBandRef.current) {
-      haloBandRef.current.rotation.z -=
-        delta * 0.35 * safeSpeed * motion.swirlSpeed;
-    }
-
-    if (knotRef.current) {
-      knotRef.current.rotation.x += delta * 0.5 * safeSpeed;
-      knotRef.current.rotation.y -= delta * 0.82 * safeSpeed;
-      knotRef.current.rotation.z += delta * 0.28 * safeSpeed;
-    }
+      mesh.scale.setScalar(config.scale * breath);
+    });
 
     if (coreGlowRef.current) {
       const glowScale =
-        1.02 + Math.sin(elapsed * 2.2 * safeSpeed) * 0.1 * motion.pulse;
+        1.04 + Math.sin(elapsed * 2.3 * safeSpeed) * 0.12 * motion.pulse;
       coreGlowRef.current.scale.setScalar(glowScale);
     }
 
     if (coreRef.current) {
       const coreScale =
-        1 + Math.sin(elapsed * 2.8 * safeSpeed) * 0.08 * motion.pulse;
+        1 + Math.sin(elapsed * 3 * safeSpeed) * 0.08 * motion.pulse;
       coreRef.current.scale.setScalar(coreScale);
+    }
+
+    if (auraRef.current) {
+      const auraScale =
+        1.02 + Math.sin(elapsed * 1.7 * safeSpeed) * 0.05 * motion.glow;
+      auraRef.current.scale.setScalar(auraScale);
+    }
+
+    if (shellRef.current) {
+      shellRef.current.rotation.y += delta * 0.012 * safeSpeed;
+      shellRef.current.rotation.x += delta * 0.004 * safeSpeed;
+    }
+
+    if (shellRimRef.current) {
+      shellRimRef.current.rotation.y -= delta * 0.008 * safeSpeed;
     }
   });
 
   return (
     <>
-      <ambientLight intensity={0.42} />
-      <hemisphereLight args={[colors.halo, colors.core, 0.95]} />
+      <ambientLight intensity={0.28} />
+      <hemisphereLight args={[threeColors.halo, threeColors.accent, 0.7]} />
       <pointLight
-        position={[2.2, 2.1, 2.8]}
-        color={colors.halo}
+        position={[2.2, 2, 2.8]}
+        color={threeColors.halo}
+        intensity={2.2 * glowStrength}
+      />
+      <pointLight
+        position={[-1.8, -1.4, 2.4]}
+        color={threeColors.violet}
+        intensity={1.6 * glowStrength}
+      />
+      <pointLight
+        position={[0, 0, 1.6]}
+        color={threeColors.accent}
         intensity={2.1 * glowStrength}
-      />
-      <pointLight
-        position={[-2, -1.5, 2.4]}
-        color={colors.violet}
-        intensity={1.45 * glowStrength}
-      />
-      <pointLight
-        position={[0, 0, 1.8]}
-        color={colors.accent}
-        intensity={1.8 * glowStrength}
       />
 
       <group ref={rootRef}>
         <mesh ref={auraRef}>
-          <sphereGeometry args={[1.5, 40, 40]} />
+          <sphereGeometry args={[1.42, 40, 40]} />
           <meshBasicMaterial
-            color={colors.halo}
+            color={threeColors.halo}
             transparent
-            opacity={0.05 * glowStrength}
+            opacity={0.04 * glowStrength}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.BackSide}
@@ -250,138 +511,74 @@ export default function SphereScene({
           />
         </mesh>
 
-        <group ref={vortexRootRef}>
-          <mesh ref={ringARef} rotation={[Math.PI / 2.6, 0.25, 0]}>
-            <torusGeometry args={[0.52, 0.16, 32, 200]} />
-            <meshBasicMaterial
-              color={colors.halo}
-              transparent
-              opacity={0.22}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-              toneMapped={false}
-            />
-          </mesh>
-
+        {layerConfigs.map((layer, index) => (
           <mesh
-            ref={ringBRef}
-            rotation={[Math.PI / 2.15, -0.42, 0.2]}
-            scale={[1, 1, 0.58]}
+            key={`${layer.texture}-${index}`}
+            ref={(mesh) => {
+              layerRefs.current[index] = mesh;
+            }}
+            position={[0, 0, layer.z]}
+            scale={layer.scale}
           >
-            <torusGeometry args={[0.46, 0.12, 28, 180]} />
+            <circleGeometry args={[1, 80]} />
             <meshBasicMaterial
-              color={colors.accent}
+              map={textures[layer.texture]}
               transparent
-              opacity={0.26}
+              opacity={layer.opacity}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
               toneMapped={false}
+              side={THREE.DoubleSide}
             />
           </mesh>
+        ))}
 
-          <mesh
-            ref={ringCRef}
-            rotation={[Math.PI / 1.85, 0.35, -0.18]}
-            scale={[1, 1, 0.5]}
-          >
-            <torusGeometry args={[0.34, 0.095, 24, 180]} />
-            <meshBasicMaterial
-              color={colors.violet}
-              transparent
-              opacity={0.24}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-              toneMapped={false}
-            />
-          </mesh>
+        <mesh ref={coreGlowRef}>
+          <sphereGeometry args={[0.36, 28, 28]} />
+          <meshBasicMaterial
+            color={threeColors.halo}
+            transparent
+            opacity={0.18 * glowStrength}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
 
-          <mesh
-            ref={ringDRef}
-            rotation={[Math.PI / 2.45, -0.12, 0.35]}
-            scale={[1, 1, 0.42]}
-          >
-            <torusGeometry args={[0.24, 0.07, 20, 180]} />
-            <meshBasicMaterial
-              color={colors.pink}
-              transparent
-              opacity={0.24}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-              toneMapped={false}
-            />
-          </mesh>
-
-          <mesh ref={haloBandRef} rotation={[0.55, 0.25, 0]}>
-            <torusGeometry args={[0.72, 0.035, 18, 220]} />
-            <meshBasicMaterial
-              color={colors.mint}
-              transparent
-              opacity={0.12}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-              toneMapped={false}
-            />
-          </mesh>
-
-          <mesh ref={knotRef} scale={[1, 1, 0.62]}>
-            <torusKnotGeometry args={[0.18, 0.045, 180, 24, 2, 3]} />
-            <meshBasicMaterial
-              color={colors.amber}
-              transparent
-              opacity={0.14}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-              toneMapped={false}
-            />
-          </mesh>
-
-          <mesh ref={coreGlowRef}>
-            <sphereGeometry args={[0.34, 28, 28]} />
-            <meshBasicMaterial
-              color={colors.halo}
-              transparent
-              opacity={0.14 * glowStrength}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-              toneMapped={false}
-            />
-          </mesh>
-
-          <mesh ref={coreRef}>
-            <sphereGeometry args={[0.11, 32, 32]} />
-            <meshStandardMaterial
-              color="#ffffff"
-              emissive={new THREE.Color(colors.accent)}
-              emissiveIntensity={2.2 * glowStrength}
-              roughness={0.1}
-              metalness={0.04}
-            />
-          </mesh>
-        </group>
+        <mesh ref={coreRef}>
+          <sphereGeometry args={[0.11, 32, 32]} />
+          <meshStandardMaterial
+            color={threeColors.white}
+            emissive={threeColors.accent}
+            emissiveIntensity={2.8 * glowStrength}
+            roughness={0.08}
+            metalness={0.02}
+          />
+        </mesh>
 
         <mesh ref={shellRef}>
-          <sphereGeometry args={[1.18, segments, segments]} />
+          <sphereGeometry args={[1.15, segments, segments]} />
           <meshPhysicalMaterial
-            color="#f7fbff"
+            color="#f8fbff"
             transparent
             opacity={shellOpacity}
-            roughness={0.08}
+            roughness={0.12}
             metalness={0}
-            transmission={0.95}
-            thickness={0.24}
-            ior={1.08}
+            transmission={0.45}
+            thickness={0.08}
+            ior={1.03}
             clearcoat={1}
-            clearcoatRoughness={0.12}
-            envMapIntensity={0.35}
+            clearcoatRoughness={0.18}
+            envMapIntensity={0.1}
           />
         </mesh>
 
         <mesh ref={shellRimRef}>
-          <sphereGeometry args={[1.205, segments, segments]} />
+          <sphereGeometry args={[1.18, segments, segments]} />
           <meshBasicMaterial
-            color={colors.halo}
+            color={threeColors.halo}
             transparent
-            opacity={0.05 * glowStrength}
+            opacity={0.04 * glowStrength}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             toneMapped={false}
