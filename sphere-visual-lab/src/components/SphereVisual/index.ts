@@ -5,5 +5,6 @@ export type {
   SphereMode,
   SpherePresetName,
   SphereQuality,
+  SphereRendererType,
   SphereVisualProps,
 } from './SphereVisual.types';

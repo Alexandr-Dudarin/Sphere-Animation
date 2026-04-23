@@ -3,6 +3,7 @@ export type SpherePresetName = 'soft-ai' | 'thinking-blue' | 'searching-violet';
 export type SphereQuality = 'low' | 'medium' | 'high';
 export type GlowIntensity = 'low' | 'medium' | 'high';
 export type SphereBackground = 'transparent' | 'dark';
+export type SphereRendererType = 'css' | 'three';
 
 export interface SpherePresetConfig {
   coreRgb: string;
@@ -24,4 +25,5 @@ export interface SphereVisualProps {
   speed?: number;
   background?: SphereBackground;
   className?: string;
+  renderer?: SphereRendererType;
 }

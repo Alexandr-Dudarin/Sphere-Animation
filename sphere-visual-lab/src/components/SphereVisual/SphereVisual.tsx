@@ -6,6 +6,7 @@ import { spherePresets } from './presets/spherePresets';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { usePointerTracking } from './hooks/usePointerTracking';
 import CssSphereRenderer from './renderers/CssSphereRenderer';
+import ThreeSphereRenderer from './renderers/ThreeSphereRenderer';
 
 export default function SphereVisual({
   size = SPHERE_DEFAULTS.size,
@@ -18,10 +19,12 @@ export default function SphereVisual({
   glowIntensity = SPHERE_DEFAULTS.glowIntensity,
   speed = SPHERE_DEFAULTS.speed,
   background = SPHERE_DEFAULTS.background,
+  renderer = 'three',
   className,
 }: SphereVisualProps) {
   const reducedMotion = useReducedMotion();
   const effectiveInteractive = interactive && !reducedMotion;
+
   const { containerRef, pointerX, pointerY } =
     usePointerTracking<HTMLDivElement>(effectiveInteractive);
 
@@ -42,20 +45,26 @@ export default function SphereVisual({
     height: resolvedHeight,
   };
 
+  const sharedRendererProps = {
+    presetConfig,
+    mode,
+    quality,
+    interactive: effectiveInteractive,
+    glowIntensity,
+    speed,
+    pointerX,
+    pointerY,
+    reducedMotion,
+  };
+
   return (
     <div className={rootClassName} style={rootStyle}>
       <div ref={containerRef} className={styles.stage}>
-        <CssSphereRenderer
-          presetConfig={presetConfig}
-          mode={mode}
-          quality={quality}
-          interactive={effectiveInteractive}
-          glowIntensity={glowIntensity}
-          speed={speed}
-          pointerX={pointerX}
-          pointerY={pointerY}
-          reducedMotion={reducedMotion}
-        />
+        {renderer === 'css' ? (
+          <CssSphereRenderer {...sharedRendererProps} />
+        ) : (
+          <ThreeSphereRenderer {...sharedRendererProps} />
+        )}
       </div>
     </div>
   );
