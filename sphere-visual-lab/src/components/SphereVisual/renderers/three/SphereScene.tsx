@@ -112,13 +112,7 @@ export default function SphereScene({
           reducedMotion={reducedMotion}
         />
 
-        <GlassShell
-          colors={{ halo: colors.halo }}
-          quality={quality}
-          glowIntensity={glowIntensity}
-          speed={speed}
-          reducedMotion={reducedMotion}
-        />
+
       </group>
     </>
   );
