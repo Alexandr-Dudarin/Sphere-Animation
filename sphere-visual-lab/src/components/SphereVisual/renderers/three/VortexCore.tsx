@@ -125,8 +125,8 @@ const fragmentShader = `
     return 1.0 - smoothstep(width, width * 1.75, d);
   }
 
-  float sharpPulse(float x, float power) {
-    return pow(clamp(x, 0.0, 1.0), power);
+  float thread(float signal, float width) {
+    return 1.0 - smoothstep(width, width * 2.0, abs(signal));
   }
 
   void main() {
@@ -138,93 +138,86 @@ const fragmentShader = `
     float t = uTime;
 
     vec2 polar = vec2(cos(a), sin(a)) * r;
-    float n = fbm(polar * 3.9 + vec2(t * 0.09, -t * 0.07));
+    float n = fbm(polar * 3.8 + vec2(t * 0.08, -t * 0.06));
 
-    float spiralA = 0.5 + 0.5 * sin(
-      a * (6.4 + uTwist * 0.45) -
-      r * (18.0 + uTwist * 2.1) -
-      t * (2.15 + uTwist * 0.14) +
+    float bandOuter = ringBand(r, 0.86 + 0.018 * sin(t * 0.50 + n), 0.066);
+    float bandMid   = ringBand(r, 0.66 + 0.020 * sin(t * 0.70 - n), 0.054);
+    float bandInner = ringBand(r, 0.48 + 0.016 * sin(t * 0.92 + n * 1.1), 0.042);
+    float bandCore  = ringBand(r, 0.31 + 0.012 * sin(t * 1.16 - n * 1.2), 0.030);
+    float rimBand   = ringBand(r, 0.95 + 0.008 * sin(a * 6.0 + t * 0.70 + n), 0.016);
+
+    float s1 = sin(
+      a * (6.8 + uTwist * 0.42) -
+      r * (18.0 + uTwist * 2.0) -
+      t * (2.15 + uTwist * 0.12) +
+      n * 2.0
+    );
+
+    float s2 = sin(
+      a * (9.6 + uTwist * 0.34) +
+      r * (15.0 + uTwist * 1.2) +
+      t * (1.80 + uTwist * 0.10) -
+      n * 1.6
+    );
+
+    float s3 = sin(
+      a * (13.0 + uTwist * 0.24) -
+      r * (24.5 + uTwist * 1.6) -
+      t * (2.70 + uTwist * 0.14) +
       n * 2.2
     );
 
-    float spiralB = 0.5 + 0.5 * sin(
-      a * (9.1 + uTwist * 0.38) +
-      r * (14.5 + uTwist * 1.2) +
-      t * (1.75 + uTwist * 0.12) -
-      n * 1.8
+    float s4 = sin(
+      a * (7.6 + uTwist * 0.18) -
+      r * 12.0 +
+      t * 1.10 -
+      n * 1.1
     );
 
-    float spiralC = 0.5 + 0.5 * sin(
-      a * (12.6 + uTwist * 0.26) -
-      r * (23.5 + uTwist * 1.6) -
-      t * (2.6 + uTwist * 0.16) +
-      n * 2.4
-    );
+    float outerThreadA = thread(s1, 0.090);
+    float outerThreadB = thread(s3, 0.082);
 
-    float spiralD = 0.5 + 0.5 * sin(
-      a * (7.4 + uTwist * 0.22) -
-      r * 11.5 +
-      t * 1.1 -
-      n * 1.2
-    );
+    float midThreadA = thread(s2, 0.090);
+    float midThreadB = thread(s1 * 0.82 + s4 * 0.18, 0.078);
 
-    float bandOuter = ringBand(r, 0.86 + 0.024 * sin(t * 0.42 + n), 0.068);
-    float bandMid   = ringBand(r, 0.66 + 0.028 * sin(t * 0.55 - n), 0.056);
-    float bandInner = ringBand(r, 0.48 + 0.022 * sin(t * 0.72 + n * 1.2), 0.044);
-    float bandCore  = ringBand(r, 0.30 + 0.016 * sin(t * 0.95 - n * 1.3), 0.032);
-    float rimBand   = ringBand(r, 0.95 + 0.010 * sin(a * 5.5 + t * 0.68 + n), 0.018);
+    float innerThreadA = thread(s3, 0.074);
+    float innerThreadB = thread(s2 * 0.70 + s4 * 0.30, 0.070);
 
-    float filamentA = sharpPulse(spiralA, 5.4);
-    float filamentB = sharpPulse(spiralB, 5.8);
-    float filamentC = sharpPulse(spiralC, 6.0);
-    float filamentD = sharpPulse(spiralD, 4.4);
+    float coreThread = thread(s4, 0.080);
 
-    float arcOuter = bandOuter * filamentA;
-    float arcMid   = bandMid * filamentB;
-    float arcInner = bandInner * filamentC;
-    float arcCore  = bandCore * filamentD * 0.68;
+    float outerArcs = bandOuter * max(outerThreadA, outerThreadB * 0.92);
+    float midArcs   = bandMid * max(midThreadA, midThreadB * 0.90);
+    float innerArcs = bandInner * max(innerThreadA, innerThreadB * 0.88);
+    float coreArcs  = bandCore * coreThread * 0.56;
 
-    float rimArcs = rimBand * sharpPulse(
-      0.5 + 0.5 * sin(a * 16.0 - t * 2.35 + n * 2.0),
-      6.0
-    );
-
-    float bridgeField =
-      smoothstep(
-        0.72,
-        0.98,
-        filamentA * 0.34 + filamentB * 0.38 + filamentC * 0.28
-      ) *
-      smoothstep(0.20, 0.90, r) *
-      (1.0 - smoothstep(0.96, 1.05, r));
-
-    float outerSweep =
-      smoothstep(0.60, 0.96, 0.5 + 0.5 * sin(a * 3.1 - t * 0.54 + n * 1.7)) *
-      smoothstep(0.58, 0.92, r) *
-      (1.0 - smoothstep(0.96, 1.05, r));
-
-    float centerSpiral =
-      smoothstep(0.05, 0.22, r) *
-      (1.0 - smoothstep(0.22, 0.40, r)) *
-      sharpPulse(
-        0.5 + 0.5 * sin(a * (7.0 + uTwist * 0.12) - r * 11.5 - t * 1.7 + n * 1.3),
-        4.0
+    float rimThreads =
+      rimBand *
+      thread(
+        sin(a * 15.0 - t * 2.30 + n * 1.8),
+        0.070
       );
 
+    float bridgeArcs =
+      smoothstep(
+        0.78,
+        0.98,
+        outerThreadA * 0.32 + midThreadA * 0.38 + innerThreadA * 0.30
+      ) *
+      smoothstep(0.24, 0.90, r) *
+      (1.0 - smoothstep(0.95, 1.04, r));
+
     float centerMist =
-      (1.0 - smoothstep(0.0, 0.16, r)) *
-      smoothstep(0.40, 0.82, 0.5 + 0.5 * sin(a * 4.2 + t * 0.95 - n * 1.0));
+      (1.0 - smoothstep(0.0, 0.14, r)) *
+      smoothstep(0.46, 0.82, 0.5 + 0.5 * sin(a * 4.0 + t * 0.92 - n));
 
     float structure =
-      arcOuter * 1.00 +
-      arcMid * 0.96 +
-      arcInner * 0.88 +
-      arcCore * 0.62 +
-      rimArcs * 0.34 +
-      bridgeField * 0.18 +
-      outerSweep * 0.10 +
-      centerSpiral * 0.16 +
-      centerMist * 0.05;
+      outerArcs * 1.04 +
+      midArcs * 1.00 +
+      innerArcs * 0.92 +
+      coreArcs * 0.48 +
+      rimThreads * 0.30 +
+      bridgeArcs * 0.10 +
+      centerMist * 0.03;
 
     float outerFade = 1.0 - smoothstep(0.995, 1.05, r);
     float innerFade = smoothstep(0.0, 0.018, r);
@@ -232,21 +225,20 @@ const fragmentShader = `
     float fresnel = pow(1.0 - abs(vNormalW.z), 1.9);
 
     float alpha = structure * outerFade * innerFade * uOpacity;
-    alpha += rimArcs * 0.05 * uOpacity * uIntensity;
-    alpha += centerSpiral * 0.03 * uOpacity * uIntensity;
-    alpha += centerMist * 0.02 * uOpacity * uIntensity;
+    alpha += rimThreads * 0.05 * uOpacity * uIntensity;
+    alpha += centerMist * 0.015 * uOpacity * uIntensity;
 
-    vec3 color = mix(uColorA, uColorB, smoothstep(0.20, 0.95, spiralA));
-    color = mix(color, uColorC, smoothstep(0.24, 0.95, spiralB));
+    vec3 color = mix(uColorA, uColorB, smoothstep(0.20, 0.95, outerThreadA));
+    color = mix(color, uColorC, smoothstep(0.20, 0.95, midThreadA));
 
-    color += uColorA * arcOuter * 0.30 * uIntensity;
-    color += uColorB * arcMid   * 0.32 * uIntensity;
-    color += uColorC * arcInner * 0.28 * uIntensity;
-    color += uColorA * arcCore  * 0.14 * uIntensity;
-    color += uColorA * rimArcs  * 0.14 * uIntensity;
-    color += uColorC * bridgeField * 0.06 * uIntensity;
-    color += uColorA * fresnel  * 0.06 * uIntensity;
-    color += vec3(1.0) * centerMist * 0.015 * uIntensity;
+    color += uColorA * outerArcs * 0.36 * uIntensity;
+    color += uColorB * midArcs   * 0.36 * uIntensity;
+    color += uColorC * innerArcs * 0.32 * uIntensity;
+    color += uColorA * coreArcs  * 0.14 * uIntensity;
+    color += uColorA * rimThreads * 0.18 * uIntensity;
+    color += uColorC * bridgeArcs * 0.05 * uIntensity;
+    color += uColorA * fresnel * 0.07 * uIntensity;
+    color += vec3(1.0) * centerMist * 0.01 * uIntensity;
 
     gl_FragColor = vec4(color, alpha);
   }
@@ -300,60 +292,60 @@ export default function VortexCore({
     return [
       {
         scale: 1.22,
-        opacity: 0.085 * glowBoost,
+        opacity: 0.095 * glowBoost,
         speed: 0.42,
         twist: 0.26,
-        intensity: 0.66,
+        intensity: 0.72,
         colorA: colors.halo,
         colorB: colors.accent,
         colorC: colors.violet,
       },
       {
         scale: 1.12,
-        opacity: 0.11 * glowBoost,
+        opacity: 0.125 * glowBoost,
         speed: 0.58,
         twist: 0.50,
-        intensity: 0.82,
+        intensity: 0.88,
         colorA: colors.halo,
         colorB: colors.accent,
         colorC: colors.mint,
       },
       {
         scale: 1.03,
-        opacity: 0.135 * glowBoost,
+        opacity: 0.15 * glowBoost,
         speed: 0.82,
         twist: 0.84,
-        intensity: 0.96,
+        intensity: 1.02,
         colorA: colors.halo,
         colorB: colors.accent,
         colorC: colors.violet,
       },
       {
         scale: 0.93,
-        opacity: 0.155 * glowBoost,
+        opacity: 0.17 * glowBoost,
         speed: 1.06,
         twist: 1.16,
-        intensity: 1.08,
+        intensity: 1.14,
         colorA: colors.violet,
         colorB: colors.halo,
         colorC: colors.pink,
       },
       {
         scale: 0.83,
-        opacity: 0.14 * glowBoost,
+        opacity: 0.155 * glowBoost,
         speed: 1.32,
         twist: 1.48,
-        intensity: 1.16,
+        intensity: 1.22,
         colorA: colors.pink,
         colorB: colors.accent,
         colorC: colors.violet,
       },
       {
         scale: 0.72,
-        opacity: 0.10 * glowBoost,
+        opacity: 0.115 * glowBoost,
         speed: 1.60,
         twist: 1.82,
-        intensity: 1.20,
+        intensity: 1.24,
         colorA: colors.mint,
         colorB: colors.halo,
         colorC: colors.accent,

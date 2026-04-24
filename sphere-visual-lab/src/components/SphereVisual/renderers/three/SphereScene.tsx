@@ -7,9 +7,8 @@ import type {
   SpherePresetConfig,
   SphereQuality,
 } from '../../SphereVisual.types';
-import GlassShell from './GlassShell';
+import RibbonTrailsField from './RibbonTrailsField';
 import Lights from './Lights';
-import VortexCore from './VortexCore';
 
 interface SphereSceneProps {
   presetConfig: SpherePresetConfig;
@@ -63,8 +62,8 @@ export default function SphereScene({
     const elapsed = state.clock.getElapsedTime();
     const pointerFactor = reducedMotion ? 0.08 : interactive ? 1 : 0.18;
 
-    const targetRotX = pointerY * 0.18 * pointerFactor;
-    const targetRotY = pointerX * 0.24 * pointerFactor;
+    const targetRotX = pointerY * 0.14 * pointerFactor;
+    const targetRotY = pointerX * 0.18 * pointerFactor;
 
     if (rootRef.current) {
       rootRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -79,7 +78,7 @@ export default function SphereScene({
       );
       rootRef.current.rotation.z = THREE.MathUtils.lerp(
         rootRef.current.rotation.z,
-        Math.sin(elapsed * 0.36 * safeSpeed) * 0.02,
+        Math.sin(elapsed * 0.32 * safeSpeed) * 0.012,
         0.05,
       );
     }
@@ -91,11 +90,11 @@ export default function SphereScene({
 
       <group ref={rootRef}>
         <mesh>
-          <sphereGeometry args={[1.18, 40, 40]} />
+          <sphereGeometry args={[1.12, 40, 40]} />
           <meshBasicMaterial
             color={colors.halo}
             transparent
-            opacity={0.01}
+            opacity={0.014}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.BackSide}
@@ -103,7 +102,7 @@ export default function SphereScene({
           />
         </mesh>
 
-        <VortexCore
+        <RibbonTrailsField
           colors={colors}
           mode={mode}
           quality={quality}
@@ -111,8 +110,6 @@ export default function SphereScene({
           speed={speed}
           reducedMotion={reducedMotion}
         />
-
-
       </group>
     </>
   );
