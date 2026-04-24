@@ -7,7 +7,7 @@ import type {
   SpherePresetConfig,
   SphereQuality,
 } from '../../SphereVisual.types';
-import RibbonTrailsField from './RibbonTrailsField';
+import { RibbonTrailsField } from './RibbonTrailsField';
 import Lights from './Lights';
 
 interface SphereSceneProps {
@@ -103,12 +103,10 @@ export default function SphereScene({
         </mesh>
 
         <RibbonTrailsField
-          colors={colors}
-          mode={mode}
-          quality={quality}
-          glowIntensity={glowIntensity}
           speed={speed}
           reducedMotion={reducedMotion}
+          glowIntensity={glowIntensity}
+          colors={colors}
         />
       </group>
     </>
