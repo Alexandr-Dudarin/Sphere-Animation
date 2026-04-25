@@ -30,7 +30,7 @@ function resolveGlowFactor(
     case 'low':
       return 0.82;
     case 'high':
-      return 1.32;
+      return 1.28;
     case 'medium':
     default:
       return 1;
@@ -39,10 +39,13 @@ function resolveGlowFactor(
 
 function resolvePalette(colors?: Partial<VortexColors>) {
   return {
-    a: colors?.halo?.clone() ?? colors?.accent?.clone() ?? new THREE.Color('#8EEBFF'),
-    b: colors?.violet?.clone() ?? new THREE.Color('#A88BFF'),
+    a:
+      colors?.halo?.clone() ??
+      colors?.accent?.clone() ??
+      new THREE.Color('#8EEBFF'),
+    b: colors?.violet?.clone() ?? new THREE.Color('#8C88FF'),
     c: colors?.mint?.clone() ?? new THREE.Color('#8FFFE1'),
-    d: colors?.pink?.clone() ?? new THREE.Color('#FF8BEF'),
+    d: colors?.pink?.clone() ?? new THREE.Color('#F08BFF'),
   };
 }
 
@@ -59,19 +62,16 @@ const vertexShader = `
 
     vec3 pos = position;
     vec2 p = uv * 2.0 - 1.0;
-    float r = length(p);
+    float r = clamp(length(p), 0.0, 1.0);
 
     float dome = pow(max(1.0 - r, 0.0), 1.45);
-    float angle = atan(p.y, p.x);
 
-    float innerWave =
-      sin(angle * 4.0 - r * 8.0 + uTime * 0.55) * 0.02 +
-      cos(angle * 7.0 + r * 12.0 - uTime * 0.42) * 0.012;
+    float wobble =
+      sin((p.x * 1.9 + p.y * 1.3) * 3.5 + uTime * 0.45) * 0.012 +
+      cos((p.x * -1.4 + p.y * 1.8) * 4.2 - uTime * 0.32) * 0.009;
 
-    pos.z += dome * (0.42 + innerWave * uMotion);
-    pos.xy *= 1.0 - dome * 0.06;
-
-    pos.z += sin((p.x + p.y) * 5.0 + uTime * 0.36) * 0.018 * dome * uMotion;
+    pos.z += dome * 0.34 + wobble * dome * uMotion;
+    pos.xy *= 1.0 - dome * 0.05;
 
     vRadius = r;
     vDome = dome;
@@ -116,7 +116,7 @@ const fragmentShader = `
     float value = 0.0;
     float amplitude = 0.5;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
       value += amplitude * noise(p);
       p *= 2.0;
       amplitude *= 0.5;
@@ -125,81 +125,81 @@ const fragmentShader = `
     return value;
   }
 
-  float filament(float x, float width) {
-    return 1.0 - smoothstep(width, width * 2.0, abs(x));
-  }
-
   void main() {
     vec2 p = vUv * 2.0 - 1.0;
     float r = length(p);
 
-    if (r > 1.04) {
+    if (r > 1.0) {
       discard;
     }
 
-    float a = atan(p.y, p.x);
+    vec2 dir = normalize(p + vec2(0.00001, 0.0));
     float t = uTime;
 
-    float n = fbm(vec2(a * 1.4, r * 4.6 + t * 0.08));
+    float nBase = fbm(p * 2.2 + vec2(t * 0.08, -t * 0.05));
+    float nFine = fbm(p * 4.8 + vec2(-t * 0.14, t * 0.10));
+    float n = mix(nBase, nFine, 0.42);
 
-    float swirl1 = filament(
-      sin(a * 4.8 - r * 10.8 - t * 1.18 + n * 2.1),
-      0.08
-    );
+    vec2 rot1 = vec2(cos(r * 7.4 - t * 0.85), sin(r * 7.4 - t * 0.85));
+    vec2 rot2 = vec2(cos(r * 11.2 + t * 0.56 + 1.2), sin(r * 11.2 + t * 0.56 + 1.2));
+    vec2 rot3 = vec2(cos(r * 4.8 - t * 0.28 - 0.8), sin(r * 4.8 - t * 0.28 - 0.8));
 
-    float swirl2 = filament(
-      sin(a * 7.6 + r * 8.2 + t * 0.92 - n * 1.7),
-      0.07
-    );
+    float swirl1 = 0.5 + 0.5 * dot(dir, rot1);
+    float swirl2 = 0.5 + 0.5 * dot(dir, rot2);
+    float swirl3 = 0.5 + 0.5 * dot(dir, rot3);
 
-    float swirl3 = filament(
-      sin(a * 11.4 - r * 15.6 - t * 1.36 + n * 2.8),
-      0.06
-    );
+    float broad =
+      smoothstep(0.18, 0.95, swirl1 * 0.72 + swirl3 * 0.28 + n * 0.22);
 
-    float shellBand =
-      smoothstep(0.48, 0.94, r) *
-      (1.0 - smoothstep(0.92, 1.03, r));
+    float tight =
+      smoothstep(0.24, 0.98, swirl2 * 0.76 + n * 0.18);
 
-    float centerBand =
-      (1.0 - smoothstep(0.0, 0.34, r)) *
-      smoothstep(0.16, 0.86, 0.5 + 0.5 * sin(a * 5.2 - t * 0.9 + n * 2.0));
+    float center =
+      (1.0 - smoothstep(0.0, 0.38, r)) *
+      smoothstep(0.12, 0.92, swirl2 * 0.6 + swirl1 * 0.4);
 
-    float veil =
-      smoothstep(0.2, 0.94, 0.5 + 0.5 * sin(a * 2.1 - t * 0.35 + n * 1.5)) *
-      (1.0 - smoothstep(0.88, 1.03, r));
+    float mass =
+      (1.0 - smoothstep(0.68, 1.0, r)) *
+      (0.18 + 0.28 * nBase + 0.16 * swirl1);
 
-    float structure =
-      swirl1 * 0.9 +
-      swirl2 * 0.78 +
-      swirl3 * 0.72 +
-      shellBand * swirl3 * 0.42 +
-      centerBand * 0.26 +
-      veil * 0.18;
+    float shell =
+      smoothstep(0.52, 0.92, r) *
+      (1.0 - smoothstep(0.90, 1.0, r)) *
+      (0.4 + 0.6 * swirl3);
 
-    float circularMask = 1.0 - smoothstep(0.94, 1.03, r);
-    float rim = smoothstep(0.72, 0.98, r) * (1.0 - smoothstep(0.98, 1.03, r));
+    float density =
+      broad * 0.42 +
+      tight * 0.28 +
+      mass * 0.34 +
+      center * 0.42 +
+      shell * 0.12;
 
-    float colorShift = fract((a / 6.2831853) + t * 0.035 + n * 0.12 + r * 0.22);
+    float colorMix1 =
+      0.5 + 0.5 * sin(r * 5.4 - t * 0.26 + nBase * 2.1 + dir.x * 1.9);
 
-    vec3 color = mix(uColorA, uColorB, smoothstep(0.0, 0.34, colorShift));
-    color = mix(color, uColorC, smoothstep(0.28, 0.68, colorShift));
-    color = mix(color, uColorD, smoothstep(0.62, 1.0, colorShift));
+    float colorMix2 =
+      0.5 + 0.5 * sin(r * 6.8 + t * 0.18 + nFine * 1.7 + dir.y * 2.3 + 0.9);
 
-    color += uColorA * swirl1 * 0.15 * uGlow;
-    color += uColorB * swirl2 * 0.14 * uGlow;
-    color += uColorD * swirl3 * 0.14 * uGlow;
-    color += uColorC * rim * 0.18 * uGlow;
-    color += vec3(1.0) * centerBand * 0.035 * uGlow;
+    float colorMix3 =
+      0.5 + 0.5 * sin(r * 3.2 - t * 0.14 + (dir.x + dir.y) * 1.4 + 1.7);
+
+    vec3 color = mix(uColorA, uColorB, colorMix1);
+    color = mix(color, uColorC, colorMix2 * 0.45 + shell * 0.10);
+    color = mix(color, uColorD, colorMix3 * 0.22 + center * 0.25);
+
+    vec3 finalColor = color;
+    finalColor *= 0.88 + 0.32 * density;
+    finalColor += uColorA * center * 0.18 * uGlow;
+    finalColor += vec3(1.0) * center * 0.06 * uGlow;
+
+    float edgeFade = 1.0 - smoothstep(0.84, 1.0, r);
 
     float alpha =
-      circularMask *
-      (structure * 0.34 + veil * 0.08 + centerBand * 0.08) *
+      density *
+      edgeFade *
       uOpacity;
 
-    alpha += rim * 0.06 * uGlow;
-
-    gl_FragColor = vec4(color, alpha);
+    gl_FragColor = vec4(finalColor, alpha);
   }
 `;
 
@@ -220,9 +220,10 @@ export default function VortexFieldPlane({
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
       uniforms: {
         uTime: { value: 0 },
-        uOpacity: { value: 0.94 * glow },
+        uOpacity: { value: 0.78 * glow },
         uGlow: { value: glow },
         uMotion: { value: reducedMotion ? 0.2 : 1.0 },
         uColorA: { value: palette.a },
@@ -232,7 +233,6 @@ export default function VortexFieldPlane({
       },
       vertexShader,
       fragmentShader,
-      side: THREE.DoubleSide,
     });
   }, [glow, palette, reducedMotion]);
 
@@ -260,21 +260,21 @@ export default function VortexFieldPlane({
 
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
       groupRef.current.rotation.y,
-      pointerX * 0.1,
+      pointerX * 0.10,
       0.06,
     );
 
     groupRef.current.rotation.z = THREE.MathUtils.lerp(
       groupRef.current.rotation.z,
-      Math.sin(t * 0.18) * 0.04,
+      Math.sin(t * 0.18) * 0.03,
       0.05,
     );
   });
 
   return (
     <group ref={groupRef}>
-      <mesh frustumCulled={false}>
-        <planeGeometry args={[2.05, 2.05, 180, 180]} />
+      <mesh frustumCulled={false} renderOrder={1}>
+        <circleGeometry args={[1.02, 192]} />
         <primitive object={material} attach="material" />
       </mesh>
     </group>
