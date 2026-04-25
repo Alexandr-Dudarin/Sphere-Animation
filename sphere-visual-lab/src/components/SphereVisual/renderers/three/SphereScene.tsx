@@ -9,6 +9,7 @@ import type {
 } from '../../SphereVisual.types';
 import VortexFieldPlane from './VortexFieldPlane';
 import GlassShell from './GlassShell';
+import { DarkVortexMask } from './DarkVortexMask';
 import Lights from './Lights';
 
 interface SphereSceneProps {
@@ -111,6 +112,19 @@ export default function SphereScene({
           interactive={interactive}
           glowIntensity={glowIntensity}
           colors={colors}
+        />
+
+        <DarkVortexMask
+          size={1.9}
+          opacity={0.34}
+          color="#050814"
+          innerClearRadius={0.2}
+          outerRadius={0.92}
+          softness={0.22}
+          swirlStrength={0.42}
+          speed={speed}
+          reducedMotion={reducedMotion}
+          zOffset={0.018}
         />
 
         <GlassShell
