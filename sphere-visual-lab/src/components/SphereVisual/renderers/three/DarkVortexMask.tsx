@@ -3,7 +3,7 @@ import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 type DarkVortexMaskProps = {
-  size?: number;
+  radius?: number;
   opacity?: number;
   color?: string;
   innerClearRadius?: number;
@@ -16,13 +16,13 @@ type DarkVortexMaskProps = {
 };
 
 export function DarkVortexMask({
-  size = 1.9,
-  opacity = 0.34,
+  radius = 1.02,
+  opacity = 0.28,
   color = '#050814',
   innerClearRadius = 0.2,
-  outerRadius = 0.92,
-  softness = 0.22,
-  swirlStrength = 0.42,
+  outerRadius = 0.9,
+  softness = 0.18,
+  swirlStrength = 0.3,
   speed = 1,
   reducedMotion = false,
   zOffset = 0.018,
@@ -56,7 +56,7 @@ export function DarkVortexMask({
       renderOrder={2}
       frustumCulled={false}
     >
-      <planeGeometry args={[size, size, 1, 1]} />
+      <circleGeometry args={[radius, 192]} />
       <shaderMaterial
         ref={materialRef}
         transparent
@@ -89,30 +89,35 @@ export function DarkVortexMask({
             float r = length(uv);
             float a = atan(uv.y, uv.x);
 
-            float swirlA = sin(a * 5.0 - r * 8.5 + uTime * 0.55) * 0.5 + 0.5;
-            float swirlB = sin(a * 3.2 + r * 10.0 - uTime * 0.32) * 0.5 + 0.5;
-            float swirl = mix(swirlA, swirlB, 0.4);
+            if (r > 1.0) {
+              discard;
+            }
 
-            float ringStart = smoothstep(
-              uInnerClearRadius,
-              uInnerClearRadius + uSoftness * 0.45,
-              r
-            );
+            float swirlA = sin(a * 4.8 - r * 8.2 + uTime * 0.52) * 0.5 + 0.5;
+            float swirlB = sin(a * 3.1 + r * 9.6 - uTime * 0.31) * 0.5 + 0.5;
+            float swirl = mix(swirlA, swirlB, 0.42);
 
-            float ringBody = smoothstep(uInnerClearRadius, uOuterRadius, r);
-            float ringFade = 1.0 - smoothstep(
+            float outerFade = 1.0 - smoothstep(
               uOuterRadius,
               uOuterRadius + uSoftness,
               r
             );
 
-            float baseMask = ringBody * ringFade;
-            float structuredMask = mix(1.0, 0.86 + swirl * 0.28, uSwirlStrength);
+            float innerFade = smoothstep(
+              uInnerClearRadius,
+              uInnerClearRadius + uSoftness * 0.9,
+              r
+            );
+
+            float baseMask = outerFade * innerFade;
+
+            float structuredMask = mix(
+              1.0,
+              0.9 + swirl * 0.18,
+              uSwirlStrength
+            );
 
             float alpha = uOpacity * baseMask * structuredMask;
-
-            // Центр оставляем в основном открытым
-            alpha *= ringStart;
 
             gl_FragColor = vec4(uColor, alpha);
           }

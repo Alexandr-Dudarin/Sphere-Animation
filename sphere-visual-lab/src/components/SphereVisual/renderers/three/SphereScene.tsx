@@ -8,8 +8,9 @@ import type {
   SphereQuality,
 } from '../../SphereVisual.types';
 import VortexFieldPlane from './VortexFieldPlane';
-import GlassShell from './GlassShell';
+import InnerScatterField from './InnerScatterField';
 import { DarkVortexMask } from './DarkVortexMask';
+import GlassShell from './GlassShell';
 import Lights from './Lights';
 
 interface SphereSceneProps {
@@ -28,17 +29,18 @@ function rgbStringToColor(value: string) {
   return new THREE.Color(`rgb(${value.split(' ').join(', ')})`);
 }
 
-export default function SphereScene({
-  presetConfig,
-  mode,
-  quality,
-  interactive,
-  glowIntensity,
-  speed,
-  pointerX,
-  pointerY,
-  reducedMotion,
-}: SphereSceneProps) {
+export default function SphereScene(props: SphereSceneProps) {
+  const {
+    presetConfig,
+    mode,
+    interactive,
+    glowIntensity,
+    speed,
+    pointerX,
+    pointerY,
+    reducedMotion,
+  } = props;
+
   const rootRef = useRef<THREE.Group>(null);
 
   const colors = useMemo(() => {
@@ -98,7 +100,7 @@ export default function SphereScene({
           <meshBasicMaterial
             color={colors.halo}
             transparent
-            opacity={0.014}
+            opacity={0.009}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.BackSide}
@@ -115,16 +117,24 @@ export default function SphereScene({
         />
 
         <DarkVortexMask
-          size={1.9}
-          opacity={0.34}
+          radius={1.02}
+          opacity={0.20}
           color="#050814"
-          innerClearRadius={0.2}
-          outerRadius={0.92}
-          softness={0.22}
-          swirlStrength={0.42}
+          innerClearRadius={0.19}
+          outerRadius={0.87}
+          softness={0.28}
+          swirlStrength={0.16}
           speed={speed}
           reducedMotion={reducedMotion}
-          zOffset={0.018}
+          zOffset={0.014}
+        />
+
+        <InnerScatterField
+          speed={speed}
+          reducedMotion={reducedMotion}
+          interactive={interactive}
+          glowIntensity={glowIntensity}
+          colors={colors}
         />
 
         <GlassShell
