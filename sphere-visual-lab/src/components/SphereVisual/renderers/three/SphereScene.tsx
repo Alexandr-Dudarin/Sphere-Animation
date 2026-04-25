@@ -7,7 +7,8 @@ import type {
   SpherePresetConfig,
   SphereQuality,
 } from '../../SphereVisual.types';
-import { RibbonTrailsField } from './RibbonTrailsField';
+import VortexFieldPlane from './VortexFieldPlane';
+import GlassShell from './GlassShell';
 import Lights from './Lights';
 
 interface SphereSceneProps {
@@ -60,10 +61,10 @@ export default function SphereScene({
 
   useFrame((state) => {
     const elapsed = state.clock.getElapsedTime();
-    const pointerFactor = reducedMotion ? 0.08 : interactive ? 1 : 0.18;
+    const pointerFactor = reducedMotion ? 0.06 : interactive ? 1 : 0.14;
 
-    const targetRotX = pointerY * 0.14 * pointerFactor;
-    const targetRotY = pointerX * 0.18 * pointerFactor;
+    const targetRotX = pointerY * 0.08 * pointerFactor;
+    const targetRotY = pointerX * 0.1 * pointerFactor;
 
     if (rootRef.current) {
       rootRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -71,14 +72,16 @@ export default function SphereScene({
         targetRotX,
         0.08,
       );
+
       rootRef.current.rotation.y = THREE.MathUtils.lerp(
         rootRef.current.rotation.y,
         targetRotY,
         0.08,
       );
+
       rootRef.current.rotation.z = THREE.MathUtils.lerp(
         rootRef.current.rotation.z,
-        Math.sin(elapsed * 0.32 * safeSpeed) * 0.012,
+        Math.sin(elapsed * 0.24 * safeSpeed) * 0.008,
         0.05,
       );
     }
@@ -102,7 +105,15 @@ export default function SphereScene({
           />
         </mesh>
 
-        <RibbonTrailsField
+        <VortexFieldPlane
+          speed={speed}
+          reducedMotion={reducedMotion}
+          interactive={interactive}
+          glowIntensity={glowIntensity}
+          colors={colors}
+        />
+
+        <GlassShell
           speed={speed}
           reducedMotion={reducedMotion}
           glowIntensity={glowIntensity}
