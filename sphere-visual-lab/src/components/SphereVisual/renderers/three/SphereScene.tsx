@@ -12,6 +12,7 @@ import PetalField from './PetalField';
 import PetalPulseField from './PetalPulseField';
 import GlassShell from './GlassShell';
 import Lights from './Lights';
+import CenterCoreGlow from './CenterCoreGlow';
 
 interface SphereSceneProps {
   presetConfig: SpherePresetConfig;
@@ -117,6 +118,13 @@ export default function SphereScene(props: SphereSceneProps) {
         />
 
         <PetalPulseField
+          speed={speed}
+          reducedMotion={reducedMotion}
+          glowIntensity={glowIntensity}
+          colors={colors}
+        />
+
+        <CenterCoreGlow
           speed={speed}
           reducedMotion={reducedMotion}
           glowIntensity={glowIntensity}
