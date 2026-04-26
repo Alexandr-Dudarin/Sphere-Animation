@@ -7,9 +7,8 @@ import type {
   SpherePresetConfig,
   SphereQuality,
 } from '../../SphereVisual.types';
-import VortexFieldPlane from './VortexFieldPlane';
 import InnerScatterField from './InnerScatterField';
-import { DarkVortexMask } from './DarkVortexMask';
+import PetalField from './PetalField';
 import GlassShell from './GlassShell';
 import Lights from './Lights';
 
@@ -33,6 +32,7 @@ export default function SphereScene(props: SphereSceneProps) {
   const {
     presetConfig,
     mode,
+    quality: _quality,
     interactive,
     glowIntensity,
     speed,
@@ -100,7 +100,7 @@ export default function SphereScene(props: SphereSceneProps) {
           <meshBasicMaterial
             color={colors.halo}
             transparent
-            opacity={0.009}
+            opacity={0.012}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.BackSide}
@@ -108,25 +108,11 @@ export default function SphereScene(props: SphereSceneProps) {
           />
         </mesh>
 
-        <VortexFieldPlane
+        <PetalField
           speed={speed}
           reducedMotion={reducedMotion}
-          interactive={interactive}
           glowIntensity={glowIntensity}
           colors={colors}
-        />
-
-        <DarkVortexMask
-          radius={1.02}
-          opacity={0.20}
-          color="#050814"
-          innerClearRadius={0.19}
-          outerRadius={0.87}
-          softness={0.28}
-          swirlStrength={0.16}
-          speed={speed}
-          reducedMotion={reducedMotion}
-          zOffset={0.014}
         />
 
         <InnerScatterField
