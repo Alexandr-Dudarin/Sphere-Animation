@@ -9,6 +9,7 @@ import type {
 } from '../../SphereVisual.types';
 import InnerScatterField from './InnerScatterField';
 import PetalField from './PetalField';
+import PetalPulseField from './PetalPulseField';
 import GlassShell from './GlassShell';
 import Lights from './Lights';
 
@@ -109,6 +110,13 @@ export default function SphereScene(props: SphereSceneProps) {
         </mesh>
 
         <PetalField
+          speed={speed}
+          reducedMotion={reducedMotion}
+          glowIntensity={glowIntensity}
+          colors={colors}
+        />
+
+        <PetalPulseField
           speed={speed}
           reducedMotion={reducedMotion}
           glowIntensity={glowIntensity}
