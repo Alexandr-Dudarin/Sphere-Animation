@@ -22,13 +22,77 @@ interface CenterCoreGlowProps {
 function getGlowFactor(glowIntensity: GlowIntensity) {
   switch (glowIntensity) {
     case 'low':
-      return 0.82;
+      return 0.8;
     case 'high':
-      return 1.14;
+      return 1.16;
     default:
       return 1;
   }
 }
+
+const VERTEX_SHADER = `
+  varying vec2 vUv;
+
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const AURA_FRAGMENT_SHADER = `
+  uniform float uTime;
+  uniform float uOpacity;
+  uniform vec3 uColorA;
+  uniform vec3 uColorB;
+  uniform vec3 uColorC;
+
+  varying vec2 vUv;
+
+  void main() {
+    vec2 p = (vUv - 0.5) * 2.0;
+    float r = length(p);
+    float a = atan(p.y, p.x);
+
+    float baseMask = smoothstep(1.0, 0.08, r);
+    float petalHint = 0.5 + 0.5 * cos(a * 8.0);
+    float swirl = 0.5 + 0.5 * sin(a * 3.0 - r * 7.5 + uTime * 0.22);
+    float inner = exp(-pow(r / 0.7, 2.4));
+
+    vec3 color = mix(uColorA, uColorB, petalHint * 0.72);
+    color = mix(color, uColorC, swirl * 0.38);
+
+    float alpha =
+      uOpacity *
+      baseMask *
+      inner *
+      (0.7 + 0.3 * petalHint);
+
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
+const CORE_FRAGMENT_SHADER = `
+  uniform float uTime;
+  uniform float uOpacity;
+  uniform vec3 uColorA;
+  uniform vec3 uColorB;
+
+  varying vec2 vUv;
+
+  void main() {
+    vec2 p = (vUv - 0.5) * 2.0;
+    float r = length(p);
+
+    float softCore = exp(-pow(r / 0.48, 2.6));
+    float softBloom = exp(-pow(r / 0.78, 2.2)) * 0.55;
+    float drift = 0.96 + 0.04 * sin(uTime * 0.45 - r * 4.0);
+
+    vec3 color = mix(uColorA, uColorB, 0.38 + 0.18 * sin(uTime * 0.18));
+    float alpha = uOpacity * (softCore * 0.7 + softBloom * 0.3) * drift;
+
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
 
 export default function CenterCoreGlow({
   speed,
@@ -36,100 +100,102 @@ export default function CenterCoreGlow({
   glowIntensity,
   colors,
 }: CenterCoreGlowProps) {
-  const outerRef = useRef<THREE.Mesh>(null);
-  const midRef = useRef<THREE.Mesh>(null);
-  const coreRef = useRef<THREE.Mesh>(null);
-  const sparkRef = useRef<THREE.Mesh>(null);
+  const rootRef = useRef<THREE.Group>(null);
+  const auraMaterialRef = useRef<THREE.ShaderMaterial>(null);
+  const coreMaterialRef = useRef<THREE.ShaderMaterial>(null);
 
   const glowFactor = getGlowFactor(glowIntensity);
 
-  const palette = useMemo(() => {
-    return {
-      outer: colors.violet.clone().lerp(colors.pink, 0.38),
-      mid: colors.mint.clone().lerp(colors.white, 0.25),
-      core: colors.white.clone().lerp(colors.mint, 0.12),
-      spark: colors.pink.clone().lerp(colors.white, 0.45),
-    };
-  }, [colors]);
+  const auraUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uOpacity: { value: 0.22 * glowFactor },
+      uColorA: {
+        value: colors.mint.clone().lerp(colors.halo, 0.35),
+      },
+      uColorB: {
+        value: colors.violet.clone().lerp(colors.pink, 0.26),
+      },
+      uColorC: {
+        value: colors.accent.clone().lerp(colors.mint, 0.22),
+      },
+    }),
+    [colors, glowFactor],
+  );
+
+  const coreUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uOpacity: { value: 0.16 * glowFactor },
+      uColorA: {
+        value: colors.white.clone().lerp(colors.mint, 0.26),
+      },
+      uColorB: {
+        value: colors.violet.clone().lerp(colors.white, 0.52),
+      },
+    }),
+    [colors, glowFactor],
+  );
 
   useFrame((state) => {
     const elapsed = state.clock.getElapsedTime();
-    const motionFactor = reducedMotion ? 0.35 : 1;
-    const safeSpeed = Math.max(speed, 0.15) * motionFactor;
+    const motionFactor = reducedMotion ? 0.45 : 1;
+    const safeSpeed = Math.max(speed, 0.15);
 
-    const outerPulse = 1 + Math.sin(elapsed * 1.35 * safeSpeed + 0.2) * 0.035;
-    const midPulse = 1 + Math.sin(elapsed * 2.1 * safeSpeed + 0.9) * 0.05;
-    const corePulse = 1 + Math.sin(elapsed * 3.2 * safeSpeed + 1.7) * 0.035;
-
-    if (outerRef.current) {
-      outerRef.current.scale.setScalar(outerPulse);
+    if (rootRef.current) {
+      const breath =
+        1 + Math.sin(elapsed * 0.82 * motionFactor) * 0.012 * motionFactor;
+      rootRef.current.scale.setScalar(breath);
+      rootRef.current.rotation.z =
+        Math.sin(elapsed * 0.18 * safeSpeed * motionFactor) * 0.025;
     }
 
-    if (midRef.current) {
-      midRef.current.scale.setScalar(midPulse);
+    if (auraMaterialRef.current) {
+      auraMaterialRef.current.uniforms.uTime.value =
+        elapsed * safeSpeed * motionFactor;
+
+      auraMaterialRef.current.uniforms.uOpacity.value =
+        0.22 *
+        glowFactor *
+        (0.95 + Math.sin(elapsed * 0.52 * motionFactor) * 0.05);
     }
 
-    if (coreRef.current) {
-      coreRef.current.scale.setScalar(corePulse);
-    }
+    if (coreMaterialRef.current) {
+      coreMaterialRef.current.uniforms.uTime.value =
+        elapsed * safeSpeed * motionFactor;
 
-    if (sparkRef.current) {
-      sparkRef.current.position.x =
-        Math.cos(elapsed * 1.6 * safeSpeed) * 0.009;
-      sparkRef.current.position.y =
-        Math.sin(elapsed * 2.0 * safeSpeed + 0.7) * 0.007;
+      coreMaterialRef.current.uniforms.uOpacity.value =
+        0.16 *
+        glowFactor *
+        (0.97 + Math.sin(elapsed * 0.44 * motionFactor + 0.6) * 0.03);
     }
   });
 
   return (
-    <group renderOrder={40}>
-      <mesh ref={outerRef} position={[0, 0, 0.028]} renderOrder={40}>
-        <sphereGeometry args={[0.128, 32, 32]} />
-        <meshBasicMaterial
-          color={palette.outer}
+    <group ref={rootRef} renderOrder={16}>
+      <mesh position={[0, 0, -0.05]} renderOrder={16}>
+        <planeGeometry args={[1.9, 1.9]} />
+        <shaderMaterial
+          ref={auraMaterialRef}
+          uniforms={auraUniforms}
+          vertexShader={VERTEX_SHADER}
+          fragmentShader={AURA_FRAGMENT_SHADER}
           transparent
-          opacity={0.12 * glowFactor}
           depthWrite={false}
-          depthTest={false}
           toneMapped={false}
           blending={THREE.AdditiveBlending}
         />
       </mesh>
 
-      <mesh ref={midRef} position={[0, 0, 0.036]} renderOrder={41}>
-        <sphereGeometry args={[0.085, 32, 32]} />
-        <meshBasicMaterial
-          color={palette.mid}
+      <mesh position={[0, 0, -0.01]} renderOrder={17}>
+        <planeGeometry args={[1.04, 1.04]} />
+        <shaderMaterial
+          ref={coreMaterialRef}
+          uniforms={coreUniforms}
+          vertexShader={VERTEX_SHADER}
+          fragmentShader={CORE_FRAGMENT_SHADER}
           transparent
-          opacity={0.23 * glowFactor}
           depthWrite={false}
-          depthTest={false}
-          toneMapped={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-
-      <mesh ref={coreRef} position={[0, 0, 0.05]} renderOrder={42}>
-        <sphereGeometry args={[0.043, 28, 28]} />
-        <meshBasicMaterial
-          color={palette.core}
-          transparent
-          opacity={0.9}
-          depthWrite={false}
-          depthTest={false}
-          toneMapped={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-
-      <mesh ref={sparkRef} position={[0.006, -0.004, 0.06]} renderOrder={43}>
-        <sphereGeometry args={[0.015, 20, 20]} />
-        <meshBasicMaterial
-          color={palette.spark}
-          transparent
-          opacity={0.46 * glowFactor}
-          depthWrite={false}
-          depthTest={false}
           toneMapped={false}
           blending={THREE.AdditiveBlending}
         />

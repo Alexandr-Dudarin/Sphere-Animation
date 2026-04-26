@@ -97,18 +97,25 @@ export default function SphereScene(props: SphereSceneProps) {
       <Lights colors={colors} glowIntensity={glowIntensity} />
 
       <group ref={rootRef}>
-        <mesh>
+        <mesh renderOrder={2}>
           <sphereGeometry args={[1.12, 40, 40]} />
           <meshBasicMaterial
             color={colors.halo}
             transparent
-            opacity={0.012}
+            opacity={0.008}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.BackSide}
             toneMapped={false}
           />
         </mesh>
+
+        <CenterCoreGlow
+          speed={speed}
+          reducedMotion={reducedMotion}
+          glowIntensity={glowIntensity}
+          colors={colors}
+        />
 
         <PetalField
           speed={speed}
@@ -118,13 +125,6 @@ export default function SphereScene(props: SphereSceneProps) {
         />
 
         <PetalPulseField
-          speed={speed}
-          reducedMotion={reducedMotion}
-          glowIntensity={glowIntensity}
-          colors={colors}
-        />
-
-        <CenterCoreGlow
           speed={speed}
           reducedMotion={reducedMotion}
           glowIntensity={glowIntensity}
