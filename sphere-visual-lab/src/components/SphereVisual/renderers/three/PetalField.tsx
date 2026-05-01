@@ -148,36 +148,36 @@ function mix3(
 function getOuterPalette(index: number, count: number, colors: PetalFieldColors) {
   const t = index / count;
   const waveA = (Math.sin(t * Math.PI * 2) + 1) * 0.5;
-  const waveB = (Math.sin(t * Math.PI * 2 + 2.1) + 1) * 0.5;
+  const waveB = (Math.sin(t * Math.PI * 2 + 2.15) + 1) * 0.5;
 
   return {
     wash: mix3(
       colors.halo,
       colors.mint,
       colors.violet,
-      0.18 + waveA * 0.18,
+      0.22 + waveA * 0.18,
       0.08 + waveB * 0.12,
     ),
     glow: mix3(
       colors.violet,
       colors.pink,
       colors.mint,
-      0.18 + waveA * 0.28,
-      0.08 + waveB * 0.16,
+      0.22 + waveA * 0.24,
+      0.1 + waveB * 0.16,
     ),
     mid: mix3(
       colors.mint,
       colors.halo,
       colors.violet,
-      0.28 + waveA * 0.18,
+      0.3 + waveA * 0.18,
       0.08 + waveB * 0.1,
     ),
     core: mix3(
       colors.white,
       colors.mint,
       colors.violet,
-      0.2 + waveA * 0.16,
-      0.04 + waveB * 0.06,
+      0.24 + waveA * 0.14,
+      0.05 + waveB * 0.06,
     ),
   };
 }
@@ -185,36 +185,36 @@ function getOuterPalette(index: number, count: number, colors: PetalFieldColors)
 function getInnerPalette(index: number, count: number, colors: PetalFieldColors) {
   const t = index / count;
   const waveA = (Math.sin(t * Math.PI * 2 + 0.7) + 1) * 0.5;
-  const waveB = (Math.sin(t * Math.PI * 2 + 3.0) + 1) * 0.5;
+  const waveB = (Math.sin(t * Math.PI * 2 + 2.85) + 1) * 0.5;
 
   return {
     wash: mix3(
       colors.halo,
       colors.violet,
       colors.mint,
-      0.12 + waveA * 0.16,
-      0.06 + waveB * 0.08,
+      0.14 + waveA * 0.16,
+      0.08 + waveB * 0.1,
     ),
     glow: mix3(
       colors.violet,
       colors.pink,
       colors.halo,
-      0.24 + waveA * 0.2,
+      0.28 + waveA * 0.2,
       0.1 + waveB * 0.08,
     ),
     mid: mix3(
       colors.violet,
       colors.pink,
       colors.mint,
-      0.22 + waveA * 0.16,
-      0.06 + waveB * 0.12,
+      0.24 + waveA * 0.18,
+      0.08 + waveB * 0.12,
     ),
     core: mix3(
       colors.white,
       colors.violet,
       colors.mint,
-      0.14 + waveA * 0.12,
-      0.04 + waveB * 0.08,
+      0.16 + waveA * 0.12,
+      0.05 + waveB * 0.08,
     ),
   };
 }
@@ -224,10 +224,10 @@ function getMicroPalette(index: number, count: number, colors: PetalFieldColors)
   const waveA = (Math.sin(t * Math.PI * 2 + 1.4) + 1) * 0.5;
 
   return {
-    wash: colors.halo.clone().lerp(colors.violet, 0.12 + waveA * 0.08),
-    glow: colors.pink.clone().lerp(colors.violet, 0.18 + waveA * 0.12),
-    mid: colors.mint.clone().lerp(colors.violet, 0.16 + waveA * 0.12),
-    core: colors.white.clone().lerp(colors.mint, 0.12 + waveA * 0.08),
+    wash: colors.halo.clone().lerp(colors.violet, 0.14 + waveA * 0.08),
+    glow: colors.pink.clone().lerp(colors.violet, 0.2 + waveA * 0.12),
+    mid: colors.mint.clone().lerp(colors.violet, 0.18 + waveA * 0.12),
+    core: colors.white.clone().lerp(colors.mint, 0.14 + waveA * 0.08),
   };
 }
 
@@ -241,23 +241,22 @@ export default function PetalField({
   const outerRef = useRef<THREE.Group>(null);
   const innerRef = useRef<THREE.Group>(null);
   const microRef = useRef<THREE.Group>(null);
-  const centerGlowRef = useRef<THREE.Mesh>(null);
 
   const glowFactor = getGlowFactor(glowIntensity);
 
   const outerLayer = useMemo(
     () =>
       createPetalLayer(
-        8,
-        0.68,
-        0.162,
+        10,
+        0.8,
+        0.18,
         0,
-        0.0052,
-        0.0128,
+        0.0054,
+        0.0132,
         0.024,
-        0.041,
+        0.044,
         0.008,
-        0.018,
+        0.024,
       ),
     [],
   );
@@ -265,16 +264,16 @@ export default function PetalField({
   const innerLayer = useMemo(
     () =>
       createPetalLayer(
-        8,
-        0.52,
-        0.115,
-        Math.PI / 8,
-        0.0042,
-        0.0105,
-        0.019,
-        0.031,
+        10,
+        0.62,
+        0.13,
+        Math.PI / 10,
+        0.0044,
+        0.0108,
+        0.0195,
+        0.032,
         0.016,
-        0.01,
+        0.013,
       ),
     [],
   );
@@ -282,38 +281,27 @@ export default function PetalField({
   const microLayer = useMemo(
     () =>
       createPetalLayer(
-        8,
-        0.315,
-        0.064,
-        0,
-        0.003,
-        0.0068,
-        0.011,
-        0.017,
+        10,
+        0.42,
+        0.082,
+        Math.PI / 20,
+        0.0032,
+        0.007,
+        0.0115,
+        0.018,
         0.022,
-        0.006,
+        0.007,
       ),
     [],
   );
 
-  const discOuter = useMemo(
-    () => colors.halo.clone().lerp(colors.mint, 0.08),
+  const fillOuter = useMemo(
+    () => colors.halo.clone().lerp(colors.mint, 0.1).lerp(colors.violet, 0.06),
     [colors],
   );
-  const discMid = useMemo(
-    () => colors.violet.clone().lerp(colors.halo, 0.18),
-    [colors],
-  );
-  const discInner = useMemo(
-    () => colors.white.clone().lerp(colors.mint, 0.22),
-    [colors],
-  );
-  const center = useMemo(
-    () => colors.white.clone().lerp(colors.mint, 0.34),
-    [colors],
-  );
-  const centerHot = useMemo(
-    () => colors.white.clone().lerp(colors.pink, 0.16),
+
+  const fillInner = useMemo(
+    () => colors.violet.clone().lerp(colors.halo, 0.22).lerp(colors.mint, 0.08),
     [colors],
   );
 
@@ -323,66 +311,69 @@ export default function PetalField({
     const safeSpeed = Math.max(speed, 0.15);
 
     if (rootRef.current) {
-      rootRef.current.rotation.z = Math.sin(elapsed * 0.14 * safeSpeed) * 0.045;
-      rootRef.current.rotation.x = Math.sin(elapsed * 0.08 * safeSpeed) * 0.04;
-      rootRef.current.rotation.y = Math.cos(elapsed * 0.09 * safeSpeed) * 0.04;
+      rootRef.current.rotation.z = Math.sin(elapsed * 0.14 * safeSpeed) * 0.04;
+      rootRef.current.rotation.x = Math.sin(elapsed * 0.08 * safeSpeed) * 0.035;
+      rootRef.current.rotation.y = Math.cos(elapsed * 0.09 * safeSpeed) * 0.035;
     }
 
     if (outerRef.current) {
       outerRef.current.rotation.z =
-        elapsed * 0.085 * safeSpeed * motionFactor;
+        elapsed * 0.08 * safeSpeed * motionFactor;
+
+      const outerBreath =
+        1 + Math.sin(elapsed * 0.9 * motionFactor) * 0.018 * motionFactor;
+
+      outerRef.current.scale.setScalar(outerBreath);
     }
 
     if (innerRef.current) {
       innerRef.current.rotation.z =
-        -elapsed * 0.11 * safeSpeed * motionFactor +
-        Math.sin(elapsed * 0.42 * motionFactor) * 0.03;
+        -elapsed * 0.105 * safeSpeed * motionFactor +
+        Math.sin(elapsed * 0.42 * motionFactor) * 0.024;
+
+      const innerBreath =
+        1 +
+        Math.sin(elapsed * 1.1 * motionFactor + 0.8) *
+          0.022 *
+          motionFactor;
+
+      innerRef.current.scale.setScalar(innerBreath);
     }
 
     if (microRef.current) {
       microRef.current.rotation.z =
-        elapsed * 0.16 * safeSpeed * motionFactor;
-    }
+        elapsed * 0.145 * safeSpeed * motionFactor;
 
-    if (centerGlowRef.current) {
-      const scale =
-        1 + Math.sin(elapsed * 1.25 * motionFactor) * 0.055;
-      centerGlowRef.current.scale.setScalar(scale);
+      const microBreath =
+        1 +
+        Math.sin(elapsed * 1.3 * motionFactor + 1.7) *
+          0.028 *
+          motionFactor;
+
+      microRef.current.scale.setScalar(microBreath);
     }
   });
 
   return (
     <group ref={rootRef} renderOrder={18}>
-      <mesh position={[0, 0, -0.03]} renderOrder={9}>
-        <circleGeometry args={[0.78, 80]} />
+      <mesh position={[0, 0, -0.035]} renderOrder={9}>
+        <circleGeometry args={[0.9, 96]} />
         <meshBasicMaterial
-          color={discOuter}
+          color={fillOuter}
+          transparent
+          opacity={0.014 * glowFactor}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+
+      <mesh position={[0, 0, -0.022]} renderOrder={10}>
+        <circleGeometry args={[0.64, 96]} />
+        <meshBasicMaterial
+          color={fillInner}
           transparent
           opacity={0.024 * glowFactor}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh position={[0, 0, -0.02]} renderOrder={10}>
-        <circleGeometry args={[0.57, 80]} />
-        <meshBasicMaterial
-          color={discMid}
-          transparent
-          opacity={0.018 * glowFactor}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh position={[0, 0, -0.01]} renderOrder={11}>
-        <circleGeometry args={[0.4, 80]} />
-        <meshBasicMaterial
-          color={discInner}
-          transparent
-          opacity={0.042 * glowFactor}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
@@ -399,7 +390,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.wash}
                   transparent
-                  opacity={0.065 * glowFactor}
+                  opacity={0.052 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -410,7 +401,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.glow}
                   transparent
-                  opacity={0.22 * glowFactor}
+                  opacity={0.18 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -421,7 +412,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.mid}
                   transparent
-                  opacity={0.38 * glowFactor}
+                  opacity={0.34 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -432,7 +423,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.core}
                   transparent
-                  opacity={0.88}
+                  opacity={0.84}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -464,7 +455,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.glow}
                   transparent
-                  opacity={0.15 * glowFactor}
+                  opacity={0.16 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -475,7 +466,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.mid}
                   transparent
-                  opacity={0.29 * glowFactor}
+                  opacity={0.28 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -486,7 +477,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.core}
                   transparent
-                  opacity={0.78}
+                  opacity={0.72}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -507,7 +498,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.wash}
                   transparent
-                  opacity={0.034 * glowFactor}
+                  opacity={0.042 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -518,7 +509,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.glow}
                   transparent
-                  opacity={0.095 * glowFactor}
+                  opacity={0.105 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -529,7 +520,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.mid}
                   transparent
-                  opacity={0.16 * glowFactor}
+                  opacity={0.18 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -540,7 +531,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.core}
                   transparent
-                  opacity={0.62}
+                  opacity={0.5}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -550,30 +541,6 @@ export default function PetalField({
           );
         })}
       </group>
-
-      <mesh ref={centerGlowRef} position={[0, 0, 0.024]} renderOrder={24}>
-        <sphereGeometry args={[0.072, 24, 24]} />
-        <meshBasicMaterial
-          color={center}
-          transparent
-          opacity={0.14 * glowFactor}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh position={[0, 0, 0.03]} renderOrder={25}>
-        <sphereGeometry args={[0.028, 20, 20]} />
-        <meshBasicMaterial
-          color={centerHot}
-          transparent
-          opacity={0.58}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
     </group>
   );
 }
