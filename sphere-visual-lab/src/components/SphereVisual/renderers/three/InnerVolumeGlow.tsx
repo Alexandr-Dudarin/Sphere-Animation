@@ -19,74 +19,172 @@ interface InnerVolumeGlowProps {
   colors: InnerVolumeColors;
 }
 
-interface CloudData {
-  positions: Float32Array;
-  colors: Float32Array;
+interface VeilLayerProps {
+  speed: number;
+  reducedMotion: boolean;
+  glowFactor: number;
+  radius: number;
+  opacity: number;
+  z: number;
+  phase: number;
+  rotationSpeed: number;
+  pulse: number;
+  colors: [THREE.Color, THREE.Color, THREE.Color];
+  renderOrder: number;
 }
 
 function getGlowFactor(glowIntensity: GlowIntensity) {
   switch (glowIntensity) {
     case 'low':
-      return 0.84;
+      return 0.82;
     case 'high':
-      return 1.18;
+      return 1.22;
     default:
       return 1;
   }
 }
 
-function pickColorMix(
-  radiusFactor: number,
-  angle: number,
-  colors: InnerVolumeColors,
-) {
-  const waveA = (Math.sin(angle * 2.2) + 1) * 0.5;
-  const waveB = (Math.cos(angle * 1.7 + radiusFactor * 4.0) + 1) * 0.5;
+const VERTEX_SHADER = `
+  varying vec2 vUv;
 
-  return colors.halo
-    .clone()
-    .lerp(colors.mint, 0.14 + waveA * 0.2)
-    .lerp(colors.violet, 0.08 + waveB * 0.16)
-    .lerp(colors.pink, Math.max(0, radiusFactor - 0.5) * 0.12);
-}
-
-function createCloudData(
-  count: number,
-  minRadius: number,
-  maxRadius: number,
-  flattenZ: number,
-  colors: InnerVolumeColors,
-): CloudData {
-  const positions = new Float32Array(count * 3);
-  const colorArray = new Float32Array(count * 3);
-
-  for (let i = 0; i < count; i += 1) {
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-
-    const radiusMix = Math.pow(Math.random(), 0.82);
-    const distance = minRadius + (maxRadius - minRadius) * radiusMix;
-
-    const x = Math.sin(phi) * Math.cos(theta) * distance;
-    const y = Math.sin(phi) * Math.sin(theta) * distance;
-    const z = Math.cos(phi) * distance * flattenZ;
-
-    positions[i * 3] = x;
-    positions[i * 3 + 1] = y;
-    positions[i * 3 + 2] = z;
-
-    const radiusFactor = distance / maxRadius;
-    const mixed = pickColorMix(radiusFactor, theta, colors);
-
-    colorArray[i * 3] = mixed.r;
-    colorArray[i * 3 + 1] = mixed.g;
-    colorArray[i * 3 + 2] = mixed.b;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
+`;
 
-  return {
-    positions,
-    colors: colorArray,
-  };
+const FRAGMENT_SHADER = `
+  uniform float uTime;
+  uniform float uOpacity;
+  uniform float uPhase;
+  uniform vec3 uColorA;
+  uniform vec3 uColorB;
+  uniform vec3 uColorC;
+
+  varying vec2 vUv;
+
+  void main() {
+    vec2 p = vUv * 2.0 - 1.0;
+    float r = length(p);
+    float a = atan(p.y, p.x);
+
+    if (r > 1.0) discard;
+
+    // Главный молочный слой ближе к краям
+    float edgeBandA = exp(-pow((r - 0.88) / 0.14, 2.0));
+    float edgeBandB = exp(-pow((r - 0.74) / 0.22, 2.0));
+
+    // Слабая поддержка середины, но без сильного центра
+    float midBand = exp(-pow((r - 0.56) / 0.24, 2.0)) * 0.42;
+
+    // Небольшое приглушение самого центра
+    float centerSuppression = 1.0 - smoothstep(0.0, 0.34, r) * 0.5;
+
+    // Мягкие "затягивания" с краёв к центру
+    float flowA = 0.5 + 0.5 * sin(a * 4.0 + r * 7.5 - uTime * 0.22 + uPhase);
+    float flowB = 0.5 + 0.5 * sin(a * 7.0 - r * 10.0 + uTime * 0.16 + uPhase * 1.37);
+    float flowC = 0.5 + 0.5 * sin((p.x * 1.7 - p.y * 2.0) * 2.8 - uTime * 0.12 + uPhase * 2.1);
+
+    // Мягкая неоднородность края, чтобы туман не читался как круг
+    float warp =
+      0.028 * sin(a * 5.0 + uTime * 0.14 + uPhase) +
+      0.018 * sin(a * 9.0 - uTime * 0.09 + uPhase * 0.8) +
+      0.012 * sin(a * 13.0 + uTime * 0.06 + uPhase * 1.7);
+
+    float edgeFade = 1.0 - smoothstep(0.90 + warp, 1.0, r);
+
+    float outerStructure =
+      edgeBandA * (0.82 + flowA * 0.18 + flowB * 0.14) +
+      edgeBandB * (0.46 + flowB * 0.16);
+
+    float innerStructure =
+      midBand * (0.42 + flowC * 0.18);
+
+    float structure = (outerStructure + innerStructure) * edgeFade * centerSuppression;
+
+    vec3 color = mix(
+      uColorA,
+      uColorB,
+      clamp(edgeBandA * 0.55 + flowA * 0.28, 0.0, 1.0)
+    );
+
+    color = mix(
+      color,
+      uColorC,
+      clamp(midBand * 0.22 + flowB * 0.16, 0.0, 1.0)
+    );
+
+    float alpha = uOpacity * structure;
+
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
+function VeilLayer({
+  speed,
+  reducedMotion,
+  glowFactor,
+  radius,
+  opacity,
+  z,
+  phase,
+  rotationSpeed,
+  pulse,
+  colors,
+  renderOrder,
+}: VeilLayerProps) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uOpacity: { value: opacity * glowFactor },
+      uPhase: { value: phase },
+      uColorA: { value: colors[0].clone() },
+      uColorB: { value: colors[1].clone() },
+      uColorC: { value: colors[2].clone() },
+    }),
+    [colors, glowFactor, opacity, phase],
+  );
+
+  useFrame((state) => {
+    const elapsed = state.clock.getElapsedTime();
+    const motionFactor = reducedMotion ? 0.4 : 1;
+    const safeSpeed = Math.max(speed, 0.15);
+    const t = elapsed * safeSpeed * motionFactor;
+
+    if (meshRef.current) {
+      meshRef.current.rotation.z = phase + t * rotationSpeed;
+
+      const scale = radius * (1 + Math.sin(t * 0.45 + phase) * pulse);
+      meshRef.current.scale.set(scale, scale, scale);
+    }
+
+    if (materialRef.current) {
+      materialRef.current.uniforms.uTime.value = t;
+      materialRef.current.uniforms.uOpacity.value =
+        opacity * glowFactor * (0.97 + Math.sin(t * 0.34 + phase) * 0.04);
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} position={[0, 0, z]} renderOrder={renderOrder}>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        ref={materialRef}
+        uniforms={uniforms}
+        vertexShader={VERTEX_SHADER}
+        fragmentShader={FRAGMENT_SHADER}
+        transparent
+        depthWrite={false}
+        depthTest={false}
+        toneMapped={false}
+        blending={THREE.AdditiveBlending}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
 }
 
 export default function InnerVolumeGlow({
@@ -96,167 +194,89 @@ export default function InnerVolumeGlow({
   colors,
 }: InnerVolumeGlowProps) {
   const rootRef = useRef<THREE.Group>(null);
-  const outerRef = useRef<THREE.Points>(null);
-  const midRef = useRef<THREE.Points>(null);
-  const innerRef = useRef<THREE.Points>(null);
-
-  const outerMaterialRef = useRef<THREE.PointsMaterial>(null);
-  const midMaterialRef = useRef<THREE.PointsMaterial>(null);
-  const innerMaterialRef = useRef<THREE.PointsMaterial>(null);
-
   const glowFactor = getGlowFactor(glowIntensity);
 
-  const outerCloud = useMemo(
-    () => createCloudData(1600, 0.42, 0.9, 0.72, colors),
+  const edgePalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
+    () => [
+      colors.halo.clone().lerp(colors.white, 0.08),
+      colors.mint.clone().lerp(colors.halo, 0.22),
+      colors.violet.clone().lerp(colors.pink, 0.12),
+    ],
     [colors],
   );
 
-  const midCloud = useMemo(
-    () => createCloudData(1100, 0.18, 0.72, 0.84, colors),
+  const outerPalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
+    () => [
+      colors.halo.clone().lerp(colors.mint, 0.18),
+      colors.mint.clone().lerp(colors.violet, 0.2),
+      colors.violet.clone().lerp(colors.white, 0.08),
+    ],
     [colors],
   );
 
-  const innerCloud = useMemo(
-    () => createCloudData(700, 0.02, 0.46, 0.92, colors),
+  const supportPalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
+    () => [
+      colors.halo.clone().lerp(colors.violet, 0.08),
+      colors.violet.clone().lerp(colors.mint, 0.14),
+      colors.white.clone().lerp(colors.pink, 0.06),
+    ],
     [colors],
   );
 
   useFrame((state) => {
     const elapsed = state.clock.getElapsedTime();
-    const motionFactor = reducedMotion ? 0.42 : 1;
     const safeSpeed = Math.max(speed, 0.15);
 
     if (rootRef.current) {
-      rootRef.current.rotation.z =
-        Math.sin(elapsed * 0.12 * safeSpeed) * 0.03;
-      rootRef.current.rotation.x =
-        Math.sin(elapsed * 0.08 * safeSpeed) * 0.024;
-      rootRef.current.rotation.y =
-        Math.cos(elapsed * 0.09 * safeSpeed) * 0.024;
-    }
-
-    if (outerRef.current) {
-      outerRef.current.rotation.z =
-        elapsed * 0.018 * safeSpeed * motionFactor;
-      const scale =
-        1 + Math.sin(elapsed * 0.52 * motionFactor) * 0.016 * motionFactor;
-      outerRef.current.scale.setScalar(scale);
-    }
-
-    if (midRef.current) {
-      midRef.current.rotation.z =
-        -elapsed * 0.026 * safeSpeed * motionFactor;
-      const scale =
-        1 +
-        Math.sin(elapsed * 0.76 * motionFactor + 0.8) *
-          0.018 *
-          motionFactor;
-      midRef.current.scale.setScalar(scale);
-    }
-
-    if (innerRef.current) {
-      innerRef.current.rotation.z =
-        elapsed * 0.034 * safeSpeed * motionFactor;
-      const scale =
-        1 +
-        Math.sin(elapsed * 1.02 * motionFactor + 1.6) *
-          0.014 *
-          motionFactor;
-      innerRef.current.scale.setScalar(scale);
-    }
-
-    if (outerMaterialRef.current) {
-      outerMaterialRef.current.opacity =
-        (0.07 + Math.sin(elapsed * 0.55 * motionFactor) * 0.008) *
-        glowFactor;
-    }
-
-    if (midMaterialRef.current) {
-      midMaterialRef.current.opacity =
-        (0.09 + Math.sin(elapsed * 0.72 * motionFactor + 0.8) * 0.01) *
-        glowFactor;
-    }
-
-    if (innerMaterialRef.current) {
-      innerMaterialRef.current.opacity =
-        (0.11 + Math.sin(elapsed * 0.95 * motionFactor + 1.5) * 0.01) *
-        glowFactor;
+      rootRef.current.rotation.x = Math.sin(elapsed * 0.06 * safeSpeed) * 0.012;
+      rootRef.current.rotation.y = Math.cos(elapsed * 0.07 * safeSpeed) * 0.012;
+      rootRef.current.rotation.z = Math.sin(elapsed * 0.05 * safeSpeed) * 0.01;
     }
   });
 
   return (
-    <group ref={rootRef} renderOrder={8}>
-      <points ref={outerRef} renderOrder={8}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[outerCloud.positions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[outerCloud.colors, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          ref={outerMaterialRef}
-          size={0.058}
-          vertexColors
-          transparent
-          opacity={0.07 * glowFactor}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          sizeAttenuation
-          toneMapped={false}
-        />
-      </points>
+    <group ref={rootRef} renderOrder={6}>
+      <VeilLayer
+        speed={speed}
+        reducedMotion={reducedMotion}
+        glowFactor={glowFactor}
+        radius={1.06}
+        opacity={0.24}
+        z={-0.09}
+        phase={0.18}
+        rotationSpeed={0.022}
+        pulse={0.018}
+        colors={edgePalette}
+        renderOrder={6}
+      />
 
-      <points ref={midRef} renderOrder={9}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[midCloud.positions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[midCloud.colors, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          ref={midMaterialRef}
-          size={0.048}
-          vertexColors
-          transparent
-          opacity={0.09 * glowFactor}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          sizeAttenuation
-          toneMapped={false}
-        />
-      </points>
+      <VeilLayer
+        speed={speed}
+        reducedMotion={reducedMotion}
+        glowFactor={glowFactor}
+        radius={0.96}
+        opacity={0.17}
+        z={-0.035}
+        phase={1.22}
+        rotationSpeed={-0.032}
+        pulse={0.014}
+        colors={outerPalette}
+        renderOrder={7}
+      />
 
-      <points ref={innerRef} renderOrder={10}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[innerCloud.positions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[innerCloud.colors, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          ref={innerMaterialRef}
-          size={0.04}
-          vertexColors
-          transparent
-          opacity={0.11 * glowFactor}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          sizeAttenuation
-          toneMapped={false}
-        />
-      </points>
+      <VeilLayer
+        speed={speed}
+        reducedMotion={reducedMotion}
+        glowFactor={glowFactor}
+        radius={0.8}
+        opacity={0.085}
+        z={0.01}
+        phase={2.38}
+        rotationSpeed={0.042}
+        pulse={0.01}
+        colors={supportPalette}
+        renderOrder={8}
+      />
     </group>
   );
 }

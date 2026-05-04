@@ -310,41 +310,43 @@ export default function PetalField({
     const motionFactor = reducedMotion ? 0.35 : 1;
     const safeSpeed = Math.max(speed, 0.15);
 
-    const outerBreath =
-      1 + Math.sin(elapsed * 0.9 * motionFactor) * 0.02 * motionFactor;
-    const innerBreath =
-      1 + Math.sin(elapsed * 1.06 * motionFactor + 0.6) * 0.012 * motionFactor;
-    const microBreath =
-      1 + Math.sin(elapsed * 1.18 * motionFactor + 1.2) * 0.007 * motionFactor;
-
     if (rootRef.current) {
       rootRef.current.rotation.z = Math.sin(elapsed * 0.14 * safeSpeed) * 0.045;
       rootRef.current.rotation.x = Math.sin(elapsed * 0.08 * safeSpeed) * 0.04;
       rootRef.current.rotation.y = Math.cos(elapsed * 0.09 * safeSpeed) * 0.04;
     }
 
+    const outerPulse =
+      1 + Math.sin(elapsed * 1.02 * motionFactor) * 0.028 * motionFactor;
+
+    const innerPulse =
+      1 + Math.sin(elapsed * 1.18 * motionFactor + 0.65) * 0.02 * motionFactor;
+
+    const microPulse =
+      1 + Math.sin(elapsed * 1.36 * motionFactor + 1.2) * 0.014 * motionFactor;
+
     if (outerRef.current) {
       outerRef.current.rotation.z =
         elapsed * 0.085 * safeSpeed * motionFactor;
-      outerRef.current.scale.setScalar(outerBreath);
+      outerRef.current.scale.setScalar(outerPulse);
     }
 
     if (innerRef.current) {
       innerRef.current.rotation.z =
         -elapsed * 0.11 * safeSpeed * motionFactor +
         Math.sin(elapsed * 0.42 * motionFactor) * 0.03;
-      innerRef.current.scale.setScalar(innerBreath);
+      innerRef.current.scale.setScalar(innerPulse);
     }
 
     if (microRef.current) {
       microRef.current.rotation.z =
         elapsed * 0.16 * safeSpeed * motionFactor;
-      microRef.current.scale.setScalar(microBreath);
+      microRef.current.scale.setScalar(microPulse);
     }
 
     if (centerGlowRef.current) {
       const scale =
-        1 + Math.sin(elapsed * 1.25 * motionFactor) * 0.055;
+        1 + Math.sin(elapsed * 1.25 * motionFactor) * 0.035;
       centerGlowRef.current.scale.setScalar(scale);
     }
   });
@@ -361,7 +363,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.wash}
                   transparent
-                  opacity={0.065 * glowFactor}
+                  opacity={0.016 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -372,7 +374,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.glow}
                   transparent
-                  opacity={0.22 * glowFactor}
+                  opacity={0.14 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -383,7 +385,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.mid}
                   transparent
-                  opacity={0.38 * glowFactor}
+                  opacity={0.34 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -415,7 +417,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.wash}
                   transparent
-                  opacity={0.05 * glowFactor}
+                  opacity={0.01 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -426,7 +428,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.glow}
                   transparent
-                  opacity={0.15 * glowFactor}
+                  opacity={0.095 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -437,7 +439,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.mid}
                   transparent
-                  opacity={0.29 * glowFactor}
+                  opacity={0.25 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -469,7 +471,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.wash}
                   transparent
-                  opacity={0.034 * glowFactor}
+                  opacity={0}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -480,7 +482,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.glow}
                   transparent
-                  opacity={0.095 * glowFactor}
+                  opacity={0.05 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -491,7 +493,7 @@ export default function PetalField({
                 <meshBasicMaterial
                   color={palette.mid}
                   transparent
-                  opacity={0.16 * glowFactor}
+                  opacity={0.12 * glowFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
