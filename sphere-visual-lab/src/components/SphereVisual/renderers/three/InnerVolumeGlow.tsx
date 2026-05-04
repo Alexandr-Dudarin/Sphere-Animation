@@ -31,6 +31,10 @@ interface VeilLayerProps {
   pulse: number;
   colors: [THREE.Color, THREE.Color, THREE.Color];
   renderOrder: number;
+  centerCut: number;
+  edgeStrength: number;
+  bandA: number;
+  bandB: number;
 }
 
 function getGlowFactor(glowIntensity: GlowIntensity) {
@@ -38,7 +42,7 @@ function getGlowFactor(glowIntensity: GlowIntensity) {
     case 'low':
       return 0.82;
     case 'high':
-      return 1.22;
+      return 1.24;
     default:
       return 1;
   }
@@ -57,6 +61,11 @@ const FRAGMENT_SHADER = `
   uniform float uTime;
   uniform float uOpacity;
   uniform float uPhase;
+  uniform float uCenterCut;
+  uniform float uEdgeStrength;
+  uniform float uBandA;
+  uniform float uBandB;
+
   uniform vec3 uColorA;
   uniform vec3 uColorB;
   uniform vec3 uColorC;
@@ -70,48 +79,39 @@ const FRAGMENT_SHADER = `
 
     if (r > 1.0) discard;
 
-    // Главный молочный слой ближе к краям
-    float edgeBandA = exp(-pow((r - 0.88) / 0.14, 2.0));
-    float edgeBandB = exp(-pow((r - 0.74) / 0.22, 2.0));
+    float bandOuter = exp(-pow((r - uBandA) / 0.12, 2.0));
+    float bandMid = exp(-pow((r - uBandB) / 0.18, 2.0));
 
-    // Слабая поддержка середины, но без сильного центра
-    float midBand = exp(-pow((r - 0.56) / 0.24, 2.0)) * 0.42;
+    float inwardA = 0.5 + 0.5 * sin(a * 4.0 + r * 7.8 - uTime * 0.2 + uPhase);
+    float inwardB = 0.5 + 0.5 * sin(a * 7.0 - r * 9.4 + uTime * 0.16 + uPhase * 1.31);
+    float inwardC = 0.5 + 0.5 * sin((p.x * 1.8 - p.y * 2.0) * 2.7 - uTime * 0.12 + uPhase * 2.0);
 
-    // Небольшое приглушение самого центра
-    float centerSuppression = 1.0 - smoothstep(0.0, 0.34, r) * 0.5;
-
-    // Мягкие "затягивания" с краёв к центру
-    float flowA = 0.5 + 0.5 * sin(a * 4.0 + r * 7.5 - uTime * 0.22 + uPhase);
-    float flowB = 0.5 + 0.5 * sin(a * 7.0 - r * 10.0 + uTime * 0.16 + uPhase * 1.37);
-    float flowC = 0.5 + 0.5 * sin((p.x * 1.7 - p.y * 2.0) * 2.8 - uTime * 0.12 + uPhase * 2.1);
-
-    // Мягкая неоднородность края, чтобы туман не читался как круг
-    float warp =
-      0.028 * sin(a * 5.0 + uTime * 0.14 + uPhase) +
-      0.018 * sin(a * 9.0 - uTime * 0.09 + uPhase * 0.8) +
+    float edgeWarp =
+      0.026 * sin(a * 5.0 + uTime * 0.14 + uPhase) +
+      0.018 * sin(a * 9.0 - uTime * 0.09 + uPhase * 0.82) +
       0.012 * sin(a * 13.0 + uTime * 0.06 + uPhase * 1.7);
 
-    float edgeFade = 1.0 - smoothstep(0.90 + warp, 1.0, r);
+    float edgeFade = 1.0 - smoothstep(0.91 + edgeWarp, 1.0, r);
 
-    float outerStructure =
-      edgeBandA * (0.82 + flowA * 0.18 + flowB * 0.14) +
-      edgeBandB * (0.46 + flowB * 0.16);
+    float centerSuppression = smoothstep(uCenterCut, 1.0, r);
 
-    float innerStructure =
-      midBand * (0.42 + flowC * 0.18);
+    float structure =
+      bandOuter * (uEdgeStrength + inwardA * 0.2 + inwardB * 0.14) +
+      bandMid * (0.34 + inwardB * 0.16 + inwardC * 0.12);
 
-    float structure = (outerStructure + innerStructure) * edgeFade * centerSuppression;
+    structure *= edgeFade;
+    structure *= centerSuppression;
 
     vec3 color = mix(
       uColorA,
       uColorB,
-      clamp(edgeBandA * 0.55 + flowA * 0.28, 0.0, 1.0)
+      clamp(bandOuter * 0.62 + inwardA * 0.24, 0.0, 1.0)
     );
 
     color = mix(
       color,
       uColorC,
-      clamp(midBand * 0.22 + flowB * 0.16, 0.0, 1.0)
+      clamp(bandMid * 0.22 + inwardB * 0.16, 0.0, 1.0)
     );
 
     float alpha = uOpacity * structure;
@@ -132,6 +132,10 @@ function VeilLayer({
   pulse,
   colors,
   renderOrder,
+  centerCut,
+  edgeStrength,
+  bandA,
+  bandB,
 }: VeilLayerProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
@@ -141,11 +145,15 @@ function VeilLayer({
       uTime: { value: 0 },
       uOpacity: { value: opacity * glowFactor },
       uPhase: { value: phase },
+      uCenterCut: { value: centerCut },
+      uEdgeStrength: { value: edgeStrength },
+      uBandA: { value: bandA },
+      uBandB: { value: bandB },
       uColorA: { value: colors[0].clone() },
       uColorB: { value: colors[1].clone() },
       uColorC: { value: colors[2].clone() },
     }),
-    [colors, glowFactor, opacity, phase],
+    [colors, glowFactor, opacity, phase, centerCut, edgeStrength, bandA, bandB],
   );
 
   useFrame((state) => {
@@ -156,15 +164,14 @@ function VeilLayer({
 
     if (meshRef.current) {
       meshRef.current.rotation.z = phase + t * rotationSpeed;
-
-      const scale = radius * (1 + Math.sin(t * 0.45 + phase) * pulse);
+      const scale = radius * (1 + Math.sin(t * 0.42 + phase) * pulse);
       meshRef.current.scale.set(scale, scale, scale);
     }
 
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = t;
       materialRef.current.uniforms.uOpacity.value =
-        opacity * glowFactor * (0.97 + Math.sin(t * 0.34 + phase) * 0.04);
+        opacity * glowFactor * (0.97 + Math.sin(t * 0.34 + phase) * 0.035);
     }
   });
 
@@ -196,20 +203,20 @@ export default function InnerVolumeGlow({
   const rootRef = useRef<THREE.Group>(null);
   const glowFactor = getGlowFactor(glowIntensity);
 
-  const edgePalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
+  const shellPalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
     () => [
-      colors.halo.clone().lerp(colors.white, 0.08),
-      colors.mint.clone().lerp(colors.halo, 0.22),
+      colors.halo.clone().lerp(colors.white, 0.1),
+      colors.mint.clone().lerp(colors.halo, 0.24),
       colors.violet.clone().lerp(colors.pink, 0.12),
     ],
     [colors],
   );
 
-  const outerPalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
+  const edgePalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
     () => [
       colors.halo.clone().lerp(colors.mint, 0.18),
-      colors.mint.clone().lerp(colors.violet, 0.2),
-      colors.violet.clone().lerp(colors.white, 0.08),
+      colors.mint.clone().lerp(colors.violet, 0.18),
+      colors.white.clone().lerp(colors.violet, 0.08),
     ],
     [colors],
   );
@@ -218,7 +225,7 @@ export default function InnerVolumeGlow({
     () => [
       colors.halo.clone().lerp(colors.violet, 0.08),
       colors.violet.clone().lerp(colors.mint, 0.14),
-      colors.white.clone().lerp(colors.pink, 0.06),
+      colors.white.clone().lerp(colors.pink, 0.05),
     ],
     [colors],
   );
@@ -240,42 +247,54 @@ export default function InnerVolumeGlow({
         speed={speed}
         reducedMotion={reducedMotion}
         glowFactor={glowFactor}
-        radius={1.06}
-        opacity={0.24}
-        z={-0.09}
+        radius={1.08}
+        opacity={0.28}
+        z={-0.095}
         phase={0.18}
-        rotationSpeed={0.022}
+        rotationSpeed={0.02}
         pulse={0.018}
-        colors={edgePalette}
+        colors={shellPalette}
         renderOrder={6}
+        centerCut={0.52}
+        edgeStrength={0.94}
+        bandA={0.9}
+        bandB={0.76}
       />
 
       <VeilLayer
         speed={speed}
         reducedMotion={reducedMotion}
         glowFactor={glowFactor}
-        radius={0.96}
-        opacity={0.17}
-        z={-0.035}
-        phase={1.22}
-        rotationSpeed={-0.032}
+        radius={0.98}
+        opacity={0.19}
+        z={-0.04}
+        phase={1.24}
+        rotationSpeed={-0.028}
         pulse={0.014}
-        colors={outerPalette}
+        colors={edgePalette}
         renderOrder={7}
+        centerCut={0.46}
+        edgeStrength={0.82}
+        bandA={0.86}
+        bandB={0.7}
       />
 
       <VeilLayer
         speed={speed}
         reducedMotion={reducedMotion}
         glowFactor={glowFactor}
-        radius={0.8}
-        opacity={0.085}
+        radius={0.82}
+        opacity={0.07}
         z={0.01}
-        phase={2.38}
-        rotationSpeed={0.042}
+        phase={2.4}
+        rotationSpeed={0.038}
         pulse={0.01}
         colors={supportPalette}
         renderOrder={8}
+        centerCut={0.38}
+        edgeStrength={0.42}
+        bandA={0.76}
+        bandB={0.58}
       />
     </group>
   );
