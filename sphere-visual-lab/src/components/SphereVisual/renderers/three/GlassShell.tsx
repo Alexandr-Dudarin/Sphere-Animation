@@ -68,32 +68,54 @@ const FRAGMENT_SHADER = `
     vec3 V = normalize(cameraPosition - vWorldPos);
 
     float ndv = clamp(dot(N, V), 0.0, 1.0);
-    float fresnel = pow(1.0 - ndv, 3.05);
+    float fresnel = pow(1.0 - ndv, 2.72);
 
-    float rim = smoothstep(0.04, 0.98, fresnel);
-    float body = smoothstep(0.03, 0.26, fresnel) * 0.055;
+    float rimSoft = smoothstep(0.06, 0.74, fresnel);
+    float rimStrong = smoothstep(0.22, 0.98, fresnel);
+
+    float body = smoothstep(0.03, 0.2, fresnel) * (1.0 - rimStrong) * 0.11;
+    float innerReflection = exp(-pow((fresnel - 0.22) / 0.11, 2.0)) * 0.34;
 
     float angle = atan(vLocalPos.y, vLocalPos.x);
-    float bandA = 0.5 + 0.5 * sin(angle * 2.4 + vLocalPos.z * 4.6 + uTime * 0.34);
-    float bandB = 0.5 + 0.5 * sin(angle * 3.3 - uTime * 0.42 + vLocalPos.z * 5.2);
 
-    vec3 spectralA = mix(uHalo, uMint, 0.52);
-    vec3 spectralB = mix(uViolet, uPink, 0.42);
-    vec3 spectral = mix(spectralA, spectralB, bandA * 0.58 + bandB * 0.18);
+    float bandA =
+      0.5 + 0.5 * sin(angle * 2.35 + vLocalPos.z * 4.8 + uTime * 0.34);
+    float bandB =
+      0.5 + 0.5 * sin(angle * 3.1 - uTime * 0.42 + vLocalPos.z * 5.4);
+    float latFlow =
+      0.5 + 0.5 * sin(vLocalPos.z * 7.2 + angle * 1.8 + uTime * 0.22);
 
-    float travelA = exp(-pow(angleDelta(angle, uTime * 0.36 + vLocalPos.z * 0.38) / 0.62, 2.0));
-    float travelB = exp(-pow(angleDelta(angle, -uTime * 0.28 + 1.9 + vLocalPos.z * 0.22) / 0.44, 2.0));
+    vec3 spectralA = mix(uHalo, uMint, 0.56);
+    vec3 spectralB = mix(uViolet, uPink, 0.46);
+    vec3 spectralC = mix(uMint, uWhite, 0.22);
 
-    float movingHighlight = rim * (travelA * 0.34 + travelB * 0.18);
-    float sparkle = 0.5 + 0.5 * sin(angle * 5.0 - uTime * 0.8 + vLocalPos.z * 6.0);
+    vec3 spectral = mix(spectralA, spectralB, bandA * 0.54 + bandB * 0.18);
+    spectral = mix(spectral, spectralC, innerReflection * 0.42 + latFlow * 0.08);
 
-    vec3 color = spectral * (rim * 0.76 + body * 0.22);
-    color += uWhite * movingHighlight * (0.62 + sparkle * 0.18);
-    color += mix(uMint, uWhite, 0.28) * rim * 0.08;
+    float travelA =
+      exp(-pow(angleDelta(angle, uTime * 0.36 + vLocalPos.z * 0.42) / 0.42, 2.0));
+    float travelB =
+      exp(-pow(angleDelta(angle, -uTime * 0.28 + 1.85 + vLocalPos.z * 0.24) / 0.34, 2.0));
+    float travelC =
+      exp(-pow(angleDelta(angle, uTime * 0.18 - 2.2 + vLocalPos.z * 0.3) / 0.7, 2.0));
+
+    float microSpark =
+      0.5 + 0.5 * sin(angle * 6.0 - uTime * 0.76 + vLocalPos.z * 6.4);
+
+    float movingHighlight =
+      rimStrong * (travelA * 0.42 + travelB * 0.22) +
+      rimSoft * travelC * 0.12;
+
+    vec3 color = spectral * (rimSoft * 0.56 + rimStrong * 0.46 + body * 0.22);
+    color += uWhite * movingHighlight * (0.72 + microSpark * 0.16);
+    color += mix(uMint, uWhite, 0.34) * innerReflection * 0.18;
+    color += mix(uViolet, uHalo, 0.42) * rimStrong * 0.05;
 
     float alpha = uOpacity * clamp(
-      rim * 0.84 +
-      body * 0.2 +
+      rimStrong * 0.76 +
+      rimSoft * 0.22 +
+      innerReflection * 0.16 +
+      body * 0.18 +
       movingHighlight * 0.22,
       0.0,
       1.0
@@ -111,22 +133,27 @@ export default function GlassShell({
 }: GlassShellProps) {
   const shellMaterialRef = useRef<THREE.ShaderMaterial>(null);
   const innerVeilMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const edgeLiftMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
   const outerAuraMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
 
   const glowFactor = getGlowFactor(glowIntensity);
 
   const innerVeilColor = useMemo(() => {
-    return colors.halo.clone().lerp(colors.mint, 0.14);
+    return colors.halo.clone().lerp(colors.mint, 0.16).lerp(colors.white, 0.04);
+  }, [colors]);
+
+  const edgeLiftColor = useMemo(() => {
+    return colors.mint.clone().lerp(colors.white, 0.12).lerp(colors.halo, 0.08);
   }, [colors]);
 
   const outerAuraColor = useMemo(() => {
-    return colors.halo.clone().lerp(colors.violet, 0.18);
+    return colors.halo.clone().lerp(colors.violet, 0.16).lerp(colors.mint, 0.05);
   }, [colors]);
 
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uOpacity: { value: 0.3 * glowFactor },
+      uOpacity: { value: 0.34 * glowFactor },
       uHalo: { value: colors.halo.clone().lerp(colors.white, 0.05) },
       uMint: { value: colors.mint.clone() },
       uViolet: { value: colors.violet.clone() },
@@ -146,21 +173,28 @@ export default function GlassShell({
         elapsed * safeSpeed * motionFactor;
 
       shellMaterialRef.current.uniforms.uOpacity.value =
-        0.3 *
+        0.34 *
         glowFactor *
         (0.975 + Math.sin(elapsed * 0.72 * motionFactor) * 0.025);
     }
 
     if (innerVeilMaterialRef.current) {
       innerVeilMaterialRef.current.opacity =
-        0.032 *
+        0.038 *
         glowFactor *
         (0.97 + Math.sin(elapsed * 0.46 * motionFactor + 0.7) * 0.03);
     }
 
+    if (edgeLiftMaterialRef.current) {
+      edgeLiftMaterialRef.current.opacity =
+        0.02 *
+        glowFactor *
+        (0.975 + Math.sin(elapsed * 0.56 * motionFactor + 1.05) * 0.025);
+    }
+
     if (outerAuraMaterialRef.current) {
       outerAuraMaterialRef.current.opacity =
-        0.012 *
+        0.014 *
         glowFactor *
         (0.98 + Math.sin(elapsed * 0.54 * motionFactor + 1.2) * 0.02);
     }
@@ -170,16 +204,31 @@ export default function GlassShell({
     <group>
       {/* Внутренняя мягкая вуаль */}
       <mesh renderOrder={37}>
-        <sphereGeometry args={[1.035, 52, 52]} />
+        <sphereGeometry args={[1.035, 56, 56]} />
         <meshBasicMaterial
           ref={innerVeilMaterialRef}
           color={innerVeilColor}
           transparent
-          opacity={0.032 * glowFactor}
+          opacity={0.038 * glowFactor}
           depthWrite={false}
           toneMapped={false}
           side={THREE.FrontSide}
           blending={THREE.NormalBlending}
+        />
+      </mesh>
+
+      {/* Подстекольный мягкий lift по внутреннему краю */}
+      <mesh renderOrder={38}>
+        <sphereGeometry args={[1.06, 56, 56]} />
+        <meshBasicMaterial
+          ref={edgeLiftMaterialRef}
+          color={edgeLiftColor}
+          transparent
+          opacity={0.02 * glowFactor}
+          depthWrite={false}
+          toneMapped={false}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
         />
       </mesh>
 
@@ -199,14 +248,14 @@ export default function GlassShell({
         />
       </mesh>
 
-      {/* Очень мягкий внешний воздух, без явного кольца */}
+      {/* Очень мягкий внешний воздух */}
       <mesh renderOrder={41}>
-        <sphereGeometry args={[1.128, 52, 52]} />
+        <sphereGeometry args={[1.128, 56, 56]} />
         <meshBasicMaterial
           ref={outerAuraMaterialRef}
           color={outerAuraColor}
           transparent
-          opacity={0.012 * glowFactor}
+          opacity={0.014 * glowFactor}
           depthWrite={false}
           toneMapped={false}
           side={THREE.BackSide}
