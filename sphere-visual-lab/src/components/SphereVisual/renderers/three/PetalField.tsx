@@ -297,11 +297,17 @@ export default function PetalField({
   );
 
   const center = useMemo(
-    () => colors.white.clone().lerp(colors.mint, 0.34),
+    () => colors.white.clone().lerp(colors.mint, 0.28),
     [colors],
   );
+
   const centerHot = useMemo(
-    () => colors.white.clone().lerp(colors.pink, 0.16),
+    () => colors.white.clone().lerp(colors.pink, 0.1),
+    [colors],
+  );
+
+  const centerHalo = useMemo(
+    () => colors.halo.clone().lerp(colors.mint, 0.22),
     [colors],
   );
 
@@ -310,20 +316,31 @@ export default function PetalField({
     const motionFactor = reducedMotion ? 0.35 : 1;
     const safeSpeed = Math.max(speed, 0.15);
 
+    const breathBase = Math.sin(elapsed * 0.92 * motionFactor);
+    const breathOuter = Math.sin(elapsed * 0.98 * motionFactor + 0.12);
+    const breathInner = Math.sin(elapsed * 1.08 * motionFactor + 0.68);
+    const breathMicro = Math.sin(elapsed * 1.22 * motionFactor + 1.28);
+
     if (rootRef.current) {
-      rootRef.current.rotation.z = Math.sin(elapsed * 0.14 * safeSpeed) * 0.045;
-      rootRef.current.rotation.x = Math.sin(elapsed * 0.08 * safeSpeed) * 0.04;
-      rootRef.current.rotation.y = Math.cos(elapsed * 0.09 * safeSpeed) * 0.04;
+      const rootPulse = 1 + breathBase * 0.008 * motionFactor;
+
+      rootRef.current.scale.setScalar(rootPulse);
+      rootRef.current.rotation.z =
+        Math.sin(elapsed * 0.14 * safeSpeed) * 0.045;
+      rootRef.current.rotation.x =
+        Math.sin(elapsed * 0.08 * safeSpeed) * 0.04;
+      rootRef.current.rotation.y =
+        Math.cos(elapsed * 0.09 * safeSpeed) * 0.04;
     }
 
     const outerPulse =
-      1 + Math.sin(elapsed * 1.02 * motionFactor) * 0.028 * motionFactor;
+      1 + breathOuter * 0.038 * motionFactor;
 
     const innerPulse =
-      1 + Math.sin(elapsed * 1.18 * motionFactor + 0.65) * 0.02 * motionFactor;
+      1 + breathInner * 0.026 * motionFactor;
 
     const microPulse =
-      1 + Math.sin(elapsed * 1.36 * motionFactor + 1.2) * 0.014 * motionFactor;
+      1 + breathMicro * 0.018 * motionFactor;
 
     if (outerRef.current) {
       outerRef.current.rotation.z =
@@ -345,12 +362,12 @@ export default function PetalField({
     }
 
     if (centerGlowRef.current) {
-      const scale =
-        1 + Math.sin(elapsed * 1.25 * motionFactor) * 0.035;
-      centerGlowRef.current.scale.setScalar(scale);
+      const centerPulse =
+        1 + Math.sin(elapsed * 1.14 * motionFactor + 0.4) * 0.05;
+      centerGlowRef.current.scale.setScalar(centerPulse);
     }
   });
-
+  
   return (
     <group ref={rootRef} renderOrder={18}>
       <group ref={outerRef}>
@@ -516,23 +533,35 @@ export default function PetalField({
       </group>
 
       <mesh ref={centerGlowRef} position={[0, 0, 0.024]} renderOrder={24}>
-        <sphereGeometry args={[0.072, 24, 24]} />
+        <sphereGeometry args={[0.092, 24, 24]} />
         <meshBasicMaterial
-          color={center}
+          color={centerHalo}
           transparent
-          opacity={0.14 * glowFactor}
+          opacity={0.095 * glowFactor}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
         />
       </mesh>
 
-      <mesh position={[0, 0, 0.03]} renderOrder={25}>
-        <sphereGeometry args={[0.028, 20, 20]} />
+      <mesh position={[0, 0, 0.026]} renderOrder={25}>
+        <sphereGeometry args={[0.062, 24, 24]} />
+        <meshBasicMaterial
+          color={center}
+          transparent
+          opacity={0.18 * glowFactor}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+
+      <mesh position={[0, 0, 0.03]} renderOrder={26}>
+        <sphereGeometry args={[0.022, 20, 20]} />
         <meshBasicMaterial
           color={centerHot}
           transparent
-          opacity={0.58}
+          opacity={0.42}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
