@@ -99,6 +99,8 @@ a {
   display: grid;
   place-items: center;
   min-height: 620px;
+  padding: 28px;
+  box-sizing: border-box;
   border-radius: 24px;
   background:
     radial-gradient(circle at 50% 28%, rgba(104, 142, 255, 0.22), transparent 22%),

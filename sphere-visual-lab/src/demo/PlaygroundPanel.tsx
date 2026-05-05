@@ -64,7 +64,7 @@ export default function PlaygroundPanel({
           className="controlRange"
           type="range"
           min="220"
-          max="560"
+          max="530"
           step="1"
           value={size}
           onChange={(event) => onSizeChange(Number(event.target.value))}
