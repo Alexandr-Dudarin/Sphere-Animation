@@ -9,6 +9,58 @@ import {
   type SphereQuality,
 } from '../components/SphereVisual';
 
+interface PresetCard {
+  preset: SpherePresetName;
+  mode: SphereMode;
+  title: string;
+  text: string;
+}
+
+const presetCards: PresetCard[] = [
+  {
+    preset: 'glass-petal',
+    mode: 'thinking',
+    title: 'glass-petal',
+    text: 'Наша текущая сильная baseline-версия: стеклянная оболочка, лепестковая структура и мягкий внутренний haze.',
+  },
+  {
+    preset: 'soft-ai',
+    mode: 'idle',
+    title: 'soft-ai',
+    text: 'Мягкий базовый AI-вариант: спокойный, светящийся, универсальный для нейтральных интерфейсов.',
+  },
+  {
+    preset: 'thinking-blue',
+    mode: 'thinking',
+    title: 'thinking-blue',
+    text: 'Более собранный и холодный характер с ощущением концентрации и размышления.',
+  },
+  {
+    preset: 'searching-violet',
+    mode: 'searching',
+    title: 'searching-violet',
+    text: 'Более активный и выразительный вариант, хорошо подходящий под поиск, AI и lab-настроение.',
+  },
+  {
+    preset: 'calm-pearl',
+    mode: 'idle',
+    title: 'calm-pearl',
+    text: 'Спокойный премиальный пресет: мягкий, светлый и деликатный, почти luxury-настроение.',
+  },
+  {
+    preset: 'neon-core',
+    mode: 'searching',
+    title: 'neon-core',
+    text: 'Яркий технологичный вариант с более контрастным свечением и выраженным AI/tech-характером.',
+  },
+  {
+    preset: 'bio-glow',
+    mode: 'thinking',
+    title: 'bio-glow',
+    text: 'Более органичный и биолюминесцентный вариант: живой, мягкий и мятно-лазурный.',
+  },
+];
+
 export default function DemoPage() {
   const [size, setSize] = useState(440);
   const [mode, setMode] = useState<SphereMode>('thinking');
@@ -20,32 +72,6 @@ export default function DemoPage() {
   const [background, setBackground] = useState<SphereBackground>('transparent');
   const [interactive, setInteractive] = useState(true);
 
-  const previewModes: SphereMode[] = ['idle', 'thinking', 'searching'];
-
-  const getPreviewPreset = (previewMode: SphereMode): SpherePresetName => {
-    if (previewMode === 'searching') {
-      return 'searching-violet';
-    }
-
-    if (previewMode === 'thinking') {
-      return 'glass-petal';
-    }
-
-    return 'soft-ai';
-  };
-
-  const getPreviewText = (previewMode: SphereMode) => {
-    if (previewMode === 'idle') {
-      return 'Спокойный базовый режим, когда визуал просто живёт и мягко дышит.';
-    }
-
-    if (previewMode === 'thinking') {
-      return 'Более собранный и концентрированный режим с ощущением размышления.';
-    }
-
-    return 'Чуть более активный характер, который можно дальше развивать под поиск.';
-  };
-
   return (
     <main className="pageShell">
       <div className="pageContainer">
@@ -55,7 +81,7 @@ export default function DemoPage() {
           <p className="pageSubtitle">
             Первая база отдельного проекта со сферой: без привязки к лендингу,
             с настраиваемыми параметрами, чистой архитектурой и заделом на
-            будущие режимы, более сложную анимацию и другой внутренний рендер.
+            будущие режимы, новые пресеты и другие visual family.
           </p>
         </header>
 
@@ -101,15 +127,15 @@ export default function DemoPage() {
         </section>
 
         <section className="miniGrid">
-          {previewModes.map((previewMode) => (
-            <article key={previewMode} className="miniCard">
+          {presetCards.map((card) => (
+            <article key={card.preset} className="miniCard">
               <div className="miniSphereWrap">
                 <SphereVisual
                   width="100%"
                   height="100%"
                   size={156}
-                  mode={previewMode}
-                  preset={getPreviewPreset(previewMode)}
+                  mode={card.mode}
+                  preset={card.preset}
                   quality="medium"
                   glowIntensity="medium"
                   speed={1}
@@ -118,8 +144,8 @@ export default function DemoPage() {
                 />
               </div>
 
-              <h2 className="miniLabel">{previewMode}</h2>
-              <p className="miniText">{getPreviewText(previewMode)}</p>
+              <h2 className="miniLabel">{card.title}</h2>
+              <p className="miniText">{card.text}</p>
             </article>
           ))}
         </section>

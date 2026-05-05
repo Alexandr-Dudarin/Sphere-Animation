@@ -54,18 +54,12 @@ export default function SphereScene(props: SphereSceneProps) {
     return {
       accent: rgbStringToColor(presetConfig.accentRgb),
       halo: rgbStringToColor(presetConfig.haloRgb),
-      violet:
-        mode === 'searching'
-          ? new THREE.Color('rgb(158, 122, 255)')
-          : new THREE.Color('rgb(128, 104, 255)'),
-      pink:
-        mode === 'searching'
-          ? new THREE.Color('rgb(255, 96, 184)')
-          : new THREE.Color('rgb(232, 118, 255)'),
-      mint: new THREE.Color('rgb(108, 255, 223)'),
-      white: new THREE.Color('#ffffff'),
+      violet: rgbStringToColor(presetConfig.violetRgb),
+      pink: rgbStringToColor(presetConfig.pinkRgb),
+      mint: rgbStringToColor(presetConfig.mintRgb),
+      white: rgbStringToColor(presetConfig.whiteRgb ?? '255 255 255'),
     };
-  }, [mode, presetConfig]);
+  }, [presetConfig]);
 
   const safeSpeed = Math.max(speed, 0.15);
 

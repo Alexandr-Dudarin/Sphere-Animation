@@ -111,6 +111,9 @@ export default function PlaygroundPanel({
           <option value="searching-violet">
             searching-violet — фиолетовый поиск
           </option>
+          <option value="calm-pearl">calm-pearl — спокойный премиальный</option>
+          <option value="neon-core">neon-core — яркий tech</option>
+          <option value="bio-glow">bio-glow — биолюминесцентный</option>
         </select>
       </div>
 
