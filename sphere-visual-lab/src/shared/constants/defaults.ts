@@ -9,10 +9,10 @@ import type {
 export const SPHERE_DEFAULTS = {
   size: 420,
   mode: 'thinking' as SphereMode,
-  preset: 'soft-ai' as SpherePresetName,
-  quality: 'medium' as SphereQuality,
+  preset: 'glass-petal' as SpherePresetName,
+  quality: 'high' as SphereQuality,
   interactive: true,
-  glowIntensity: 'medium' as GlowIntensity,
-  speed: 1,
+  glowIntensity: 'high' as GlowIntensity,
+  speed: 1.1,
   background: 'dark' as SphereBackground,
 };

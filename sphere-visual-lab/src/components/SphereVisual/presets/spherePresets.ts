@@ -4,6 +4,13 @@ import type {
 } from '../SphereVisual.types';
 
 export const spherePresets = {
+  'glass-petal': {
+    coreRgb: '28 48 148',
+    accentRgb: '102 223 255',
+    haloRgb: '182 244 255',
+    ringRgb: '122 136 255',
+    noiseOpacity: 0.08,
+  },
   'soft-ai': {
     coreRgb: '27 55 158',
     accentRgb: '68 181 255',

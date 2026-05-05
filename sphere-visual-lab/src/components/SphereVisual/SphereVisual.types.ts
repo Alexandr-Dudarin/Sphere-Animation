@@ -1,5 +1,9 @@
 export type SphereMode = 'idle' | 'thinking' | 'searching';
-export type SpherePresetName = 'soft-ai' | 'thinking-blue' | 'searching-violet';
+export type SpherePresetName =
+  | 'glass-petal'
+  | 'soft-ai'
+  | 'thinking-blue'
+  | 'searching-violet';
 export type SphereQuality = 'low' | 'medium' | 'high';
 export type GlowIntensity = 'low' | 'medium' | 'high';
 export type SphereBackground = 'transparent' | 'dark';
