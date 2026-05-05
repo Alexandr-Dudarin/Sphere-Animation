@@ -8,6 +8,8 @@ import { usePointerTracking } from './hooks/usePointerTracking';
 import CssSphereRenderer from './renderers/CssSphereRenderer';
 import ThreeSphereRenderer from './renderers/ThreeSphereRenderer';
 
+const BASE_VISUAL_SIZE = 440;
+
 export default function SphereVisual({
   size = SPHERE_DEFAULTS.size,
   width,
@@ -45,6 +47,8 @@ export default function SphereVisual({
     height: resolvedHeight,
   };
 
+  const visualScale = size / BASE_VISUAL_SIZE;
+
   const sharedRendererProps = {
     presetConfig,
     mode,
@@ -55,13 +59,24 @@ export default function SphereVisual({
     pointerX,
     pointerY,
     reducedMotion,
+    visualScale,
   };
 
   return (
     <div className={rootClassName} style={rootStyle}>
       <div ref={containerRef} className={styles.stage}>
         {renderer === 'css' ? (
-          <CssSphereRenderer {...sharedRendererProps} />
+          <CssSphereRenderer
+            presetConfig={presetConfig}
+            mode={mode}
+            quality={quality}
+            interactive={effectiveInteractive}
+            glowIntensity={glowIntensity}
+            speed={speed}
+            pointerX={pointerX}
+            pointerY={pointerY}
+            reducedMotion={reducedMotion}
+          />
         ) : (
           <ThreeSphereRenderer {...sharedRendererProps} />
         )}

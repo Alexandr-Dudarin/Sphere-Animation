@@ -12,7 +12,7 @@ import {
 export default function DemoPage() {
   const [size, setSize] = useState(440);
   const [mode, setMode] = useState<SphereMode>('thinking');
-  const [preset, setPreset] = useState<SpherePresetName>('soft-ai');
+  const [preset, setPreset] = useState<SpherePresetName>('glass-petal');
   const [quality, setQuality] = useState<SphereQuality>('high');
   const [glowIntensity, setGlowIntensity] =
     useState<GlowIntensity>('high');
@@ -28,7 +28,7 @@ export default function DemoPage() {
     }
 
     if (previewMode === 'thinking') {
-      return 'thinking-blue';
+      return 'glass-petal';
     }
 
     return 'soft-ai';
@@ -64,6 +64,8 @@ export default function DemoPage() {
             <div className="previewStage">
               <SphereVisual
                 renderer="three"
+                width="100%"
+                height="100%"
                 size={size}
                 mode={mode}
                 preset={preset}
@@ -103,6 +105,8 @@ export default function DemoPage() {
             <article key={previewMode} className="miniCard">
               <div className="miniSphereWrap">
                 <SphereVisual
+                  width="100%"
+                  height="100%"
                   size={156}
                   mode={previewMode}
                   preset={getPreviewPreset(previewMode)}

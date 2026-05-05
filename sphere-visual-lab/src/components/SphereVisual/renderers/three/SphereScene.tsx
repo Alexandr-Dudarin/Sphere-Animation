@@ -26,6 +26,7 @@ interface SphereSceneProps {
   pointerX: number;
   pointerY: number;
   reducedMotion: boolean;
+  visualScale: number;
 }
 
 function rgbStringToColor(value: string) {
@@ -43,8 +44,10 @@ export default function SphereScene(props: SphereSceneProps) {
     pointerX,
     pointerY,
     reducedMotion,
+    visualScale,
   } = props;
 
+  const scaleRef = useRef<THREE.Group>(null);
   const rootRef = useRef<THREE.Group>(null);
 
   const colors = useMemo(() => {
@@ -73,6 +76,10 @@ export default function SphereScene(props: SphereSceneProps) {
     const targetRotX = pointerY * 0.08 * pointerFactor;
     const targetRotY = pointerX * 0.1 * pointerFactor;
 
+    if (scaleRef.current) {
+      scaleRef.current.scale.setScalar(visualScale);
+    }
+
     if (rootRef.current) {
       rootRef.current.rotation.x = THREE.MathUtils.lerp(
         rootRef.current.rotation.x,
@@ -98,69 +105,71 @@ export default function SphereScene(props: SphereSceneProps) {
     <>
       <Lights colors={colors} glowIntensity={glowIntensity} />
 
-      <group ref={rootRef}>
-        <mesh>
-          <sphereGeometry args={[1.12, 40, 40]} />
-          <meshBasicMaterial
-            color={colors.halo}
-            transparent
-            opacity={0.012}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-            side={THREE.BackSide}
-            toneMapped={false}
+      <group ref={scaleRef}>
+        <group ref={rootRef}>
+          <mesh>
+            <sphereGeometry args={[1.12, 40, 40]} />
+            <meshBasicMaterial
+              color={colors.halo}
+              transparent
+              opacity={0.012}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              side={THREE.BackSide}
+              toneMapped={false}
+            />
+          </mesh>
+
+          <InnerVolumeGlow
+            speed={speed}
+            reducedMotion={reducedMotion}
+            glowIntensity={glowIntensity}
+            colors={colors}
           />
-        </mesh>
 
-        <InnerVolumeGlow
-          speed={speed}
-          reducedMotion={reducedMotion}
-          glowIntensity={glowIntensity}
-          colors={colors}
-        />
+          <PetalEchoField
+            speed={speed}
+            reducedMotion={reducedMotion}
+            glowIntensity={glowIntensity}
+            colors={colors}
+          />
 
-        <PetalEchoField
-          speed={speed}
-          reducedMotion={reducedMotion}
-          glowIntensity={glowIntensity}
-          colors={colors}
-        />
+          <PetalField
+            speed={speed}
+            reducedMotion={reducedMotion}
+            glowIntensity={glowIntensity}
+            colors={colors}
+          />
 
-        <PetalField
-          speed={speed}
-          reducedMotion={reducedMotion}
-          glowIntensity={glowIntensity}
-          colors={colors}
-        />
+          <PetalPulseField
+            speed={speed}
+            reducedMotion={reducedMotion}
+            glowIntensity={glowIntensity}
+            colors={colors}
+          />
 
-        <PetalPulseField
-          speed={speed}
-          reducedMotion={reducedMotion}
-          glowIntensity={glowIntensity}
-          colors={colors}
-        />
+          <CenterCoreGlow
+            speed={speed}
+            reducedMotion={reducedMotion}
+            glowIntensity={glowIntensity}
+            colors={colors}
+          />
 
-        <CenterCoreGlow
-          speed={speed}
-          reducedMotion={reducedMotion}
-          glowIntensity={glowIntensity}
-          colors={colors}
-        />
+          <InnerScatterField
+            speed={speed}
+            reducedMotion={reducedMotion}
+            interactive={interactive}
+            glowIntensity={glowIntensity}
+            colors={colors}
+          />
 
-        <InnerScatterField
-          speed={speed}
-          reducedMotion={reducedMotion}
-          interactive={interactive}
-          glowIntensity={glowIntensity}
-          colors={colors}
-        />
-
-        <GlassShell
-          speed={speed}
-          reducedMotion={reducedMotion}
-          glowIntensity={glowIntensity}
-          colors={colors}
-        />
+          <GlassShell
+            speed={speed}
+            reducedMotion={reducedMotion}
+            glowIntensity={glowIntensity}
+            colors={colors}
+          />
+        </group>
       </group>
     </>
   );

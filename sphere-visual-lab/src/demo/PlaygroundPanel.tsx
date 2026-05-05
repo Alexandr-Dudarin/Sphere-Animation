@@ -105,6 +105,7 @@ export default function PlaygroundPanel({
             onPresetChange(event.target.value as SpherePresetName)
           }
         >
+          <option value="glass-petal">glass-petal — базовый petal</option>
           <option value="soft-ai">soft-ai — мягкий AI</option>
           <option value="thinking-blue">thinking-blue — синий thinking</option>
           <option value="searching-violet">

@@ -17,6 +17,7 @@ interface ThreeSphereCanvasProps {
   pointerX: number;
   pointerY: number;
   reducedMotion: boolean;
+  visualScale: number;
 }
 
 const dprMap: Record<SphereQuality, number | [number, number]> = {
@@ -27,12 +28,15 @@ const dprMap: Record<SphereQuality, number | [number, number]> = {
 
 export default function ThreeSphereCanvas({
   quality,
+  visualScale,
   ...sceneProps
 }: ThreeSphereCanvasProps) {
+  const cameraZ = 4.8 + Math.max(visualScale - 1, 0) * 1.25;
+
   return (
     <Canvas
       dpr={dprMap[quality]}
-      camera={{ position: [0, 0, 4.8], fov: 32 }}
+      camera={{ position: [0, 0, cameraZ], fov: 32 }}
       gl={{
         antialias: true,
         alpha: true,
@@ -47,7 +51,7 @@ export default function ThreeSphereCanvas({
         pointerEvents: 'none',
       }}
     >
-      <SphereScene quality={quality} {...sceneProps} />
+      <SphereScene quality={quality} visualScale={visualScale} {...sceneProps} />
     </Canvas>
   );
 }
