@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PlaygroundPanel from './PlaygroundPanel';
+import OrbitalPlaygroundPanel from './OrbitalPlaygroundPanel';
 import {
   SphereVisual,
   type GlowIntensity,
@@ -8,6 +9,13 @@ import {
   type SpherePresetName,
   type SphereQuality,
 } from '../components/SphereVisual';
+import {
+  OrbitalVisual,
+  type OrbitalBackground,
+  type OrbitalGlowIntensity,
+  type OrbitalPresetName,
+  type OrbitalQuality,
+} from '../components/OrbitalVisual';
 
 interface PresetCard {
   preset: SpherePresetName;
@@ -53,11 +61,17 @@ const presetCards: PresetCard[] = [
     title: 'bio-glow',
     text: 'Более органичный и биолюминесцентный вариант: живой, мягкий и мятно-лазурный.',
   },
-    {
+  {
     preset: 'soft-ai',
     mode: 'idle',
     title: 'soft-ai',
     text: 'Мягкий базовый AI-вариант: спокойный, светящийся, универсальный для нейтральных интерфейсов.',
+  },
+  {
+    preset: 'prism-bloom',
+    mode: 'searching',
+    title: 'prism-bloom',
+    text: 'Более яркий и насыщенный вариант с усиленным внутренним glow и более спектральным характером.',
   },
 ];
 
@@ -66,11 +80,22 @@ export default function DemoPage() {
   const [mode, setMode] = useState<SphereMode>('thinking');
   const [preset, setPreset] = useState<SpherePresetName>('glass-petal');
   const [quality, setQuality] = useState<SphereQuality>('high');
-  const [glowIntensity, setGlowIntensity] =
-    useState<GlowIntensity>('high');
+  const [glowIntensity, setGlowIntensity] = useState<GlowIntensity>('high');
   const [speed, setSpeed] = useState(1.1);
-  const [background, setBackground] = useState<SphereBackground>('transparent');
+  const [background, setBackground] =
+    useState<SphereBackground>('transparent');
   const [interactive, setInteractive] = useState(true);
+
+  const [orbitalSize, setOrbitalSize] = useState(440);
+  const [orbitalPreset, setOrbitalPreset] =
+    useState<OrbitalPresetName>('atomic-orb');
+  const [orbitalQuality, setOrbitalQuality] =
+    useState<OrbitalQuality>('high');
+  const [orbitalGlowIntensity, setOrbitalGlowIntensity] =
+    useState<OrbitalGlowIntensity>('high');
+  const [orbitalSpeed, setOrbitalSpeed] = useState(1);
+  const [orbitalBackground, setOrbitalBackground] =
+    useState<OrbitalBackground>('transparent');
 
   return (
     <main className="pageShell">
@@ -148,6 +173,55 @@ export default function DemoPage() {
               <p className="miniText">{card.text}</p>
             </article>
           ))}
+        </section>
+
+        <header className="pageHeader" style={{ marginTop: 36 }}>
+          <p className="eyebrow">Orbital Visual Lab</p>
+          <h2
+            className="pageTitle"
+            style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
+          >
+            Reusable Orbital Visual v1
+          </h2>
+          <p className="pageSubtitle">
+            Отдельная ветка orbital / ring / ribbon объектов: гладкие
+            светящиеся орбиты без point-look, на базе TubeGeometry и flow по
+            линии. Сейчас это первая база для atomic-orb family.
+          </p>
+        </header>
+
+        <section className="demoLayout">
+          <div className="panel previewPanel">
+            <div className="previewStage">
+              <OrbitalVisual
+                width="100%"
+                height="100%"
+                size={orbitalSize}
+                preset={orbitalPreset}
+                quality={orbitalQuality}
+                glowIntensity={orbitalGlowIntensity}
+                speed={orbitalSpeed}
+                background={orbitalBackground}
+              />
+            </div>
+          </div>
+
+          <div className="panel controlPanel">
+            <OrbitalPlaygroundPanel
+              size={orbitalSize}
+              onSizeChange={setOrbitalSize}
+              preset={orbitalPreset}
+              onPresetChange={setOrbitalPreset}
+              quality={orbitalQuality}
+              onQualityChange={setOrbitalQuality}
+              glowIntensity={orbitalGlowIntensity}
+              onGlowIntensityChange={setOrbitalGlowIntensity}
+              speed={orbitalSpeed}
+              onSpeedChange={setOrbitalSpeed}
+              background={orbitalBackground}
+              onBackgroundChange={setOrbitalBackground}
+            />
+          </div>
         </section>
       </div>
     </main>

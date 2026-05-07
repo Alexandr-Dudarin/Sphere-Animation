@@ -35,7 +35,7 @@ function rgbStringToColor(value: string) {
 export default function SphereScene(props: SphereSceneProps) {
   const {
     presetConfig,
-    mode,
+    mode: _mode,
     quality: _quality,
     interactive,
     glowIntensity,
