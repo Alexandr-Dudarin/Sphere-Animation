@@ -3,21 +3,21 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 interface OrbitRibbonProps {
-  radius: number;
-  thickness: number;
-  tiltX: number;
-  tiltY: number;
-  tiltZ: number;
-  wobble: number;
-  seed: number;
-  baseColor: THREE.Color;
-  hotColor: THREE.Color;
-  opacity: number;
-  flowSpeed: number;
-  rotationSpeed: number;
-  offset: number;
-  speed: number;
-  glowFactor: number;
+    radius: number;
+    thickness: number;
+    tiltX: number;
+    tiltY: number;
+    tiltZ: number;
+    wobble: number;
+    seed: number;
+    baseColor: THREE.Color;
+    hotColor: THREE.Color;
+    opacity: number;
+    flowSpeed: number;
+    rotationSpeed: number;
+    offset: number;
+    speed: number;
+    glowFactor: number;
 }
 
 const VERTEX_SHADER = `
@@ -67,121 +67,124 @@ const FRAGMENT_SHADER = `
 `;
 
 function createOrbitGeometry(
-  radius: number,
-  thickness: number,
-  wobble: number,
-  seed: number,
+    radius: number,
+    thickness: number,
+    wobble: number,
+    seed: number,
 ) {
-  const points: THREE.Vector3[] = [];
-  const segments = 200;
+    const points: THREE.Vector3[] = [];
+    const segments = 200;
 
-  const ellipseX = 1 + Math.sin(seed * 0.61) * 0.035;
-  const ellipseY = 1 + Math.cos(seed * 0.53) * 0.03;
+    const ellipseX = 1 + Math.sin(seed * 0.61) * 0.035;
+    const ellipseY = 1 + Math.cos(seed * 0.53) * 0.03;
 
-  for (let i = 0; i < segments; i += 1) {
-    const t = (i / segments) * Math.PI * 2;
+    for (let i = 0; i < segments; i += 1) {
+        const t = (i / segments) * Math.PI * 2;
 
-    const harmonicA = Math.sin(t * 2 + seed * 0.73) * wobble * 0.035;
-    const harmonicB = Math.cos(t * 4 - seed * 0.41) * wobble * 0.018;
-    const radial = radius * (1 + harmonicA + harmonicB);
+        const harmonicA = Math.sin(t * 2 + seed * 0.73) * wobble * 0.035;
+        const harmonicB = Math.cos(t * 4 - seed * 0.41) * wobble * 0.018;
+        const radial = radius * (1 + harmonicA + harmonicB);
 
-    const x = Math.cos(t) * radial * ellipseX;
-    const y = Math.sin(t) * radial * ellipseY;
-    const z =
-      Math.sin(t * 2 + seed * 0.37) * radius * wobble * 0.045 +
-      Math.cos(t * 3 - seed * 0.21) * radius * wobble * 0.018;
+        const x = Math.cos(t) * radial * ellipseX;
+        const y = Math.sin(t) * radial * ellipseY;
+        const z =
+            Math.sin(t * 2 + seed * 0.37) * radius * wobble * 0.045 +
+            Math.cos(t * 3 - seed * 0.21) * radius * wobble * 0.018;
 
-    points.push(new THREE.Vector3(x, y, z));
-  }
+        points.push(new THREE.Vector3(x, y, z));
+    }
 
-  const curve = new THREE.CatmullRomCurve3(points, true, 'catmullrom', 0.42);
+    const curve = new THREE.CatmullRomCurve3(points, true, 'catmullrom', 0.42);
 
-  return new THREE.TubeGeometry(curve, 260, thickness, 18, true);
+    return new THREE.TubeGeometry(curve, 260, thickness, 18, true);
 }
 
 export default function OrbitRibbon({
-  radius,
-  thickness,
-  tiltX,
-  tiltY,
-  tiltZ,
-  wobble,
-  seed,
-  baseColor,
-  hotColor,
-  opacity,
-  flowSpeed,
-  rotationSpeed,
-  offset,
-  speed,
-  glowFactor,
+    radius,
+    thickness,
+    tiltX,
+    tiltY,
+    tiltZ,
+    wobble,
+    seed,
+    baseColor,
+    hotColor,
+    opacity,
+    flowSpeed,
+    rotationSpeed,
+    offset,
+    speed,
+    glowFactor,
 }: OrbitRibbonProps) {
-  const groupRef = useRef<THREE.Group>(null);
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
+    const groupRef = useRef<THREE.Group>(null);
+    const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  const geometry = useMemo(
-    () => createOrbitGeometry(radius, thickness, wobble, seed),
-    [radius, thickness, wobble, seed],
-  );
+    const geometry = useMemo(
+        () => createOrbitGeometry(radius, thickness, wobble, seed),
+        [radius, thickness, wobble, seed],
+    );
 
-  const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uOpacity: { value: opacity * glowFactor },
-      uFlowSpeed: { value: flowSpeed },
-      uOffset: { value: offset },
-      uBaseColor: { value: baseColor.clone() },
-      uHotColor: { value: hotColor.clone() },
-    }),
-    [opacity, glowFactor, flowSpeed, offset, baseColor, hotColor],
-  );
+    const uniforms = useMemo(
+        () => ({
+            uTime: { value: 0 },
+            uOpacity: { value: opacity * glowFactor },
+            uFlowSpeed: { value: flowSpeed },
+            uOffset: { value: offset },
+            uBaseColor: { value: baseColor.clone() },
+            uHotColor: { value: hotColor.clone() },
+        }),
+        [opacity, glowFactor, flowSpeed, offset, baseColor, hotColor],
+    );
 
-  useEffect(() => {
-    return () => {
-      geometry.dispose();
-    };
-  }, [geometry]);
+    useEffect(() => {
+        return () => {
+            geometry.dispose();
+        };
+    }, [geometry]);
 
-  useFrame((state) => {
-    const elapsed = state.clock.getElapsedTime();
-    const safeSpeed = Math.max(speed, 0.15);
-    const phase = seed * 0.17;
+    useFrame((state) => {
+        const elapsed = state.clock.getElapsedTime();
+        const safeSpeed = Math.max(speed, 0.15);
+        const phase = seed * 0.17;
 
-    if (groupRef.current) {
-      groupRef.current.rotation.x =
-        tiltX + Math.sin(elapsed * 0.22 + phase) * 0.012;
-      groupRef.current.rotation.y =
-        tiltY + Math.cos(elapsed * 0.2 + phase * 1.3) * 0.012;
-      groupRef.current.rotation.z = tiltZ + elapsed * rotationSpeed * safeSpeed;
+        if (groupRef.current) {
+            groupRef.current.rotation.x =
+                tiltX + Math.sin(elapsed * 0.42 * safeSpeed + phase) * 0.04;
+            groupRef.current.rotation.y =
+                tiltY + Math.cos(elapsed * 0.36 * safeSpeed + phase * 1.3) * 0.038;
+            groupRef.current.rotation.z =
+                tiltZ +
+                elapsed * rotationSpeed * safeSpeed +
+                Math.sin(elapsed * 0.24 * safeSpeed + phase) * 0.032;
 
-      const scale = 1 + Math.sin(elapsed * 0.48 + phase) * 0.004;
-      groupRef.current.scale.setScalar(scale);
-    }
+            const scale = 1 + Math.sin(elapsed * 0.68 * safeSpeed + phase) * 0.012;
+            groupRef.current.scale.setScalar(scale);
+        }
 
-    if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = elapsed * safeSpeed;
-      materialRef.current.uniforms.uOpacity.value =
-        opacity *
-        glowFactor *
-        (0.98 + Math.sin(elapsed * 0.55 + phase) * 0.03);
-    }
-  });
+        if (materialRef.current) {
+            materialRef.current.uniforms.uTime.value = elapsed * safeSpeed;
+            materialRef.current.uniforms.uOpacity.value =
+                opacity *
+                glowFactor *
+                (0.975 + Math.sin(elapsed * 0.55 * safeSpeed + phase) * 0.045);
+        }
+    });
 
-  return (
-    <group ref={groupRef}>
-      <mesh geometry={geometry} renderOrder={6}>
-        <shaderMaterial
-          ref={materialRef}
-          uniforms={uniforms}
-          vertexShader={VERTEX_SHADER}
-          fragmentShader={FRAGMENT_SHADER}
-          transparent
-          depthWrite={false}
-          toneMapped={false}
-          side={THREE.DoubleSide}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-    </group>
-  );
+    return (
+        <group ref={groupRef}>
+            <mesh geometry={geometry} renderOrder={6}>
+                <shaderMaterial
+                    ref={materialRef}
+                    uniforms={uniforms}
+                    vertexShader={VERTEX_SHADER}
+                    fragmentShader={FRAGMENT_SHADER}
+                    transparent
+                    depthWrite={false}
+                    toneMapped={false}
+                    side={THREE.DoubleSide}
+                    blending={THREE.AdditiveBlending}
+                />
+            </mesh>
+        </group>
+    );
 }
