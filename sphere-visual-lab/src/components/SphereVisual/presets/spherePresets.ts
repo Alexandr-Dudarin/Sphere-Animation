@@ -5,15 +5,22 @@ import type {
 
 export const spherePresets = {
   'glass-petal': {
-    coreRgb: '28 48 148',
-    accentRgb: '102 223 255',
-    haloRgb: '182 244 255',
-    ringRgb: '122 136 255',
-    violetRgb: '128 104 255',
-    pinkRgb: '232 118 255',
-    mintRgb: '108 255 223',
+    coreRgb: '22 46 132',
+    accentRgb: '88 194 255',
+    haloRgb: '188 242 255',
+    ringRgb: '108 150 255',
+    violetRgb: '136 116 255',
+    pinkRgb: '228 144 255',
+    mintRgb: '126 255 229',
     whiteRgb: '255 255 255',
-    noiseOpacity: 0.08,
+    noiseOpacity: 0.1,
+
+    shellOpacity: 1.02,
+    innerVolumeStrength: 0.92,
+    echoStrength: 0.82,
+    centerStrength: 0.86,
+    scatterStrength: 0.88,
+    pulseStrength: 0.84,
   },
 
   'soft-ai': {
@@ -26,6 +33,13 @@ export const spherePresets = {
     mintRgb: '108 255 223',
     whiteRgb: '255 255 255',
     noiseOpacity: 0.1,
+
+    shellOpacity: 0.96,
+    innerVolumeStrength: 1,
+    echoStrength: 0.96,
+    centerStrength: 0.98,
+    scatterStrength: 1,
+    pulseStrength: 0.94,
   },
 
   'thinking-blue': {
@@ -38,6 +52,13 @@ export const spherePresets = {
     mintRgb: '112 246 230',
     whiteRgb: '255 255 255',
     noiseOpacity: 0.12,
+
+    shellOpacity: 0.9,
+    innerVolumeStrength: 0.82,
+    echoStrength: 0.76,
+    centerStrength: 0.88,
+    scatterStrength: 0.94,
+    pulseStrength: 0.8,
   },
 
   'searching-violet': {
@@ -50,6 +71,13 @@ export const spherePresets = {
     mintRgb: '124 255 224',
     whiteRgb: '255 255 255',
     noiseOpacity: 0.14,
+
+    shellOpacity: 1.08,
+    innerVolumeStrength: 1.08,
+    echoStrength: 1.08,
+    centerStrength: 1.08,
+    scatterStrength: 1.12,
+    pulseStrength: 1.08,
   },
 
   'calm-pearl': {
@@ -62,6 +90,13 @@ export const spherePresets = {
     mintRgb: '190 255 241',
     whiteRgb: '255 252 255',
     noiseOpacity: 0.08,
+
+    shellOpacity: 0.78,
+    innerVolumeStrength: 0.68,
+    echoStrength: 0.58,
+    centerStrength: 0.74,
+    scatterStrength: 0.7,
+    pulseStrength: 0.62,
   },
 
   'neon-core': {
@@ -74,6 +109,13 @@ export const spherePresets = {
     mintRgb: '82 255 228',
     whiteRgb: '255 255 255',
     noiseOpacity: 0.13,
+
+    shellOpacity: 1.12,
+    innerVolumeStrength: 1.14,
+    echoStrength: 1.2,
+    centerStrength: 1.16,
+    scatterStrength: 1.16,
+    pulseStrength: 1.18,
   },
 
   'bio-glow': {
@@ -86,5 +128,31 @@ export const spherePresets = {
     mintRgb: '92 255 215',
     whiteRgb: '245 255 252',
     noiseOpacity: 0.09,
+
+    shellOpacity: 0.88,
+    innerVolumeStrength: 1.16,
+    echoStrength: 0.78,
+    centerStrength: 0.92,
+    scatterStrength: 0.84,
+    pulseStrength: 0.72,
+  },
+
+  'prism-bloom': {
+    coreRgb: '40 44 150',
+    accentRgb: '255 188 102',
+    haloRgb: '176 236 255',
+    ringRgb: '124 130 255',
+    violetRgb: '146 108 255',
+    pinkRgb: '255 88 204',
+    mintRgb: '106 255 172',
+    whiteRgb: '255 250 255',
+    noiseOpacity: 0.15,
+
+    shellOpacity: 1.24,
+    innerVolumeStrength: 1.4,
+    echoStrength: 1.26,
+    centerStrength: 1.2,
+    scatterStrength: 1.18,
+    pulseStrength: 1.14,
   },
 } satisfies Record<SpherePresetName, SpherePresetConfig>;

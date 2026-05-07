@@ -24,12 +24,6 @@ const presetCards: PresetCard[] = [
     text: 'Наша текущая сильная baseline-версия: стеклянная оболочка, лепестковая структура и мягкий внутренний haze.',
   },
   {
-    preset: 'soft-ai',
-    mode: 'idle',
-    title: 'soft-ai',
-    text: 'Мягкий базовый AI-вариант: спокойный, светящийся, универсальный для нейтральных интерфейсов.',
-  },
-  {
     preset: 'thinking-blue',
     mode: 'thinking',
     title: 'thinking-blue',
@@ -58,6 +52,12 @@ const presetCards: PresetCard[] = [
     mode: 'thinking',
     title: 'bio-glow',
     text: 'Более органичный и биолюминесцентный вариант: живой, мягкий и мятно-лазурный.',
+  },
+    {
+    preset: 'soft-ai',
+    mode: 'idle',
+    title: 'soft-ai',
+    text: 'Мягкий базовый AI-вариант: спокойный, светящийся, универсальный для нейтральных интерфейсов.',
   },
 ];
 

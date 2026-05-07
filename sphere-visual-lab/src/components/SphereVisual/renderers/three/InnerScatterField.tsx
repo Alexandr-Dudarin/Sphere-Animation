@@ -19,6 +19,7 @@ type InnerScatterFieldProps = {
   interactive?: boolean;
   glowIntensity?: GlowIntensity;
   colors: SphereColors;
+  scatterStrength: number;
 };
 
 type ParticleSeed = {
@@ -31,7 +32,7 @@ type ParticleSeed = {
   twist: number;
 };
 
-const PARTICLE_COUNT = 440;
+const BASE_PARTICLE_COUNT = 440;
 
 function resolveGlowFactor(glowIntensity: GlowIntensity = 'medium') {
   if (typeof glowIntensity === 'number') {
@@ -138,18 +139,24 @@ export default function InnerScatterField({
   reducedMotion = false,
   glowIntensity = 'medium',
   colors,
+  scatterStrength,
 }: InnerScatterFieldProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   const glowFactor = resolveGlowFactor(glowIntensity);
+  const scatterFactor = THREE.MathUtils.clamp(scatterStrength, 0.45, 1.7);
+  const particleCount = Math.max(
+    220,
+    Math.round(BASE_PARTICLE_COUNT * (0.7 + scatterFactor * 0.35)),
+  );
 
   const { geometry, material, spriteTexture, positions, seeds } = useMemo(() => {
     const sprite = createSoftSpriteTexture();
-    const positionsArray = new Float32Array(PARTICLE_COUNT * 3);
-    const colorsArray = new Float32Array(PARTICLE_COUNT * 3);
+    const positionsArray = new Float32Array(particleCount * 3);
+    const colorsArray = new Float32Array(particleCount * 3);
     const particleSeeds: ParticleSeed[] = [];
 
-    for (let i = 0; i < PARTICLE_COUNT; i += 1) {
+    for (let i = 0; i < particleCount; i += 1) {
       const radius = 0.045 + Math.pow(Math.random(), 1.65) * 0.76;
       const angle = Math.random() * Math.PI * 2;
       const phase = Math.random() * Math.PI * 2;
@@ -194,10 +201,10 @@ export default function InnerScatterField({
     );
 
     const scatterMaterial = new THREE.PointsMaterial({
-      size: 0.026 * glowFactor,
+      size: 0.026 * glowFactor * Math.sqrt(scatterFactor),
       map: sprite,
       transparent: true,
-      opacity: 0.34 * glowFactor,
+      opacity: 0.34 * glowFactor * scatterFactor,
       vertexColors: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -212,7 +219,7 @@ export default function InnerScatterField({
       positions: positionsArray,
       seeds: particleSeeds,
     };
-  }, [colors, glowFactor]);
+  }, [colors, glowFactor, scatterFactor, particleCount]);
 
   useEffect(() => {
     return () => {

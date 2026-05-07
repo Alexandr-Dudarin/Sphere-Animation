@@ -17,6 +17,7 @@ interface PetalEchoFieldProps {
   reducedMotion: boolean;
   glowIntensity: GlowIntensity;
   colors: PetalEchoColors;
+  echoStrength: number;
 }
 
 interface EchoPetalGeometrySet {
@@ -200,12 +201,14 @@ export default function PetalEchoField({
   reducedMotion,
   glowIntensity,
   colors,
+  echoStrength,
 }: PetalEchoFieldProps) {
   const rootRef = useRef<THREE.Group>(null);
   const outerRef = useRef<THREE.Group>(null);
   const innerRef = useRef<THREE.Group>(null);
 
   const glowFactor = getGlowFactor(glowIntensity);
+  const echoFactor = THREE.MathUtils.clamp(echoStrength, 0.45, 1.7);
 
   const outerLayer = useMemo(
     () =>
@@ -275,7 +278,7 @@ export default function PetalEchoField({
                 <meshBasicMaterial
                   color={palette.haze}
                   transparent
-                  opacity={0.034 * glowFactor}
+                  opacity={0.034 * glowFactor * echoFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -286,7 +289,7 @@ export default function PetalEchoField({
                 <meshBasicMaterial
                   color={palette.bloom}
                   transparent
-                  opacity={0.068 * glowFactor}
+                  opacity={0.068 * glowFactor * echoFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -297,7 +300,7 @@ export default function PetalEchoField({
                 <meshBasicMaterial
                   color={palette.ghost}
                   transparent
-                  opacity={0.094 * glowFactor}
+                  opacity={0.094 * glowFactor * echoFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -318,7 +321,7 @@ export default function PetalEchoField({
                 <meshBasicMaterial
                   color={palette.haze}
                   transparent
-                  opacity={0.026 * glowFactor}
+                  opacity={0.026 * glowFactor * echoFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -329,7 +332,7 @@ export default function PetalEchoField({
                 <meshBasicMaterial
                   color={palette.bloom}
                   transparent
-                  opacity={0.056 * glowFactor}
+                  opacity={0.056 * glowFactor * echoFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -340,7 +343,7 @@ export default function PetalEchoField({
                 <meshBasicMaterial
                   color={palette.ghost}
                   transparent
-                  opacity={0.08 * glowFactor}
+                  opacity={0.08 * glowFactor * echoFactor}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}

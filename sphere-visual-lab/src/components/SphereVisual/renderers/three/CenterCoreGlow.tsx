@@ -17,6 +17,7 @@ interface CenterCoreGlowProps {
   reducedMotion: boolean;
   glowIntensity: GlowIntensity;
   colors: CenterCoreColors;
+  centerStrength: number;
 }
 
 function getGlowFactor(glowIntensity: GlowIntensity) {
@@ -99,17 +100,19 @@ export default function CenterCoreGlow({
   reducedMotion,
   glowIntensity,
   colors,
+  centerStrength,
 }: CenterCoreGlowProps) {
   const rootRef = useRef<THREE.Group>(null);
   const auraMaterialRef = useRef<THREE.ShaderMaterial>(null);
   const coreMaterialRef = useRef<THREE.ShaderMaterial>(null);
 
   const glowFactor = getGlowFactor(glowIntensity);
+  const centerFactor = THREE.MathUtils.clamp(centerStrength, 0.45, 1.7);
 
   const auraUniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uOpacity: { value: 0.22 * glowFactor },
+      uOpacity: { value: 0.22 * glowFactor * centerFactor },
       uColorA: {
         value: colors.mint.clone().lerp(colors.halo, 0.35),
       },
@@ -120,13 +123,13 @@ export default function CenterCoreGlow({
         value: colors.accent.clone().lerp(colors.mint, 0.22),
       },
     }),
-    [colors, glowFactor],
+    [colors, glowFactor, centerFactor],
   );
 
   const coreUniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uOpacity: { value: 0.16 * glowFactor },
+      uOpacity: { value: 0.16 * glowFactor * centerFactor },
       uColorA: {
         value: colors.white.clone().lerp(colors.mint, 0.26),
       },
@@ -134,7 +137,7 @@ export default function CenterCoreGlow({
         value: colors.violet.clone().lerp(colors.white, 0.52),
       },
     }),
-    [colors, glowFactor],
+    [colors, glowFactor, centerFactor],
   );
 
   useFrame((state) => {
@@ -157,6 +160,7 @@ export default function CenterCoreGlow({
       auraMaterialRef.current.uniforms.uOpacity.value =
         0.22 *
         glowFactor *
+        centerFactor *
         (0.95 + Math.sin(elapsed * 0.52 * motionFactor) * 0.05);
     }
 
@@ -167,6 +171,7 @@ export default function CenterCoreGlow({
       coreMaterialRef.current.uniforms.uOpacity.value =
         0.16 *
         glowFactor *
+        centerFactor *
         (0.97 + Math.sin(elapsed * 0.44 * motionFactor + 0.6) * 0.03);
     }
   });

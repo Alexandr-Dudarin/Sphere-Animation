@@ -17,6 +17,7 @@ interface PetalPulseFieldProps {
   reducedMotion: boolean;
   glowIntensity: GlowIntensity;
   colors: PetalPulseColors;
+  pulseStrength: number;
 }
 
 interface PetalPulseGeometrySet {
@@ -156,6 +157,7 @@ interface PulsePetalProps {
   glowFactor: number;
   offset: number;
   speedFactor: number;
+  pulseFactor: number;
 }
 
 function PulsePetal({
@@ -168,19 +170,20 @@ function PulsePetal({
   glowFactor,
   offset,
   speedFactor,
+  pulseFactor,
 }: PulsePetalProps) {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uOpacity: { value: opacity * glowFactor },
+      uOpacity: { value: opacity * glowFactor * pulseFactor },
       uSpeed: { value: speedFactor },
       uOffset: { value: offset },
       uBaseColor: { value: baseColor.clone() },
       uHotColor: { value: hotColor.clone() },
     }),
-    [opacity, glowFactor, speedFactor, offset, baseColor, hotColor],
+    [opacity, glowFactor, pulseFactor, speedFactor, offset, baseColor, hotColor],
   );
 
   useFrame((state) => {
@@ -215,11 +218,13 @@ export default function PetalPulseField({
   reducedMotion,
   glowIntensity,
   colors,
+  pulseStrength,
 }: PetalPulseFieldProps) {
   const outerRef = useRef<THREE.Group>(null);
   const innerRef = useRef<THREE.Group>(null);
 
   const glowFactor = getGlowFactor(glowIntensity);
+  const pulseFactor = THREE.MathUtils.clamp(pulseStrength, 0.45, 1.7);
 
   const outerLayer = useMemo(
     () =>
@@ -257,12 +262,18 @@ export default function PetalPulseField({
     if (outerRef.current) {
       outerRef.current.rotation.z =
         elapsed * 0.08 * safeSpeed * motionFactor;
+      const scale =
+        1 + Math.sin(elapsed * 0.92 * motionFactor) * 0.012 * (0.9 + pulseFactor * 0.18);
+      outerRef.current.scale.setScalar(scale);
     }
 
     if (innerRef.current) {
       innerRef.current.rotation.z =
         -elapsed * 0.1 * safeSpeed * motionFactor +
         Math.sin(elapsed * 0.42 * motionFactor) * 0.024;
+      const scale =
+        1 + Math.sin(elapsed * 1.08 * motionFactor + 0.6) * 0.01 * (0.9 + pulseFactor * 0.18);
+      innerRef.current.scale.setScalar(scale);
     }
   });
 
@@ -282,6 +293,7 @@ export default function PetalPulseField({
               speed={speed}
               reducedMotion={reducedMotion}
               glowFactor={glowFactor}
+              pulseFactor={pulseFactor}
               offset={index / outerLayer.length}
               speedFactor={0.38 + index * 0.01}
             />
@@ -303,6 +315,7 @@ export default function PetalPulseField({
               speed={speed}
               reducedMotion={reducedMotion}
               glowFactor={glowFactor}
+              pulseFactor={pulseFactor}
               offset={index / innerLayer.length + 0.1}
               speedFactor={0.45 + index * 0.008}
             />

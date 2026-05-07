@@ -17,6 +17,7 @@ interface InnerVolumeGlowProps {
   reducedMotion: boolean;
   glowIntensity: GlowIntensity;
   colors: InnerVolumeColors;
+  volumeStrength: number;
 }
 
 interface VeilLayerProps {
@@ -199,33 +200,35 @@ export default function InnerVolumeGlow({
   reducedMotion,
   glowIntensity,
   colors,
+  volumeStrength,
 }: InnerVolumeGlowProps) {
   const rootRef = useRef<THREE.Group>(null);
   const glowFactor = getGlowFactor(glowIntensity);
+  const volumeFactor = THREE.MathUtils.clamp(volumeStrength, 0.45, 1.7);
 
   const shellPalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
     () => [
-      colors.halo.clone().lerp(colors.white, 0.1),
-      colors.mint.clone().lerp(colors.halo, 0.24),
-      colors.violet.clone().lerp(colors.pink, 0.12),
+      colors.halo.clone().lerp(colors.white, 0.08),
+      colors.mint.clone().lerp(colors.accent, 0.28),
+      colors.pink.clone().lerp(colors.violet, 0.22),
     ],
     [colors],
   );
 
   const edgePalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
     () => [
-      colors.halo.clone().lerp(colors.mint, 0.18),
+      colors.halo.clone().lerp(colors.accent, 0.22),
       colors.mint.clone().lerp(colors.violet, 0.18),
-      colors.white.clone().lerp(colors.violet, 0.08),
+      colors.accent.clone().lerp(colors.white, 0.16),
     ],
     [colors],
   );
 
   const supportPalette = useMemo<[THREE.Color, THREE.Color, THREE.Color]>(
     () => [
-      colors.halo.clone().lerp(colors.violet, 0.08),
-      colors.violet.clone().lerp(colors.mint, 0.14),
-      colors.white.clone().lerp(colors.pink, 0.05),
+      colors.accent.clone().lerp(colors.halo, 0.28),
+      colors.violet.clone().lerp(colors.pink, 0.24),
+      colors.mint.clone().lerp(colors.accent, 0.18),
     ],
     [colors],
   );
@@ -248,7 +251,7 @@ export default function InnerVolumeGlow({
         reducedMotion={reducedMotion}
         glowFactor={glowFactor}
         radius={1.08}
-        opacity={0.28}
+        opacity={0.28 * volumeFactor}
         z={-0.095}
         phase={0.18}
         rotationSpeed={0.02}
@@ -266,7 +269,7 @@ export default function InnerVolumeGlow({
         reducedMotion={reducedMotion}
         glowFactor={glowFactor}
         radius={0.98}
-        opacity={0.19}
+        opacity={0.19 * volumeFactor}
         z={-0.04}
         phase={1.24}
         rotationSpeed={-0.028}
@@ -284,7 +287,7 @@ export default function InnerVolumeGlow({
         reducedMotion={reducedMotion}
         glowFactor={glowFactor}
         radius={0.82}
-        opacity={0.07}
+        opacity={0.07 * volumeFactor}
         z={0.01}
         phase={2.4}
         rotationSpeed={0.038}

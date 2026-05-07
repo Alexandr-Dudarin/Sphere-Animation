@@ -6,7 +6,8 @@ export type SpherePresetName =
   | 'searching-violet'
   | 'calm-pearl'
   | 'neon-core'
-  | 'bio-glow';
+  | 'bio-glow'
+  | 'prism-bloom';
 export type SphereQuality = 'low' | 'medium' | 'high';
 export type GlowIntensity = 'low' | 'medium' | 'high';
 export type SphereBackground = 'transparent' | 'dark';
@@ -17,13 +18,18 @@ export interface SpherePresetConfig {
   accentRgb: string;
   haloRgb: string;
   ringRgb: string;
-
   violetRgb: string;
   pinkRgb: string;
   mintRgb: string;
   whiteRgb?: string;
-
   noiseOpacity: number;
+
+  shellOpacity: number;
+  innerVolumeStrength: number;
+  echoStrength: number;
+  centerStrength: number;
+  scatterStrength: number;
+  pulseStrength: number;
 }
 
 export interface SphereVisualProps {

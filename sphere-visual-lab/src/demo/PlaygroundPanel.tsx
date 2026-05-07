@@ -106,7 +106,6 @@ export default function PlaygroundPanel({
           }
         >
           <option value="glass-petal">glass-petal — базовый petal</option>
-          <option value="soft-ai">soft-ai — мягкий AI</option>
           <option value="thinking-blue">thinking-blue — синий thinking</option>
           <option value="searching-violet">
             searching-violet — фиолетовый поиск
@@ -114,6 +113,8 @@ export default function PlaygroundPanel({
           <option value="calm-pearl">calm-pearl — спокойный премиальный</option>
           <option value="neon-core">neon-core — яркий tech</option>
           <option value="bio-glow">bio-glow — биолюминесцентный</option>
+          <option value="soft-ai">soft-ai — мягкий AI</option>
+          <option value="prism-bloom">prism-bloom — яркий multicolor</option>
         </select>
       </div>
 
