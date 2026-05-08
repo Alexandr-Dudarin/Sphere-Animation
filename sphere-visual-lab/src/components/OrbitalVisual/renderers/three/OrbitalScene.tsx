@@ -32,6 +32,7 @@ interface OrbitConfig {
   offset: number;
   baseColor: THREE.Color;
   hotColor: THREE.Color;
+  mirrorX?: boolean;
   nodes?: {
     size: number;
     glowSize: number;
@@ -117,58 +118,43 @@ function OrbitFamilyGroup({
 }) {
   const ref = useRef<THREE.Group>(null);
 
-  useFrame((state) => {
-    const elapsed = state.clock.getElapsedTime();
-    const safeSpeed = Math.max(speed, 0.2);
+  useFrame(() => {
+    if (!ref.current) return;
 
-    if (ref.current) {
-      ref.current.rotation.x =
-        elapsed * family.spinX * safeSpeed +
-        Math.sin(elapsed * 0.018 * safeSpeed + family.phase) * family.driftX;
-
-      ref.current.rotation.y =
-        elapsed * family.spinY * safeSpeed +
-        Math.cos(elapsed * 0.017 * safeSpeed + family.phase * 1.12) *
-          family.driftY;
-
-      ref.current.rotation.z =
-        elapsed * family.spinZ * safeSpeed +
-        Math.sin(elapsed * 0.016 * safeSpeed + family.phase * 0.9) *
-          family.driftZ;
-
-      const scale =
-        1 +
-        Math.sin(elapsed * 0.055 * safeSpeed + family.phase) * family.breath;
-
-      ref.current.scale.setScalar(scale);
-    }
+    // Для static atom полностью убираем family-level structural motion.
+    ref.current.rotation.set(0, 0, 0);
+    ref.current.scale.setScalar(1);
   });
 
   return (
     <group ref={ref}>
       {family.orbits.map((orbit, index) => (
-        <OrbitRibbon
+        <group
           key={`${family.key}-${index}`}
-          radius={orbit.radius}
-          thickness={orbit.thickness}
-          ellipseX={orbit.ellipseX}
-          ellipseY={orbit.ellipseY}
-          tiltX={orbit.tiltX}
-          tiltY={orbit.tiltY}
-          tiltZ={orbit.tiltZ}
-          wobble={orbit.wobble}
-          seed={orbit.seed}
-          baseColor={orbit.baseColor}
-          hotColor={orbit.hotColor}
-          opacity={orbit.opacity}
-          flowSpeed={orbit.flowSpeed}
-          shimmerSpeed={orbit.shimmerSpeed}
-          rotationSpeed={orbit.rotationSpeed}
-          offset={orbit.offset}
-          speed={speed}
-          glowFactor={glowFactor}
-          nodes={orbit.nodes}
-        />
+          scale={orbit.mirrorX ? [-1, 1, 1] : [1, 1, 1]}
+        >
+          <OrbitRibbon
+            radius={orbit.radius}
+            thickness={orbit.thickness}
+            ellipseX={orbit.ellipseX}
+            ellipseY={orbit.ellipseY}
+            tiltX={orbit.tiltX}
+            tiltY={orbit.tiltY}
+            tiltZ={orbit.tiltZ}
+            wobble={orbit.wobble}
+            seed={orbit.seed}
+            baseColor={orbit.baseColor}
+            hotColor={orbit.hotColor}
+            opacity={orbit.opacity}
+            flowSpeed={orbit.flowSpeed}
+            shimmerSpeed={orbit.shimmerSpeed}
+            rotationSpeed={orbit.rotationSpeed}
+            offset={orbit.offset}
+            speed={speed}
+            glowFactor={glowFactor}
+            nodes={orbit.nodes}
+          />
+        </group>
       ))}
     </group>
   );
@@ -252,6 +238,7 @@ export default function OrbitalScene({
           baseColor,
           hotColor,
           nodes: heroNodes,
+          mirrorX: family.mirrorX ?? false,
         },
       ];
 
@@ -275,17 +262,13 @@ export default function OrbitalScene({
     const safeSpeed = Math.max(speed, 0.2);
 
     if (rootRef.current) {
-      // Почти убираем ощущение общего вращения сцены
-      rootRef.current.rotation.x =
-        Math.sin(elapsed * 0.008 * safeSpeed) * 0.001;
-      rootRef.current.rotation.y =
-        Math.cos(elapsed * 0.007 * safeSpeed) * 0.0014;
-      rootRef.current.rotation.z =
-        Math.sin(elapsed * 0.006 * safeSpeed) * 0.0005;
+      // Для static atom убираем общее вращение всей сцены.
+      rootRef.current.rotation.set(0, 0, 0);
     }
 
     if (coreRef.current) {
-      const breath = 1 + Math.sin(elapsed * 0.16 * safeSpeed) * 0.0028;
+      // Оставляем только очень мягкое дыхание ядра.
+      const breath = 1 + Math.sin(elapsed * 0.12 * safeSpeed) * 0.0016;
       coreRef.current.scale.setScalar(breath);
     }
   });
@@ -324,7 +307,7 @@ export default function OrbitalScene({
       ))}
 
       <group ref={coreRef}>
-        {/* Мягкий glow ядра — уже не сферами, чтобы не видеть концентрические круги */}
+        {/* Мягкий glow ядра */}
         {glowTexture ? (
           <sprite
             renderOrder={10}

@@ -146,21 +146,9 @@ export default function OrbitRibbon({
     const phase = seed * 0.17;
 
     if (groupRef.current) {
-      groupRef.current.rotation.x =
-        tiltX + Math.sin(elapsed * 0.035 * safeSpeed + phase) * 0.0008;
-
-      groupRef.current.rotation.y =
-        tiltY + Math.cos(elapsed * 0.032 * safeSpeed + phase * 1.2) * 0.0008;
-
-      groupRef.current.rotation.z =
-        tiltZ +
-        elapsed * rotationSpeed * safeSpeed +
-        Math.sin(elapsed * 0.03 * safeSpeed + phase) * 0.0006;
-
-      const scale =
-        1 + Math.sin(elapsed * 0.08 * safeSpeed + phase) * 0.0004;
-
-      groupRef.current.scale.setScalar(scale);
+      // Для static atom полностью фиксируем ориентацию орбиты.
+      groupRef.current.rotation.set(tiltX, tiltY, tiltZ);
+      groupRef.current.scale.setScalar(1);
     }
 
     if (materialRef.current) {
@@ -168,7 +156,7 @@ export default function OrbitRibbon({
       materialRef.current.uniforms.uOpacity.value =
         opacity *
         glowFactor *
-        (0.99 + Math.sin(elapsed * 0.28 * safeSpeed + phase) * 0.015);
+        (0.992 + Math.sin(elapsed * 0.24 * safeSpeed + phase) * 0.01);
     }
   });
 

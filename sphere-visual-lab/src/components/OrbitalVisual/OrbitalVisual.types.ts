@@ -32,6 +32,7 @@ export interface OrbitalFamilyPresetConfig {
   tiltX: number;
   tiltY: number;
   tiltZ: number;
+  mirrorX?: boolean;
   wobble: number;
   heroThicknessScale: number;
   heroOpacity: number;
