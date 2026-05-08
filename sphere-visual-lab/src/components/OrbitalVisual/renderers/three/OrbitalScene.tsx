@@ -60,6 +60,14 @@ function rgbStringToColor(value: string) {
   return new THREE.Color(`rgb(${value.split(' ').join(', ')})`);
 }
 
+function colorToRgba(color: THREE.Color, alpha: number) {
+  const r = Math.round(color.r * 255);
+  const g = Math.round(color.g * 255);
+  const b = Math.round(color.b * 255);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function getGlowFactor(glowIntensity: OrbitalGlowIntensity) {
   switch (glowIntensity) {
     case 'low':
@@ -87,13 +95,131 @@ function createSoftGlowTexture() {
   }
 
   const center = size / 2;
-  const gradient = context.createRadialGradient(center, center, 0, center, center, center);
+  const gradient = context.createRadialGradient(
+    center,
+    center,
+    0,
+    center,
+    center,
+    center,
+  );
 
   gradient.addColorStop(0, 'rgba(255,255,255,1)');
   gradient.addColorStop(0.12, 'rgba(255,255,255,0.96)');
   gradient.addColorStop(0.26, 'rgba(255,255,255,0.76)');
   gradient.addColorStop(0.5, 'rgba(255,255,255,0.22)');
   gradient.addColorStop(1, 'rgba(255,255,255,0)');
+
+  context.clearRect(0, 0, size, size);
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, size, size);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+
+  return texture;
+}
+
+function createCoreTemperatureTexture(
+  coreColor: THREE.Color,
+  glowColor: THREE.Color,
+  accentColor: THREE.Color,
+) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const size = 1024;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return null;
+  }
+
+  const center = size / 2;
+  const coolEdge = glowColor.clone().lerp(accentColor, 0.32);
+
+  const gradient = context.createRadialGradient(
+    center,
+    center,
+    0,
+    center,
+    center,
+    center,
+  );
+
+  gradient.addColorStop(0, 'rgba(255,255,255,1)');
+  gradient.addColorStop(0.08, 'rgba(255,255,255,0.998)');
+  gradient.addColorStop(0.2, 'rgba(245,252,255,0.99)');
+  gradient.addColorStop(0.38, colorToRgba(coreColor, 0.96));
+  gradient.addColorStop(0.6, colorToRgba(glowColor, 0.74));
+  gradient.addColorStop(0.82, colorToRgba(coolEdge, 0.24));
+  gradient.addColorStop(1, colorToRgba(coolEdge, 0));
+
+  context.clearRect(0, 0, size, size);
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, size, size);
+
+  const imageData = context.getImageData(0, 0, size, size);
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const alpha = data[i + 3];
+
+    if (alpha > 0) {
+      const noise = (Math.random() - 0.5) * 8;
+
+      data[i] = Math.max(0, Math.min(255, data[i] + noise));
+      data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise));
+      data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise));
+    }
+  }
+
+  context.putImageData(imageData, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+
+  return texture;
+}
+
+function createHotCoreTexture(coreColor: THREE.Color) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const size = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return null;
+  }
+
+  const center = size / 2;
+  const gradient = context.createRadialGradient(
+    center,
+    center,
+    0,
+    center,
+    center,
+    center,
+  );
+
+  gradient.addColorStop(0, 'rgba(255,255,255,1)');
+  gradient.addColorStop(0.22, 'rgba(255,255,255,0.96)');
+  gradient.addColorStop(0.5, colorToRgba(coreColor, 0.34));
+  gradient.addColorStop(0.78, colorToRgba(coreColor, 0.08));
+  gradient.addColorStop(1, colorToRgba(coreColor, 0));
 
   context.clearRect(0, 0, size, size);
   context.fillStyle = gradient;
@@ -121,7 +247,6 @@ function OrbitFamilyGroup({
   useFrame(() => {
     if (!ref.current) return;
 
-    // Для static atom полностью убираем family-level structural motion.
     ref.current.rotation.set(0, 0, 0);
     ref.current.scale.setScalar(1);
   });
@@ -181,12 +306,22 @@ export default function OrbitalScene({
   }, [presetConfig]);
 
   const glowTexture = useMemo(() => createSoftGlowTexture(), []);
+  const coreTemperatureTexture = useMemo(
+    () => createCoreTemperatureTexture(colors.core, colors.glow, colors.accent),
+    [colors.core, colors.glow, colors.accent],
+  );
+  const hotCoreTexture = useMemo(
+    () => createHotCoreTexture(colors.core),
+    [colors.core],
+  );
 
   useEffect(() => {
     return () => {
       glowTexture?.dispose();
+      coreTemperatureTexture?.dispose();
+      hotCoreTexture?.dispose();
     };
-  }, [glowTexture]);
+  }, [glowTexture, coreTemperatureTexture, hotCoreTexture]);
 
   const familyGroups = useMemo<OrbitFamilyGroupConfig[]>(() => {
     const baseRadius = presetConfig.baseRadius;
@@ -262,20 +397,17 @@ export default function OrbitalScene({
     const safeSpeed = Math.max(speed, 0.2);
 
     if (rootRef.current) {
-      // Для static atom убираем общее вращение всей сцены.
       rootRef.current.rotation.set(0, 0, 0);
     }
 
     if (coreRef.current) {
-      // Оставляем только очень мягкое дыхание ядра.
-      const breath = 1 + Math.sin(elapsed * 0.12 * safeSpeed) * 0.0016;
+      const breath = 1 + Math.sin(elapsed * 0.13 * safeSpeed) * 0.0016;
       coreRef.current.scale.setScalar(breath);
     }
   });
 
   return (
     <group ref={rootRef}>
-      {/* Один мягкий общий ореол за всей формой */}
       {glowTexture ? (
         <sprite
           renderOrder={1}
@@ -307,21 +439,20 @@ export default function OrbitalScene({
       ))}
 
       <group ref={coreRef}>
-        {/* Мягкий glow ядра */}
         {glowTexture ? (
           <sprite
-            renderOrder={10}
+            renderOrder={8}
             scale={[
-              presetConfig.coreSize * 3.1,
-              presetConfig.coreSize * 3.1,
+              presetConfig.coreSize * 7.2,
+              presetConfig.coreSize * 7.2,
               1,
             ]}
           >
             <spriteMaterial
               map={glowTexture}
-              color={colors.glow.clone().lerp(colors.core, 0.2)}
+              color={colors.glow.clone().lerp(colors.accent, 0.08)}
               transparent
-              opacity={presetConfig.coreGlowOpacity * 0.72 * glowFactor}
+              opacity={presetConfig.coreGlowOpacity * 0.22 * glowFactor}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
               toneMapped={false}
@@ -329,18 +460,47 @@ export default function OrbitalScene({
           </sprite>
         ) : null}
 
-        {/* Цельное яркое ядро */}
-        <mesh renderOrder={12}>
-          <sphereGeometry args={[presetConfig.coreSize * 0.57, 28, 28]} />
-          <meshBasicMaterial
-            color={colors.hot.clone().lerp(colors.core, 0.08)}
-            transparent
-            opacity={presetConfig.coreInnerOpacity}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-            toneMapped={false}
-          />
-        </mesh>
+        {coreTemperatureTexture ? (
+          <sprite
+            renderOrder={9}
+            scale={[
+              presetConfig.coreSize * 5.05,
+              presetConfig.coreSize * 5.05,
+              1,
+            ]}
+          >
+            <spriteMaterial
+              map={coreTemperatureTexture}
+              color={colors.hot}
+              transparent
+              opacity={0.92}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </sprite>
+        ) : null}
+
+        {hotCoreTexture ? (
+          <sprite
+            renderOrder={10}
+            scale={[
+              presetConfig.coreSize * 1.12,
+              presetConfig.coreSize * 1.12,
+              1,
+            ]}
+          >
+            <spriteMaterial
+              map={hotCoreTexture}
+              color={colors.hot.clone().lerp(colors.core, 0.04)}
+              transparent
+              opacity={0.58}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </sprite>
+        ) : null}
       </group>
     </group>
   );

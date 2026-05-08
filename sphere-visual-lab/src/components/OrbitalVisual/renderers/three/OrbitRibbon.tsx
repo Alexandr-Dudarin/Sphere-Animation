@@ -98,7 +98,7 @@ export default function OrbitRibbon({
   opacity,
   flowSpeed,
   shimmerSpeed,
-  rotationSpeed,
+  //rotationSpeed,
   offset,
   speed,
   glowFactor,
