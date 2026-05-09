@@ -24,6 +24,12 @@ interface PresetCard {
   text: string;
 }
 
+interface OrbitalPresetCard {
+  preset: OrbitalPresetName;
+  title: string;
+  text: string;
+}
+
 const presetCards: PresetCard[] = [
   {
     preset: 'glass-petal',
@@ -72,6 +78,34 @@ const presetCards: PresetCard[] = [
     mode: 'searching',
     title: 'prism-bloom',
     text: 'Более яркий и насыщенный вариант с усиленным внутренним glow и более спектральным характером.',
+  },
+];
+
+const orbitalPresetCards: OrbitalPresetCard[] = [
+  {
+    preset: 'atomic-orb',
+    title: 'atomic-orb',
+    text: 'Базовый атомный пресет: симметричные орбиты, яркое ядро и читаемые электроны.',
+  },
+  {
+    preset: 'atomic-orb-no-electrons',
+    title: 'atomic-orb-no-electrons',
+    text: 'Тот же базовый атом, но без электронов — более чистый и графичный orbital-вариант.',
+  },
+  {
+    preset: 'atomic-orb-more-electrons',
+    title: 'atomic-orb-more-electrons',
+    text: 'Версия с заметно большим количеством электронов и более активным визуальным ритмом.',
+  },
+  {
+    preset: 'atomic-orb-white',
+    title: 'atomic-orb-white',
+    text: 'Более белый и холодный вариант атома — светлый, аккуратный и почти crystalline по настроению.',
+  },
+  {
+    preset: 'atomic-orb-violet',
+    title: 'atomic-orb-violet',
+    text: 'Фиолетовый вариант атома с более мягким sci-fi / tech-art характером.',
   },
 ];
 
@@ -222,6 +256,28 @@ export default function DemoPage() {
               onBackgroundChange={setOrbitalBackground}
             />
           </div>
+        </section>
+
+        <section className="miniGrid">
+          {orbitalPresetCards.map((card) => (
+            <article key={card.preset} className="miniCard">
+              <div className="miniSphereWrap">
+                <OrbitalVisual
+                  width="100%"
+                  height="100%"
+                  size={240}
+                  preset={card.preset}
+                  quality="high"
+                  glowIntensity="medium"
+                  speed={1}
+                  background="transparent"
+                />
+              </div>
+
+              <h2 className="miniLabel">{card.title}</h2>
+              <p className="miniText">{card.text}</p>
+            </article>
+          ))}
         </section>
       </div>
     </main>
