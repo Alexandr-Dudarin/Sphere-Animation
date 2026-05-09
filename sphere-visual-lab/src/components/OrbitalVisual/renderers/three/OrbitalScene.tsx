@@ -13,6 +13,7 @@ interface OrbitalSceneProps {
   quality: OrbitalQuality;
   glowIntensity: OrbitalGlowIntensity;
   speed: number;
+  visualScale: number;
 }
 
 interface OrbitConfig {
@@ -290,6 +291,7 @@ export default function OrbitalScene({
   quality,
   glowIntensity,
   speed,
+  visualScale,
 }: OrbitalSceneProps) {
   const rootRef = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Group>(null);
@@ -407,7 +409,7 @@ export default function OrbitalScene({
   });
 
   return (
-    <group ref={rootRef}>
+    <group ref={rootRef} scale={[visualScale, visualScale, visualScale]}>
       {glowTexture ? (
         <sprite
           renderOrder={1}

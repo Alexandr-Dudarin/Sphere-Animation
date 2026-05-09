@@ -11,6 +11,7 @@ interface ThreeOrbitalCanvasProps {
   quality: OrbitalQuality;
   glowIntensity: OrbitalGlowIntensity;
   speed: number;
+  visualScale: number;
 }
 
 const dprMap: Record<OrbitalQuality, number | [number, number]> = {
@@ -21,6 +22,7 @@ const dprMap: Record<OrbitalQuality, number | [number, number]> = {
 
 export default function ThreeOrbitalCanvas({
   quality,
+  visualScale,
   ...sceneProps
 }: ThreeOrbitalCanvasProps) {
   return (
@@ -41,7 +43,11 @@ export default function ThreeOrbitalCanvas({
         pointerEvents: 'none',
       }}
     >
-      <OrbitalScene quality={quality} {...sceneProps} />
+      <OrbitalScene
+        quality={quality}
+        visualScale={visualScale}
+        {...sceneProps}
+      />
     </Canvas>
   );
 }

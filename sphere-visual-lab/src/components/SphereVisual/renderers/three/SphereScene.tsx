@@ -26,6 +26,7 @@ interface SphereSceneProps {
   pointerX: number;
   pointerY: number;
   reducedMotion: boolean;
+  visualScale: number;
 }
 
 function rgbStringToColor(value: string) {
@@ -43,6 +44,7 @@ export default function SphereScene(props: SphereSceneProps) {
     pointerX,
     pointerY,
     reducedMotion,
+    visualScale,
   } = props;
 
   const rootRef = useRef<THREE.Group>(null);
@@ -92,7 +94,10 @@ export default function SphereScene(props: SphereSceneProps) {
     <>
       <Lights colors={colors} glowIntensity={glowIntensity} />
 
-      <group ref={rootRef}>
+      <group
+        ref={rootRef}
+        scale={[visualScale, visualScale, visualScale]}
+      >
         <mesh>
           <sphereGeometry args={[1.12, 40, 40]} />
           <meshBasicMaterial

@@ -4,6 +4,8 @@ import type { OrbitalVisualProps } from './OrbitalVisual.types';
 import { orbitalPresets } from './presets/orbitalPresets';
 import ThreeOrbitalCanvas from './renderers/ThreeOrbitalCanvas';
 
+const BASE_VISUAL_SIZE = 440;
+
 export default function OrbitalVisual({
   size = 420,
   width,
@@ -18,6 +20,7 @@ export default function OrbitalVisual({
   const resolvedWidth = width ?? size;
   const resolvedHeight = height ?? size;
   const presetConfig = orbitalPresets[preset];
+  const visualScale = size / BASE_VISUAL_SIZE;
 
   const rootClassName = [
     styles.root,
@@ -40,6 +43,7 @@ export default function OrbitalVisual({
           quality={quality}
           glowIntensity={glowIntensity}
           speed={speed}
+          visualScale={visualScale}
         />
       </div>
     </div>

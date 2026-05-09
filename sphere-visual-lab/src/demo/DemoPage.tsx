@@ -158,7 +158,7 @@ export default function DemoPage() {
                 <SphereVisual
                   width="100%"
                   height="100%"
-                  size={156}
+                  size={240}
                   mode={card.mode}
                   preset={card.preset}
                   quality="medium"
