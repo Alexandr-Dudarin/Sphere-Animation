@@ -77,7 +77,19 @@ export default function OrbitalPlaygroundPanel({
             onPresetChange(event.target.value as OrbitalPresetName)
           }
         >
-          <option value="atomic-orb">atomic-orb — атомная орбита</option>
+          <option value="atomic-orb">atomic-orb — базовый атом</option>
+          <option value="atomic-orb-no-electrons">
+            atomic-orb-no-electrons — без электронов
+          </option>
+          <option value="atomic-orb-more-electrons">
+            atomic-orb-more-electrons — больше электронов
+          </option>
+          <option value="atomic-orb-white">
+            atomic-orb-white — белый вариант
+          </option>
+          <option value="atomic-orb-violet">
+            atomic-orb-violet — фиолетовый вариант
+          </option>
         </select>
       </div>
 
@@ -164,9 +176,10 @@ export default function OrbitalPlaygroundPanel({
       </div>
 
       <div className="infoBox">
-        Следующий шаг для этой ветки — добавлять новые orbital-пресеты:
-        gyro-core, portal-gate, ring-planet и другие объекты на том же
-        фундаменте.
+        Сейчас в atomic-family уже можно переключать базовый атом, вариант без
+        электронов, вариант с большим количеством электронов и цветовые версии.
+        Следующий шаг для этой ветки — ring-planet, gyro-core, portal-gate и
+        другие orbital-объекты на том же фундаменте.
       </div>
     </aside>
   );

@@ -1,4 +1,9 @@
-export type OrbitalPresetName = 'atomic-orb';
+export type OrbitalPresetName =
+  | 'atomic-orb'
+  | 'atomic-orb-no-electrons'
+  | 'atomic-orb-more-electrons'
+  | 'atomic-orb-white'
+  | 'atomic-orb-violet';
 
 export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
