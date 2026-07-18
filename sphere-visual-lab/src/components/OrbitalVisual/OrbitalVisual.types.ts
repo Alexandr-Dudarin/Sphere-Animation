@@ -3,11 +3,13 @@ export type OrbitalPresetName =
   | 'atomic-orb-no-electrons'
   | 'atomic-orb-more-electrons'
   | 'atomic-orb-white'
-  | 'atomic-orb-violet';
+  | 'atomic-orb-violet'
+  | 'ring-planet';
 
 export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
 export type OrbitalBackground = 'transparent' | 'dark';
+export type OrbitalCoreKind = 'atomic' | 'planet';
 
 export interface OrbitalNodePresetConfig {
   count: number;
@@ -59,6 +61,7 @@ export interface OrbitalFamilyPresetConfig {
 }
 
 export interface OrbitalPresetConfig {
+  coreKind?: OrbitalCoreKind;
   coreRgb: string;
   glowRgb: string;
   accentRgb: string;

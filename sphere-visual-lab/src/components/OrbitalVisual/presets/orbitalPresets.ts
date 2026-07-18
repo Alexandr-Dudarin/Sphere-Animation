@@ -4,6 +4,8 @@ import type {
 } from '../OrbitalVisual.types';
 
 const atomicOrbBase: OrbitalPresetConfig = {
+  coreKind: 'atomic',
+
   coreRgb: '214 245 255',
   glowRgb: '114 220 255',
   accentRgb: '116 140 255',
@@ -21,7 +23,6 @@ const atomicOrbBase: OrbitalPresetConfig = {
 
   families: [
     {
-      // 1) Вертикальная орбита
       radiusScale: 1.1,
       ellipseX: 1.05,
       ellipseY: 1.08,
@@ -54,7 +55,6 @@ const atomicOrbBase: OrbitalPresetConfig = {
       },
     },
     {
-      // 2) Диагональная master-орбита
       mirrorX: false,
       radiusScale: 1.01,
       ellipseX: 1.34,
@@ -88,7 +88,6 @@ const atomicOrbBase: OrbitalPresetConfig = {
       },
     },
     {
-      // 3) Зеркальная копия диагональной орбиты
       mirrorX: true,
       radiusScale: 1.01,
       ellipseX: 1.34,
@@ -187,5 +186,93 @@ export const orbitalPresets = {
       echoAccentMix: Math.min(family.echoAccentMix + 0.06, 0.22),
       hotColorMix: Math.min(family.hotColorMix + 0.04, 0.14),
     })),
+  },
+
+  'ring-planet': {
+    coreKind: 'planet',
+
+    coreRgb: '128 205 255',
+    glowRgb: '58 160 255',
+    accentRgb: '42 98 220',
+    hotRgb: '235 250 255',
+
+    ringCount: 2,
+    baseRadius: 0.98,
+    ringThickness: 0.0195,
+
+    coreSize: 0.62,
+    haloSize: 0.32,
+    haloOpacity: 0.008,
+    coreGlowOpacity: 0.04,
+    coreInnerOpacity: 1,
+
+    families: [
+      {
+        // Внешнее толстое кольцо — основная планетная плоскость
+        radiusScale: 1.16,
+        ellipseX: 1.48,
+        ellipseY: 0.36,
+        tiltX: 0.28,
+        tiltY: 0.04,
+        tiltZ: -0.08,
+        wobble: 0.0025,
+        heroThicknessScale: 2.35,
+        heroOpacity: 0.76,
+        flowSpeed: 0.11,
+        rotationSpeed: 0,
+        shimmerSpeed: 0.42,
+        heroAccentMix: 0.08,
+        echoAccentMix: 0.03,
+        hotColorMix: 0.04,
+        driftX: 0,
+        driftY: 0,
+        driftZ: 0,
+        spinX: 0,
+        spinY: 0,
+        spinZ: 0,
+        breath: 0,
+        echoes: [],
+        nodes: {
+          count: 0,
+          size: 0.022,
+          glowSize: 1.4,
+          speed: 0.08,
+          offset: 0.1,
+        },
+      },
+      {
+        // Внутреннее кольцо — та же плоскость, меньший радиус
+        radiusScale: 0.82,
+        ellipseX: 1.48,
+        ellipseY: 0.36,
+        tiltX: 0.28,
+        tiltY: 0.04,
+        tiltZ: -0.08,
+        wobble: 0.0025,
+        heroThicknessScale: 1.65,
+        heroOpacity: 0.48,
+        flowSpeed: 0.09,
+        rotationSpeed: 0,
+        shimmerSpeed: 0.36,
+        heroAccentMix: 0.12,
+        echoAccentMix: 0.04,
+        hotColorMix: 0.04,
+        driftX: 0,
+        driftY: 0,
+        driftZ: 0,
+        spinX: 0,
+        spinY: 0,
+        spinZ: 0,
+        breath: 0,
+        echoes: [],
+        nodes: {
+          count: 0,
+          size: 0.022,
+          glowSize: 1.4,
+          speed: 0.08,
+          offset: 0.34,
+        },
+      },
+    ],
   },
 } satisfies Record<OrbitalPresetName, OrbitalPresetConfig>;

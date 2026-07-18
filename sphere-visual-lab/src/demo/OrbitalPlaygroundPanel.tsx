@@ -90,6 +90,7 @@ export default function OrbitalPlaygroundPanel({
           <option value="atomic-orb-violet">
             atomic-orb-violet — фиолетовый вариант
           </option>
+          <option value="ring-planet">ring-planet — планета с кольцом</option>
         </select>
       </div>
 
@@ -176,10 +177,9 @@ export default function OrbitalPlaygroundPanel({
       </div>
 
       <div className="infoBox">
-        Сейчас в atomic-family уже можно переключать базовый атом, вариант без
-        электронов, вариант с большим количеством электронов и цветовые версии.
-        Следующий шаг для этой ветки — ring-planet, gyro-core, portal-gate и
-        другие orbital-объекты на том же фундаменте.
+        Сейчас в orbital-family уже есть атомные варианты и первый ring-planet.
+        Следующий шаг для этой ветки — gyro-core, portal-gate и другие
+        orbital-объекты на том же фундаменте.
       </div>
     </aside>
   );

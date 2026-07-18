@@ -32,15 +32,25 @@ interface OrbitRibbonProps {
   offset: number;
   speed: number;
   glowFactor: number;
+  splitDepthLayers?: boolean;
   nodes?: OrbitNodeConfig[];
 }
 
 const VERTEX_SHADER = `
   varying vec2 vUv;
+  varying float vViewZ;
+  varying float vCenterViewZ;
 
   void main() {
     vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    vec4 centerMvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+
+    vViewZ = mvPosition.z;
+    vCenterViewZ = centerMvPosition.z;
+
+    gl_Position = projectionMatrix * mvPosition;
   }
 `;
 
@@ -50,10 +60,13 @@ const FRAGMENT_SHADER = `
   uniform float uFlowSpeed;
   uniform float uShimmerSpeed;
   uniform float uOffset;
+  uniform float uDepthSide;
   uniform vec3 uBaseColor;
   uniform vec3 uHotColor;
 
   varying vec2 vUv;
+  varying float vViewZ;
+  varying float vCenterViewZ;
 
   float loopDistance(float a, float b) {
     float d = abs(a - b);
@@ -61,6 +74,23 @@ const FRAGMENT_SHADER = `
   }
 
   void main() {
+    // uDepthSide:
+    //  0.0  -> full ring
+    //  1.0  -> front half only
+    // -1.0  -> back half only
+
+    if (uDepthSide > 0.5) {
+      // Front: ближе к камере, чем центр планеты
+      if (vViewZ < vCenterViewZ) {
+        discard;
+      }
+    } else if (uDepthSide < -0.5) {
+      // Back: дальше от камеры, чем центр планеты
+      if (vViewZ >= vCenterViewZ) {
+        discard;
+      }
+    }
+
     float along = fract(vUv.x - uTime * uFlowSpeed + uOffset);
 
     float head = exp(-pow(loopDistance(along, 0.18) / 0.05, 2.0));
@@ -83,6 +113,28 @@ const FRAGMENT_SHADER = `
   }
 `;
 
+function createUniforms(
+  opacity: number,
+  glowFactor: number,
+  flowSpeed: number,
+  shimmerSpeed: number,
+  offset: number,
+  baseColor: THREE.Color,
+  hotColor: THREE.Color,
+  depthSide: number,
+) {
+  return {
+    uTime: { value: 0 },
+    uOpacity: { value: opacity * glowFactor },
+    uFlowSpeed: { value: flowSpeed },
+    uShimmerSpeed: { value: shimmerSpeed },
+    uOffset: { value: offset },
+    uDepthSide: { value: depthSide },
+    uBaseColor: { value: baseColor.clone() },
+    uHotColor: { value: hotColor.clone() },
+  };
+}
+
 export default function OrbitRibbon({
   radius,
   thickness,
@@ -98,14 +150,18 @@ export default function OrbitRibbon({
   opacity,
   flowSpeed,
   shimmerSpeed,
-  //rotationSpeed,
+  // rotationSpeed,
   offset,
   speed,
   glowFactor,
+  splitDepthLayers = false,
   nodes = [],
 }: OrbitRibbonProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
+
+  const fullMaterialRef = useRef<THREE.ShaderMaterial>(null);
+  const frontMaterialRef = useRef<THREE.ShaderMaterial>(null);
+  const backMaterialRef = useRef<THREE.ShaderMaterial>(null);
 
   const geometry = useMemo(
     () =>
@@ -113,16 +169,64 @@ export default function OrbitRibbon({
     [radius, thickness, wobble, seed, ellipseX, ellipseY],
   );
 
-  const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uOpacity: { value: opacity * glowFactor },
-      uFlowSpeed: { value: flowSpeed },
-      uShimmerSpeed: { value: shimmerSpeed },
-      uOffset: { value: offset },
-      uBaseColor: { value: baseColor.clone() },
-      uHotColor: { value: hotColor.clone() },
-    }),
+  const fullUniforms = useMemo(
+    () =>
+      createUniforms(
+        opacity,
+        glowFactor,
+        flowSpeed,
+        shimmerSpeed,
+        offset,
+        baseColor,
+        hotColor,
+        0,
+      ),
+    [
+      opacity,
+      glowFactor,
+      flowSpeed,
+      shimmerSpeed,
+      offset,
+      baseColor,
+      hotColor,
+    ],
+  );
+
+  const frontUniforms = useMemo(
+    () =>
+      createUniforms(
+        opacity,
+        glowFactor,
+        flowSpeed,
+        shimmerSpeed,
+        offset,
+        baseColor,
+        hotColor,
+        1,
+      ),
+    [
+      opacity,
+      glowFactor,
+      flowSpeed,
+      shimmerSpeed,
+      offset,
+      baseColor,
+      hotColor,
+    ],
+  );
+
+  const backUniforms = useMemo(
+    () =>
+      createUniforms(
+        opacity,
+        glowFactor,
+        flowSpeed,
+        shimmerSpeed,
+        offset,
+        baseColor,
+        hotColor,
+        -1,
+      ),
     [
       opacity,
       glowFactor,
@@ -144,37 +248,85 @@ export default function OrbitRibbon({
     const elapsed = state.clock.getElapsedTime();
     const safeSpeed = Math.max(speed, 0.2);
     const phase = seed * 0.17;
+    const animatedOpacity =
+      opacity *
+      glowFactor *
+      (0.992 + Math.sin(elapsed * 0.24 * safeSpeed + phase) * 0.01);
 
     if (groupRef.current) {
-      // Для static atom полностью фиксируем ориентацию орбиты.
+      // Для static object фиксируем ориентацию орбиты.
       groupRef.current.rotation.set(tiltX, tiltY, tiltZ);
       groupRef.current.scale.setScalar(1);
     }
 
-    if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = elapsed * safeSpeed;
-      materialRef.current.uniforms.uOpacity.value =
-        opacity *
-        glowFactor *
-        (0.992 + Math.sin(elapsed * 0.24 * safeSpeed + phase) * 0.01);
+    if (fullMaterialRef.current) {
+      fullMaterialRef.current.uniforms.uTime.value = elapsed * safeSpeed;
+      fullMaterialRef.current.uniforms.uOpacity.value = animatedOpacity;
+    }
+
+    if (frontMaterialRef.current) {
+      frontMaterialRef.current.uniforms.uTime.value = elapsed * safeSpeed;
+      frontMaterialRef.current.uniforms.uOpacity.value = animatedOpacity;
+    }
+
+    if (backMaterialRef.current) {
+      backMaterialRef.current.uniforms.uTime.value = elapsed * safeSpeed;
+      backMaterialRef.current.uniforms.uOpacity.value = animatedOpacity;
     }
   });
 
   return (
     <group ref={groupRef}>
-      <mesh geometry={geometry} renderOrder={6}>
-        <shaderMaterial
-          ref={materialRef}
-          uniforms={uniforms}
-          vertexShader={VERTEX_SHADER}
-          fragmentShader={FRAGMENT_SHADER}
-          transparent
-          depthWrite={false}
-          toneMapped={false}
-          side={THREE.DoubleSide}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
+      {!splitDepthLayers ? (
+        <mesh geometry={geometry} renderOrder={6}>
+          <shaderMaterial
+            ref={fullMaterialRef}
+            uniforms={fullUniforms}
+            vertexShader={VERTEX_SHADER}
+            fragmentShader={FRAGMENT_SHADER}
+            transparent
+            depthWrite={false}
+            depthTest
+            toneMapped={false}
+            side={THREE.DoubleSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ) : (
+        <>
+          {/* Задняя половина кольца */}
+          <mesh geometry={geometry} renderOrder={6}>
+            <shaderMaterial
+              ref={backMaterialRef}
+              uniforms={backUniforms}
+              vertexShader={VERTEX_SHADER}
+              fragmentShader={FRAGMENT_SHADER}
+              transparent
+              depthWrite={false}
+              depthTest
+              toneMapped={false}
+              side={THREE.DoubleSide}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+
+          {/* Передняя половина кольца */}
+          <mesh geometry={geometry} renderOrder={18}>
+            <shaderMaterial
+              ref={frontMaterialRef}
+              uniforms={frontUniforms}
+              vertexShader={VERTEX_SHADER}
+              fragmentShader={FRAGMENT_SHADER}
+              transparent
+              depthWrite={false}
+              depthTest={false}
+              toneMapped={false}
+              side={THREE.DoubleSide}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        </>
+      )}
 
       {nodes.map((node, index) => (
         <OrbitalNode

@@ -107,6 +107,11 @@ const orbitalPresetCards: OrbitalPresetCard[] = [
     title: 'atomic-orb-violet',
     text: 'Фиолетовый вариант атома с более мягким sci-fi / tech-art характером.',
   },
+    {
+    preset: 'ring-planet',
+    title: 'ring-planet',
+    text: 'Планета с кольцом: более космический и чистый orbital-объект с крупным ядром и читаемыми кольцами.',
+  },
 ];
 
 export default function DemoPage() {
