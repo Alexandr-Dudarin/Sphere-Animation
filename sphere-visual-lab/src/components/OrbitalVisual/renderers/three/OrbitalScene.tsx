@@ -5,9 +5,11 @@ import type {
   OrbitalGlowIntensity,
   OrbitalPresetConfig,
   OrbitalQuality,
+  OrbitalRingStyle,
 } from '../../OrbitalVisual.types';
 import OrbitRibbon from './OrbitRibbon';
 import PlanetCore from './PlanetCore';
+import PlanetRing from './PlanetRing';
 
 interface OrbitalSceneProps {
   presetConfig: OrbitalPresetConfig;
@@ -239,11 +241,15 @@ function OrbitFamilyGroup({
   family,
   speed,
   glowFactor,
+  ringStyle,
+  usePlanetRing,
   splitDepthLayers,
 }: {
   family: OrbitFamilyGroupConfig;
   speed: number;
   glowFactor: number;
+  ringStyle: OrbitalRingStyle;
+  usePlanetRing: boolean;
   splitDepthLayers: boolean;
 }) {
   const ref = useRef<THREE.Group>(null);
@@ -262,28 +268,51 @@ function OrbitFamilyGroup({
           key={`${family.key}-${index}`}
           scale={orbit.mirrorX ? [-1, 1, 1] : [1, 1, 1]}
         >
-          <OrbitRibbon
-            radius={orbit.radius}
-            thickness={orbit.thickness}
-            ellipseX={orbit.ellipseX}
-            ellipseY={orbit.ellipseY}
-            tiltX={orbit.tiltX}
-            tiltY={orbit.tiltY}
-            tiltZ={orbit.tiltZ}
-            wobble={orbit.wobble}
-            seed={orbit.seed}
-            baseColor={orbit.baseColor}
-            hotColor={orbit.hotColor}
-            opacity={orbit.opacity}
-            flowSpeed={orbit.flowSpeed}
-            shimmerSpeed={orbit.shimmerSpeed}
-            rotationSpeed={orbit.rotationSpeed}
-            offset={orbit.offset}
-            speed={speed}
-            glowFactor={glowFactor}
-            nodes={orbit.nodes}
-            splitDepthLayers={splitDepthLayers}
-          />
+          {usePlanetRing ? (
+            <PlanetRing
+              radius={orbit.radius}
+              thickness={orbit.thickness}
+              ellipseX={orbit.ellipseX}
+              ellipseY={orbit.ellipseY}
+              tiltX={orbit.tiltX}
+              tiltY={orbit.tiltY}
+              tiltZ={orbit.tiltZ}
+              wobble={orbit.wobble}
+              seed={orbit.seed}
+              baseColor={orbit.baseColor}
+              opacity={orbit.opacity}
+              flowSpeed={orbit.flowSpeed}
+              shimmerSpeed={orbit.shimmerSpeed}
+              offset={orbit.offset}
+              speed={speed}
+              glowFactor={glowFactor}
+              splitDepthLayers={splitDepthLayers}
+            />
+          ) : (
+            <OrbitRibbon
+              radius={orbit.radius}
+              thickness={orbit.thickness}
+              ellipseX={orbit.ellipseX}
+              ellipseY={orbit.ellipseY}
+              tiltX={orbit.tiltX}
+              tiltY={orbit.tiltY}
+              tiltZ={orbit.tiltZ}
+              wobble={orbit.wobble}
+              seed={orbit.seed}
+              baseColor={orbit.baseColor}
+              hotColor={orbit.hotColor}
+              opacity={orbit.opacity}
+              flowSpeed={orbit.flowSpeed}
+              shimmerSpeed={orbit.shimmerSpeed}
+              rotationSpeed={orbit.rotationSpeed}
+              offset={orbit.offset}
+              speed={speed}
+              glowFactor={glowFactor}
+              ringStyle={ringStyle}
+              nodes={orbit.nodes}
+              splitDepthLayers={splitDepthLayers}
+            />
+          )}
         </group>
       ))}
     </group>
@@ -303,6 +332,13 @@ export default function OrbitalScene({
   const glowFactor = getGlowFactor(glowIntensity);
   const coreKind = presetConfig.coreKind ?? 'atomic';
   const isPlanetCore = coreKind === 'planet';
+
+  // PlanetCore always uses the dedicated flat PlanetRing renderer.
+  // The optional preset field remains useful for future non-planet styles,
+  // but it can no longer accidentally route RingPlanet back to OrbitRibbon.
+  const ringStyle: OrbitalRingStyle = isPlanetCore
+    ? 'planetary'
+    : (presetConfig.ringStyle ?? 'energy');
 
   const colors = useMemo(() => {
     return {
@@ -452,6 +488,8 @@ export default function OrbitalScene({
           family={family}
           speed={speed}
           glowFactor={glowFactor}
+          ringStyle={ringStyle}
+          usePlanetRing={isPlanetCore}
           splitDepthLayers={isPlanetCore}
         />
       ))}

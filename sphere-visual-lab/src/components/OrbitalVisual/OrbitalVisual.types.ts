@@ -10,6 +10,7 @@ export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
 export type OrbitalBackground = 'transparent' | 'dark';
 export type OrbitalCoreKind = 'atomic' | 'planet';
+export type OrbitalRingStyle = 'energy' | 'planetary';
 
 export interface OrbitalNodePresetConfig {
   count: number;
@@ -62,6 +63,7 @@ export interface OrbitalFamilyPresetConfig {
 
 export interface OrbitalPresetConfig {
   coreKind?: OrbitalCoreKind;
+  ringStyle?: OrbitalRingStyle;
   coreRgb: string;
   glowRgb: string;
   accentRgb: string;
