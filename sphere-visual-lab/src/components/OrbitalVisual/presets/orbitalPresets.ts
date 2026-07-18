@@ -200,7 +200,7 @@ export const orbitalPresets = {
     baseRadius: 0.98,
     ringThickness: 0.0195,
 
-    coreSize: 0.62,
+    coreSize: 0.7,
     haloSize: 0.32,
     haloOpacity: 0.008,
     coreGlowOpacity: 0.04,
@@ -212,7 +212,7 @@ export const orbitalPresets = {
         radiusScale: 1.16,
         ellipseX: 1.48,
         ellipseY: 0.36,
-        tiltX: 0.28,
+        tiltX: -0.28,
         tiltY: 0.04,
         tiltZ: -0.08,
         wobble: 0.0025,
@@ -242,10 +242,10 @@ export const orbitalPresets = {
       },
       {
         // Внутреннее кольцо — та же плоскость, меньший радиус
-        radiusScale: 0.82,
+        radiusScale: 0.92,
         ellipseX: 1.48,
         ellipseY: 0.36,
-        tiltX: 0.28,
+        tiltX: -0.28,
         tiltY: 0.04,
         tiltZ: -0.08,
         wobble: 0.0025,
