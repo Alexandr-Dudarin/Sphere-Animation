@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import PlanetRingDust from './PlanetRingDust';
 
 interface PlanetRingProps {
   radius: number;
@@ -779,6 +780,19 @@ export default function PlanetRing({
           </mesh>
         </>
       )}
+
+      <PlanetRingDust
+        radius={radius}
+        thickness={thickness}
+        ellipseX={ellipseX}
+        ellipseY={ellipseY}
+        wobble={wobble}
+        seed={seed}
+        baseColor={baseColor}
+        opacity={opacity}
+        speed={speed}
+        glowFactor={glowFactor}
+      />
     </group>
   );
 }
