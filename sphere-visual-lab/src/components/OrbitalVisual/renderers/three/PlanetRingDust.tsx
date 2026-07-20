@@ -17,6 +17,7 @@ interface PlanetRingDustProps {
   size: number;
   brightness: number;
   motion: number;
+  tintRgb: string;
   splitDepthLayers: boolean;
 }
 
@@ -136,6 +137,40 @@ function randomRange(
     min +
     (max - min) *
       random()
+  );
+}
+
+function parseRgbColor(
+  value: string,
+) {
+  const channels =
+    value
+      .trim()
+      .split(/\s+/)
+      .map(Number);
+
+  const [
+    red = 255,
+    green = 255,
+    blue = 255,
+  ] = channels;
+
+  return new THREE.Color(
+    THREE.MathUtils.clamp(
+      red / 255,
+      0,
+      1,
+    ),
+    THREE.MathUtils.clamp(
+      green / 255,
+      0,
+      1,
+    ),
+    THREE.MathUtils.clamp(
+      blue / 255,
+      0,
+      1,
+    ),
   );
 }
 
@@ -445,6 +480,7 @@ function createLayerRuntime(
   layerIndex: number,
   pointTexture: THREE.Texture | null,
   baseColor: THREE.Color,
+  tintColor: THREE.Color,
   ringWidth: number,
   seed: number,
   opacity: number,
@@ -475,12 +511,8 @@ function createLayerRuntime(
   const particles:
     DustSeed[] = [];
 
-  const paleCyan =
-    new THREE.Color(
-      0.68,
-      0.92,
-      1,
-    );
+  const dustTint =
+    tintColor.clone();
 
   const softWhite =
     new THREE.Color(
@@ -534,7 +566,7 @@ function createLayerRuntime(
       baseColor
         .clone()
         .lerp(
-          paleCyan,
+          dustTint,
           THREE.MathUtils.clamp(
             config.colorMix +
               randomBrightness * 0.08,
@@ -730,6 +762,7 @@ export default function PlanetRingDust({
   size,
   brightness,
   motion,
+  tintRgb,
   splitDepthLayers,
 }: PlanetRingDustProps) {
   const groupRef =
@@ -748,6 +781,15 @@ export default function PlanetRingDust({
       [],
     );
 
+  const tintColor =
+    useMemo(
+      () =>
+        parseRgbColor(
+          tintRgb,
+        ),
+      [tintRgb],
+    );
+
   const layers =
     useMemo(
       () =>
@@ -761,6 +803,7 @@ export default function PlanetRingDust({
               layerIndex,
               pointTexture,
               baseColor,
+              tintColor,
               ringWidth,
               seed,
               opacity,
@@ -773,6 +816,7 @@ export default function PlanetRingDust({
       [
         pointTexture,
         baseColor,
+        tintColor,
         radius,
         ringWidth,
         seed,

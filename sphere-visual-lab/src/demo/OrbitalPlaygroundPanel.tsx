@@ -96,6 +96,18 @@ export default function OrbitalPlaygroundPanel({
           <option value="ring-planet-stardust">
             ring-planet-stardust — планета со звёздной пылью
           </option>
+          <option value="ring-planet-sand">
+            ring-planet-sand — песочная планета
+          </option>
+          <option value="ring-planet-sand-stardust">
+            ring-planet-sand-stardust — песочная планета с пылью
+          </option>
+          <option value="ring-planet-ice">
+            ring-planet-ice — ледяная планета
+          </option>
+          <option value="ring-planet-eclipse">
+            ring-planet-eclipse — затмение
+          </option>
         </select>
       </div>
 
@@ -182,9 +194,9 @@ export default function OrbitalPlaygroundPanel({
       </div>
 
       <div className="infoBox">
-        Сейчас в orbital-family уже есть атомные варианты и первый ring-planet.
-        Следующий шаг для этой ветки — gyro-core, portal-gate и другие
-        orbital-объекты на том же фундаменте.
+        Сейчас в orbital-family уже есть атомные варианты и полноценная
+        линейка ring-planet: сдержанная, декоративная, песочная, ледяная и
+        eclipse-версии. Следующий объект этой ветки — gyro-core.
       </div>
     </aside>
   );

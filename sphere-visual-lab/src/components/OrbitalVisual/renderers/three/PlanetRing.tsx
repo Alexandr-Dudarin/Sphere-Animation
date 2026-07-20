@@ -800,6 +800,7 @@ export default function PlanetRing({
           size={dust.size}
           brightness={dust.brightness}
           motion={dust.motion}
+          tintRgb={dust.tintRgb}
           splitDepthLayers={splitDepthLayers}
         />
       ) : null}

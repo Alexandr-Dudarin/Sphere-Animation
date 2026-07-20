@@ -5,7 +5,11 @@ export type OrbitalPresetName =
   | 'atomic-orb-white'
   | 'atomic-orb-violet'
   | 'ring-planet'
-  | 'ring-planet-stardust';
+  | 'ring-planet-stardust'
+  | 'ring-planet-sand'
+  | 'ring-planet-sand-stardust'
+  | 'ring-planet-ice'
+  | 'ring-planet-eclipse';
 
 export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
@@ -68,6 +72,7 @@ export interface OrbitalPlanetDustPresetConfig {
   size: number;
   brightness: number;
   motion: number;
+  tintRgb: string;
 }
 
 export interface OrbitalPresetConfig {

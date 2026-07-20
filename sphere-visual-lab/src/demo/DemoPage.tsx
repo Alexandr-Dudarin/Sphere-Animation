@@ -107,7 +107,7 @@ const orbitalPresetCards: OrbitalPresetCard[] = [
     title: 'atomic-orb-violet',
     text: 'Фиолетовый вариант атома с более мягким sci-fi / tech-art характером.',
   },
-    {
+  {
     preset: 'ring-planet',
     title: 'ring-planet',
     text: 'Сдержанная планета без частиц: крупное ядро, читаемые кольца и более спокойный космический характер.',
@@ -116,6 +116,26 @@ const orbitalPresetCards: OrbitalPresetCard[] = [
     preset: 'ring-planet-stardust',
     title: 'ring-planet-stardust',
     text: 'Декоративная версия планеты с мерцающей пылью на передней и задней частях колец.',
+  },
+  {
+    preset: 'ring-planet-sand',
+    title: 'ring-planet-sand',
+    text: 'Тёплая песочно-карамельная планета без частиц — спокойный и более премиальный вариант.',
+  },
+  {
+    preset: 'ring-planet-sand-stardust',
+    title: 'ring-planet-sand-stardust',
+    text: 'Песочная планета с редкой кремово-золотистой пылью и более медленным движением.',
+  },
+  {
+    preset: 'ring-planet-ice',
+    title: 'ring-planet-ice',
+    text: 'Ледяная версия с меньшим ядром, более широкими тонкими кольцами и редкой холодной пылью.',
+  },
+  {
+    preset: 'ring-planet-eclipse',
+    title: 'ring-planet-eclipse',
+    text: 'Тёмная драматичная планета с близкими бронзовыми кольцами и редкими янтарными искрами.',
   },
 ];
 
@@ -230,7 +250,7 @@ export default function DemoPage() {
           <p className="pageSubtitle">
             Отдельная ветка orbital / ring / ribbon объектов: гладкие
             светящиеся орбиты без point-look, на базе TubeGeometry и flow по
-            линии. Сейчас это первая база для atomic-orb family.
+            линии. Общая база для orbital / ring / ribbon объектов: атомных систем, кольцевых планет и будущих механических visual family.
           </p>
         </header>
 
