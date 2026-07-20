@@ -9,12 +9,13 @@ export type OrbitalPresetName =
   | 'ring-planet-sand'
   | 'ring-planet-sand-stardust'
   | 'ring-planet-ice'
-  | 'ring-planet-eclipse';
+  | 'ring-planet-eclipse'
+  | 'gyro-core';
 
 export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
 export type OrbitalBackground = 'transparent' | 'dark';
-export type OrbitalCoreKind = 'atomic' | 'planet';
+export type OrbitalCoreKind = 'atomic' | 'planet' | 'gyro';
 export type OrbitalRingStyle = 'energy' | 'planetary';
 
 export interface OrbitalNodePresetConfig {
@@ -75,10 +76,37 @@ export interface OrbitalPlanetDustPresetConfig {
   tintRgb: string;
 }
 
+export interface OrbitalGyroRingPresetConfig {
+  radius: number;
+  thickness: number;
+  tiltX: number;
+  tiltY: number;
+  tiltZ: number;
+  spinSpeed: number;
+  direction: 1 | -1;
+  phase: number;
+  segments: number;
+  gapRatio: number;
+  railInset: number;
+  railThicknessScale: number;
+  opacity: number;
+  markerCount: number;
+}
+
+export interface OrbitalGyroPresetConfig {
+  coreScale: number;
+  corePulse: number;
+  coreRotationSpeed: number;
+  coreShellOpacity: number;
+  coreGlowOpacity: number;
+  rings: OrbitalGyroRingPresetConfig[];
+}
+
 export interface OrbitalPresetConfig {
   coreKind?: OrbitalCoreKind;
   ringStyle?: OrbitalRingStyle;
   planetDust?: OrbitalPlanetDustPresetConfig;
+  gyro?: OrbitalGyroPresetConfig;
   coreRgb: string;
   glowRgb: string;
   accentRgb: string;

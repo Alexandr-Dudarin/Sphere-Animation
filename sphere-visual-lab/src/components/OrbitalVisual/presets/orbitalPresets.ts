@@ -439,6 +439,86 @@ const ringPlanetEclipse =
       ),
   });
 
+const gyroCoreBase: OrbitalPresetConfig = {
+  coreKind: 'gyro',
+
+  coreRgb: '220 248 255',
+  glowRgb: '73 211 240',
+  accentRgb: '70 82 96',
+  hotRgb: '255 255 255',
+
+  ringCount: 3,
+  baseRadius: 1,
+  ringThickness: 0.048,
+
+  coreSize: 0.22,
+  haloSize: 0.4,
+  haloOpacity: 0.014,
+  coreGlowOpacity: 0.14,
+  coreInnerOpacity: 1,
+
+  families: [],
+
+  gyro: {
+    coreScale: 0.92,
+    corePulse: 0.018,
+    coreRotationSpeed: 0.14,
+    coreShellOpacity: 0.09,
+    coreGlowOpacity: 0.3,
+
+    rings: [
+      {
+        radius: 1.32,
+        thickness: 0.052,
+        tiltX: 1.18,
+        tiltY: 0.04,
+        tiltZ: -0.12,
+        spinSpeed: 0.12,
+        direction: 1,
+        phase: 0.04,
+        segments: 4,
+        gapRatio: 0.075,
+        railInset: 0.016,
+        railThicknessScale: 0.15,
+        opacity: 0.94,
+        markerCount: 2,
+      },
+      {
+        radius: 1.05,
+        thickness: 0.045,
+        tiltX: 0.72,
+        tiltY: 0.68,
+        tiltZ: 0.42,
+        spinSpeed: 0.17,
+        direction: -1,
+        phase: 0.34,
+        segments: 5,
+        gapRatio: 0.09,
+        railInset: 0.014,
+        railThicknessScale: 0.17,
+        opacity: 0.92,
+        markerCount: 3,
+      },
+      {
+        radius: 0.78,
+        thickness: 0.036,
+        tiltX: 0.18,
+        tiltY: 1.34,
+        tiltZ: -0.26,
+        spinSpeed: 0.24,
+        direction: 1,
+        phase: 0.67,
+        segments: 4,
+        gapRatio: 0.11,
+        railInset: 0.011,
+        railThicknessScale: 0.2,
+        opacity: 0.88,
+        markerCount: 2,
+      },
+    ],
+  },
+};
+
 export const orbitalPresets = {
   'atomic-orb': atomicOrbBase,
 
@@ -538,4 +618,7 @@ export const orbitalPresets = {
 
   'ring-planet-eclipse':
     ringPlanetEclipse,
+
+  'gyro-core':
+    gyroCoreBase,
 } satisfies Record<OrbitalPresetName, OrbitalPresetConfig>;

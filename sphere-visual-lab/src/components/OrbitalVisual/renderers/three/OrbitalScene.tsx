@@ -8,6 +8,7 @@ import type {
   OrbitalQuality,
   OrbitalRingStyle,
 } from '../../OrbitalVisual.types';
+import GyroCore from './GyroCore';
 import OrbitRibbon from './OrbitRibbon';
 import PlanetCore from './PlanetCore';
 import PlanetRing from './PlanetRing';
@@ -335,7 +336,9 @@ export default function OrbitalScene({
 
   const glowFactor = getGlowFactor(glowIntensity);
   const coreKind = presetConfig.coreKind ?? 'atomic';
+  const isAtomicCore = coreKind === 'atomic';
   const isPlanetCore = coreKind === 'planet';
+  const isGyroCore = coreKind === 'gyro';
 
   // PlanetCore always uses the dedicated flat PlanetRing renderer.
   // The optional preset field remains useful for future non-planet styles,
@@ -486,6 +489,17 @@ export default function OrbitalScene({
         />
       ) : null}
 
+      {isGyroCore && presetConfig.gyro ? (
+        <GyroCore
+          coreSize={presetConfig.coreSize}
+          config={presetConfig.gyro}
+          colors={colors}
+          quality={quality}
+          speed={speed}
+          glowFactor={glowFactor}
+        />
+      ) : null}
+
       {familyGroups.map((family) => (
         <OrbitFamilyGroup
           key={family.key}
@@ -499,7 +513,7 @@ export default function OrbitalScene({
         />
       ))}
 
-      {!isPlanetCore ? (
+      {isAtomicCore ? (
         <group ref={coreRef}>
           {glowTexture ? (
             <sprite

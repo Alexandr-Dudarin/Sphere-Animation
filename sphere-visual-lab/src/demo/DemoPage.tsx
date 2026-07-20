@@ -137,6 +137,11 @@ const orbitalPresetCards: OrbitalPresetCard[] = [
     title: 'ring-planet-eclipse',
     text: 'Тёмная драматичная планета с близкими бронзовыми кольцами и редкими янтарными искрами.',
   },
+  {
+    preset: 'gyro-core',
+    title: 'gyro-core',
+    text: 'Базовое механическое ядро: три сегментированных кольца в разных плоскостях, холодные световые дорожки и независимое контрвращение.',
+  },
 ];
 
 export default function DemoPage() {
