@@ -91,6 +91,9 @@ export interface OrbitalGyroRingPresetConfig {
   railThicknessScale: number;
   opacity: number;
   markerCount: number;
+  offsetX?: number;
+  offsetY?: number;
+  offsetZ?: number;
 }
 
 export interface OrbitalGyroPresetConfig {

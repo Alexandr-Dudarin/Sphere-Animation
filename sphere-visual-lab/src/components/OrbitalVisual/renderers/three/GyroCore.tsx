@@ -69,22 +69,22 @@ function createCoreGlowTexture() {
 
   gradient.addColorStop(
     0,
-    'rgba(255,255,255,1)',
-  );
-
-  gradient.addColorStop(
-    0.15,
     'rgba(255,255,255,0.96)',
   );
 
   gradient.addColorStop(
-    0.35,
-    'rgba(255,255,255,0.46)',
+    0.12,
+    'rgba(255,255,255,0.82)',
   );
 
   gradient.addColorStop(
-    0.64,
-    'rgba(255,255,255,0.1)',
+    0.3,
+    'rgba(255,255,255,0.34)',
+  );
+
+  gradient.addColorStop(
+    0.58,
+    'rgba(255,255,255,0.07)',
   );
 
   gradient.addColorStop(
@@ -190,10 +190,10 @@ export default function GyroCore({
           .clone()
           .lerp(
             colors.glow,
-            0.16,
+            0.12,
           )
           .multiplyScalar(
-            0.92,
+            1.02,
           ),
       [
         colors.accent,
@@ -201,14 +201,32 @@ export default function GyroCore({
       ],
     );
 
-  const coreColor =
+  const shellSurfaceColor =
+    useMemo(
+      () =>
+        colors.accent
+          .clone()
+          .lerp(
+            colors.glow,
+            0.58,
+          )
+          .multiplyScalar(
+            0.78,
+          ),
+      [
+        colors.accent,
+        colors.glow,
+      ],
+    );
+
+  const energyColor =
     useMemo(
       () =>
         colors.core
           .clone()
           .lerp(
             colors.hot,
-            0.1,
+            0.16,
           ),
       [
         colors.core,
@@ -216,18 +234,18 @@ export default function GyroCore({
       ],
     );
 
-  const shellColor =
+  const hotColor =
     useMemo(
       () =>
-        colors.glow
+        colors.hot
           .clone()
           .lerp(
-            colors.hot,
-            0.06,
+            colors.glow,
+            0.18,
           ),
       [
-        colors.glow,
         colors.hot,
+        colors.glow,
       ],
     );
 
@@ -252,7 +270,7 @@ export default function GyroCore({
         1 +
         Math.sin(
           elapsed *
-            0.72 *
+            0.58 *
             safeSpeed,
         ) *
           config.corePulse;
@@ -269,21 +287,21 @@ export default function GyroCore({
       coreRef.current.rotation.z =
         Math.sin(
           elapsed *
-            0.14 *
+            0.11 *
             safeSpeed,
         ) *
-        0.022;
+        0.014;
     }
 
     if (shellRef.current) {
       shellRef.current.rotation.x =
         elapsed *
-        0.055 *
+        0.035 *
         safeSpeed;
 
       shellRef.current.rotation.y =
         -elapsed *
-        0.08 *
+        0.052 *
         safeSpeed;
     }
   });
@@ -294,46 +312,46 @@ export default function GyroCore({
 
   return (
     <group>
-      <ambientLight
-        intensity={1.02}
+      <hemisphereLight
+        color={colors.hot}
+        groundColor={
+          colors.accent
+        }
+        intensity={1.15}
       />
 
-      <pointLight
+      <directionalLight
         position={[
-          2.4,
-          1.8,
-          3.2,
+          2.8,
+          2.3,
+          3.6,
         ]}
         color={colors.hot}
-        intensity={5.8}
-        distance={7}
-        decay={2}
+        intensity={2.4}
       />
 
-      <pointLight
+      <directionalLight
         position={[
-          -2.2,
-          -1.3,
-          2.5,
+          -2.3,
+          -1.2,
+          2.1,
         ]}
         color={colors.glow}
-        intensity={3.4}
-        distance={6}
-        decay={2}
+        intensity={1.25}
       />
 
       <pointLight
         position={[
           0,
           0,
-          0.25,
+          0.24,
         ]}
         color={colors.glow}
         intensity={
-          2.8 *
+          1.35 *
           glowFactor
         }
-        distance={4.2}
+        distance={3.5}
         decay={2}
       />
 
@@ -369,22 +387,15 @@ export default function GyroCore({
             renderOrder={24}
             scale={[
               resolvedCoreSize *
-                5.8,
+                4.5,
               resolvedCoreSize *
-                5.8,
+                4.5,
               1,
             ]}
           >
             <spriteMaterial
               map={glowTexture}
-              color={
-                colors.glow
-                  .clone()
-                  .lerp(
-                    colors.hot,
-                    0.12,
-                  )
-              }
+              color={colors.glow}
               transparent
               opacity={
                 config.coreGlowOpacity *
@@ -402,6 +413,7 @@ export default function GyroCore({
 
         <mesh
           renderOrder={25}
+          scale={1.08}
         >
           <sphereGeometry
             args={[
@@ -411,40 +423,79 @@ export default function GyroCore({
             ]}
           />
 
-          <meshStandardMaterial
-            color={coreColor}
+          <meshPhysicalMaterial
+            color={
+              shellSurfaceColor
+            }
             emissive={
               colors.glow
             }
             emissiveIntensity={
-              1.55 *
+              0.26 *
               glowFactor
             }
-            metalness={0.16}
-            roughness={0.22}
+            metalness={0.18}
+            roughness={0.16}
+            clearcoat={1}
+            clearcoatRoughness={0.1}
+            transparent
+            opacity={0.86}
+            depthWrite
+            depthTest
             toneMapped={false}
           />
         </mesh>
 
         <mesh
           renderOrder={26}
-          scale={1.24}
+          scale={0.62}
+        >
+          <icosahedronGeometry
+            args={[
+              resolvedCoreSize,
+              quality === 'high'
+                ? 2
+                : 1,
+            ]}
+          />
+
+          <meshPhysicalMaterial
+            color={energyColor}
+            emissive={
+              colors.glow
+            }
+            emissiveIntensity={
+              1.1 *
+              glowFactor
+            }
+            metalness={0.02}
+            roughness={0.14}
+            clearcoat={0.9}
+            clearcoatRoughness={0.1}
+            transparent
+            opacity={0.92}
+            depthWrite={false}
+            depthTest
+            toneMapped={false}
+          />
+        </mesh>
+
+        <mesh
+          renderOrder={27}
+          scale={0.24}
         >
           <sphereGeometry
             args={[
               resolvedCoreSize,
-              sphereSegments,
-              sphereSegments,
+              32,
+              32,
             ]}
           />
 
           <meshBasicMaterial
-            color={shellColor}
+            color={hotColor}
             transparent
-            opacity={
-              0.075 *
-              glowFactor
-            }
+            opacity={0.88}
             blending={
               THREE.AdditiveBlending
             }
@@ -456,8 +507,8 @@ export default function GyroCore({
 
         <mesh
           ref={shellRef}
-          renderOrder={27}
-          scale={1.15}
+          renderOrder={28}
+          scale={1.18}
         >
           <icosahedronGeometry
             args={[
@@ -466,17 +517,8 @@ export default function GyroCore({
             ]}
           />
 
-          <meshPhysicalMaterial
-            color={shellColor}
-            emissive={
-              colors.accent
-            }
-            emissiveIntensity={
-              0.14 *
-              glowFactor
-            }
-            metalness={0.24}
-            roughness={0.18}
+          <meshBasicMaterial
+            color={colors.glow}
             transparent
             opacity={
               config.coreShellOpacity
@@ -487,31 +529,6 @@ export default function GyroCore({
             blending={
               THREE.AdditiveBlending
             }
-            toneMapped={false}
-          />
-        </mesh>
-
-        <mesh
-          renderOrder={28}
-          scale={0.33}
-        >
-          <sphereGeometry
-            args={[
-              resolvedCoreSize,
-              32,
-              32,
-            ]}
-          />
-
-          <meshBasicMaterial
-            color={colors.hot}
-            transparent
-            opacity={0.9}
-            blending={
-              THREE.AdditiveBlending
-            }
-            depthWrite={false}
-            depthTest
             toneMapped={false}
           />
         </mesh>
