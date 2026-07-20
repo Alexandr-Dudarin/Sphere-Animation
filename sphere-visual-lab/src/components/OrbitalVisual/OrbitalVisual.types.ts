@@ -4,7 +4,8 @@ export type OrbitalPresetName =
   | 'atomic-orb-more-electrons'
   | 'atomic-orb-white'
   | 'atomic-orb-violet'
-  | 'ring-planet';
+  | 'ring-planet'
+  | 'ring-planet-stardust';
 
 export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
@@ -61,9 +62,18 @@ export interface OrbitalFamilyPresetConfig {
   nodes: OrbitalNodePresetConfig;
 }
 
+export interface OrbitalPlanetDustPresetConfig {
+  enabled: boolean;
+  density: number;
+  size: number;
+  brightness: number;
+  motion: number;
+}
+
 export interface OrbitalPresetConfig {
   coreKind?: OrbitalCoreKind;
   ringStyle?: OrbitalRingStyle;
+  planetDust?: OrbitalPlanetDustPresetConfig;
   coreRgb: string;
   glowRgb: string;
   accentRgb: string;

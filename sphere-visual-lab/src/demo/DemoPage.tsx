@@ -110,7 +110,12 @@ const orbitalPresetCards: OrbitalPresetCard[] = [
     {
     preset: 'ring-planet',
     title: 'ring-planet',
-    text: 'Планета с кольцом: более космический и чистый orbital-объект с крупным ядром и читаемыми кольцами.',
+    text: 'Сдержанная планета без частиц: крупное ядро, читаемые кольца и более спокойный космический характер.',
+  },
+  {
+    preset: 'ring-planet-stardust',
+    title: 'ring-planet-stardust',
+    text: 'Декоративная версия планеты с мерцающей пылью на передней и задней частях колец.',
   },
 ];
 

@@ -123,73 +123,17 @@ const atomicOrbBase: OrbitalPresetConfig = {
   ],
 };
 
-export const orbitalPresets = {
-  'atomic-orb': atomicOrbBase,
-
-  'atomic-orb-no-electrons': {
-    ...atomicOrbBase,
-    families: atomicOrbBase.families.map((family) => ({
-      ...family,
-      nodes: {
-        ...family.nodes,
-        count: 0,
-      },
-    })),
-  },
-
-  'atomic-orb-more-electrons': {
-    ...atomicOrbBase,
-    families: atomicOrbBase.families.map((family, index) => {
-      const counts = [4, 6, 6];
-      const sizes = [0.022, 0.022, 0.022];
-      const glowSizes = [1.52, 1.5, 1.5];
-
-      return {
-        ...family,
-        nodes: {
-          ...family.nodes,
-          count: counts[index] ?? family.nodes.count,
-          size: sizes[index] ?? family.nodes.size,
-          glowSize: glowSizes[index] ?? family.nodes.glowSize,
-        },
-      };
-    }),
-  },
-
-  'atomic-orb-white': {
-    ...atomicOrbBase,
-    coreRgb: '236 248 255',
-    glowRgb: '205 232 255',
-    accentRgb: '182 208 255',
-    hotRgb: '255 255 255',
-    haloOpacity: 0.045,
-    coreGlowOpacity: 0.22,
-    families: atomicOrbBase.families.map((family) => ({
-      ...family,
-      heroOpacity: Math.min(family.heroOpacity + 0.04, 0.78),
-      heroAccentMix: Math.max(family.heroAccentMix - 0.04, 0.04),
-      hotColorMix: Math.max(family.hotColorMix - 0.02, 0.04),
-    })),
-  },
-
-  'atomic-orb-violet': {
-    ...atomicOrbBase,
-    coreRgb: '228 220 255',
-    glowRgb: '171 126 255',
-    accentRgb: '118 102 255',
-    hotRgb: '255 244 255',
-    haloOpacity: 0.045,
-    coreGlowOpacity: 0.22,
-    families: atomicOrbBase.families.map((family) => ({
-      ...family,
-      heroAccentMix: Math.min(family.heroAccentMix + 0.08, 0.32),
-      echoAccentMix: Math.min(family.echoAccentMix + 0.06, 0.22),
-      hotColorMix: Math.min(family.hotColorMix + 0.04, 0.14),
-    })),
-  },
-
-  'ring-planet': {
+const ringPlanetBase: OrbitalPresetConfig = {
     coreKind: 'planet',
+    ringStyle: 'planetary',
+
+    planetDust: {
+      enabled: false,
+      density: 1,
+      size: 1,
+      brightness: 1,
+      motion: 1,
+    },
 
     coreRgb: '128 205 255',
     glowRgb: '58 160 255',
@@ -274,5 +218,84 @@ export const orbitalPresets = {
         },
       },
     ],
+  };
+
+export const orbitalPresets = {
+  'atomic-orb': atomicOrbBase,
+
+  'atomic-orb-no-electrons': {
+    ...atomicOrbBase,
+    families: atomicOrbBase.families.map((family) => ({
+      ...family,
+      nodes: {
+        ...family.nodes,
+        count: 0,
+      },
+    })),
+  },
+
+  'atomic-orb-more-electrons': {
+    ...atomicOrbBase,
+    families: atomicOrbBase.families.map((family, index) => {
+      const counts = [4, 6, 6];
+      const sizes = [0.022, 0.022, 0.022];
+      const glowSizes = [1.52, 1.5, 1.5];
+
+      return {
+        ...family,
+        nodes: {
+          ...family.nodes,
+          count: counts[index] ?? family.nodes.count,
+          size: sizes[index] ?? family.nodes.size,
+          glowSize: glowSizes[index] ?? family.nodes.glowSize,
+        },
+      };
+    }),
+  },
+
+  'atomic-orb-white': {
+    ...atomicOrbBase,
+    coreRgb: '236 248 255',
+    glowRgb: '205 232 255',
+    accentRgb: '182 208 255',
+    hotRgb: '255 255 255',
+    haloOpacity: 0.045,
+    coreGlowOpacity: 0.22,
+    families: atomicOrbBase.families.map((family) => ({
+      ...family,
+      heroOpacity: Math.min(family.heroOpacity + 0.04, 0.78),
+      heroAccentMix: Math.max(family.heroAccentMix - 0.04, 0.04),
+      hotColorMix: Math.max(family.hotColorMix - 0.02, 0.04),
+    })),
+  },
+
+  'atomic-orb-violet': {
+    ...atomicOrbBase,
+    coreRgb: '228 220 255',
+    glowRgb: '171 126 255',
+    accentRgb: '118 102 255',
+    hotRgb: '255 244 255',
+    haloOpacity: 0.045,
+    coreGlowOpacity: 0.22,
+    families: atomicOrbBase.families.map((family) => ({
+      ...family,
+      heroAccentMix: Math.min(family.heroAccentMix + 0.08, 0.32),
+      echoAccentMix: Math.min(family.echoAccentMix + 0.06, 0.22),
+      hotColorMix: Math.min(family.hotColorMix + 0.04, 0.14),
+    })),
+  },
+
+  'ring-planet': ringPlanetBase,
+
+  'ring-planet-stardust': {
+    ...ringPlanetBase,
+    planetDust: {
+      ...ringPlanetBase.planetDust!,
+      enabled: true,
+      density: 1,
+      size: 1,
+      brightness: 1,
+      motion: 1,
+    },
   },
 } satisfies Record<OrbitalPresetName, OrbitalPresetConfig>;

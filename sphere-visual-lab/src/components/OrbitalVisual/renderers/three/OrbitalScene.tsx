@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type {
   OrbitalGlowIntensity,
+  OrbitalPlanetDustPresetConfig,
   OrbitalPresetConfig,
   OrbitalQuality,
   OrbitalRingStyle,
@@ -244,6 +245,7 @@ function OrbitFamilyGroup({
   ringStyle,
   usePlanetRing,
   splitDepthLayers,
+  planetDust,
 }: {
   family: OrbitFamilyGroupConfig;
   speed: number;
@@ -251,6 +253,7 @@ function OrbitFamilyGroup({
   ringStyle: OrbitalRingStyle;
   usePlanetRing: boolean;
   splitDepthLayers: boolean;
+  planetDust?: OrbitalPlanetDustPresetConfig;
 }) {
   const ref = useRef<THREE.Group>(null);
 
@@ -287,6 +290,7 @@ function OrbitFamilyGroup({
               speed={speed}
               glowFactor={glowFactor}
               splitDepthLayers={splitDepthLayers}
+              dust={planetDust}
             />
           ) : (
             <OrbitRibbon
@@ -491,6 +495,7 @@ export default function OrbitalScene({
           ringStyle={ringStyle}
           usePlanetRing={isPlanetCore}
           splitDepthLayers={isPlanetCore}
+          planetDust={presetConfig.planetDust}
         />
       ))}
 

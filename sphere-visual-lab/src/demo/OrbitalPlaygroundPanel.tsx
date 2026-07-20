@@ -90,7 +90,12 @@ export default function OrbitalPlaygroundPanel({
           <option value="atomic-orb-violet">
             atomic-orb-violet — фиолетовый вариант
           </option>
-          <option value="ring-planet">ring-planet — планета с кольцом</option>
+          <option value="ring-planet">
+            ring-planet — сдержанная планета
+          </option>
+          <option value="ring-planet-stardust">
+            ring-planet-stardust — планета со звёздной пылью
+          </option>
         </select>
       </div>
 

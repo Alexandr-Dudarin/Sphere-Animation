@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import type { OrbitalPlanetDustPresetConfig } from '../../OrbitalVisual.types';
 import PlanetRingDust from './PlanetRingDust';
 
 interface PlanetRingProps {
@@ -21,6 +22,7 @@ interface PlanetRingProps {
   speed: number;
   glowFactor: number;
   splitDepthLayers?: boolean;
+  dust?: OrbitalPlanetDustPresetConfig;
 }
 
 const VERTEX_SHADER = `
@@ -539,6 +541,7 @@ export default function PlanetRing({
   speed,
   glowFactor,
   splitDepthLayers = true,
+  dust,
 }: PlanetRingProps) {
   const groupRef =
     useRef<THREE.Group>(null);
@@ -781,18 +784,25 @@ export default function PlanetRing({
         </>
       )}
 
-      <PlanetRingDust
-        radius={radius}
-        thickness={thickness}
-        ellipseX={ellipseX}
-        ellipseY={ellipseY}
-        wobble={wobble}
-        seed={seed}
-        baseColor={baseColor}
-        opacity={opacity}
-        speed={speed}
-        glowFactor={glowFactor}
-      />
+      {dust?.enabled ? (
+        <PlanetRingDust
+          radius={radius}
+          thickness={thickness}
+          ellipseX={ellipseX}
+          ellipseY={ellipseY}
+          wobble={wobble}
+          seed={seed}
+          baseColor={baseColor}
+          opacity={opacity}
+          speed={speed}
+          glowFactor={glowFactor}
+          density={dust.density}
+          size={dust.size}
+          brightness={dust.brightness}
+          motion={dust.motion}
+          splitDepthLayers={splitDepthLayers}
+        />
+      ) : null}
     </group>
   );
 }
