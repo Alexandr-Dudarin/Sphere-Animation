@@ -470,24 +470,25 @@ const gyroCoreBase: OrbitalPresetConfig = {
       {
         /*
          * Кольцо 1 — самое большое.
-         * Заметно ближе к ребру зрителя,
-         * но с небольшим раскрытием дуг.
-         * Вращается в экранной плоскости.
+         * Остаётся основным диагональным
+         * hero-контуром: почти ребром к
+         * зрителю и с плавным вращением
+         * в экранной плоскости.
          */
         radius: 1.46,
         thickness: 0.044,
-        tiltX: 1.4,
-        tiltY: 0.06,
-        tiltZ: -0.18,
+        tiltX: 1.29,
+        tiltY: 0.1,
+        tiltZ: -0.24,
 
-        spinSpeed: 0.082,
+        spinSpeed: 0.14,
         direction: 1,
         phase: 0.04,
 
         spatialMotion: 'planar-orbit',
-        spatialSpeed: 0.16,
+        spatialSpeed: 0.169,
         spatialDirection: 1,
-        spatialPhase: 0.12,
+        spatialPhase: 0.11,
 
         segments: 4,
         gapRatio: 0.025,
@@ -495,62 +496,63 @@ const gyroCoreBase: OrbitalPresetConfig = {
         railThicknessScale: 0.15,
         opacity: 0.96,
         markerCount: 1,
-        offsetY: -0.08,
+        offsetY: -0.065,
       },
       {
         /*
          * Кольцо 2 — среднее.
-         * Чуть сильнее раскрыто, чем
-         * большое, но остаётся почти ребром.
-         * Идёт в противоположную сторону
-         * и в 1.5 раза быстрее большого.
+         * Теперь это горизонтальное
+         * reveal-кольцо: оно не повторяет
+         * траекторию большого, а циклически
+         * раскрывается от положения ребром
+         * до широкого горизонтального овала.
          */
-        radius: 1.14,
+        radius: 1.16,
         thickness: 0.037,
-        tiltX: 1.34,
-        tiltY: -0.08,
-        tiltZ: 0.25,
+        tiltX: 0.08,
+        tiltY: -0.2,
+        tiltZ: 0.04,
 
-        spinSpeed: 0.125,
+        spinSpeed: 0.21,
         direction: -1,
-        phase: 0.34,
+        phase: 0.37,
 
-        spatialMotion: 'planar-orbit',
-        spatialSpeed: 0.24,
+        spatialMotion: 'axial-reveal-horizontal',
+        spatialSpeed: 0.241,
         spatialDirection: -1,
-        spatialPhase: 1.42,
+        spatialPhase: 2.38,
 
         segments: 5,
         gapRatio: 0.035,
         railInset: 0.012,
         railThicknessScale: 0.17,
-        opacity: 0.9,
+        opacity: 0.88,
         markerCount: 1,
-        offsetX: -0.018,
-        offsetY: 0.025,
+        offsetX: -0.012,
+        offsetY: 0.028,
       },
       {
         /*
          * Кольцо 3 — маленькое.
-         * Остаётся вертикальным и
-         * непрерывно раскрывается:
-         * от положения ребром к зрителю
-         * до широкой овальной формы.
+         * Сохраняет вертикальное reveal-
+         * движение и работает быстрее двух
+         * остальных, но без простого
+         * отношения скоростей 1.5x.
          */
         radius: 0.92,
         thickness: 0.033,
-        tiltX: 0.14,
+        tiltX: 0.18,
         tiltY: 0,
-        tiltZ: 0.04,
+        tiltZ: 0.07,
 
-        spinSpeed: 0.18,
+        spinSpeed: 0.3,
         direction: 1,
         phase: 0.67,
 
         spatialMotion: 'axial-reveal',
-        spatialSpeed: 0.21,
+        spatialSpeed: 0.287,
         spatialDirection: 1,
-        spatialPhase: 0.58,
+        spatialPhase: 0.78,
 
         segments: 4,
         gapRatio: 0.045,
@@ -559,7 +561,7 @@ const gyroCoreBase: OrbitalPresetConfig = {
         opacity: 0.9,
         markerCount: 1,
         offsetX: 0,
-        offsetY: 0.02,
+        offsetY: 0.015,
       },
     ],
   },

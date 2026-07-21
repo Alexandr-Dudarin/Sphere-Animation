@@ -19,7 +19,8 @@ export type OrbitalCoreKind = 'atomic' | 'planet' | 'gyro';
 export type OrbitalRingStyle = 'energy' | 'planetary';
 export type OrbitalGyroSpatialMotion =
   | 'planar-orbit'
-  | 'axial-reveal';
+  | 'axial-reveal'
+  | 'axial-reveal-horizontal';
 
 export interface OrbitalNodePresetConfig {
   count: number;
