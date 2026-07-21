@@ -17,6 +17,9 @@ export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
 export type OrbitalBackground = 'transparent' | 'dark';
 export type OrbitalCoreKind = 'atomic' | 'planet' | 'gyro';
 export type OrbitalRingStyle = 'energy' | 'planetary';
+export type OrbitalGyroSpatialMotion =
+  | 'planar-orbit'
+  | 'axial-reveal';
 
 export interface OrbitalNodePresetConfig {
   count: number;
@@ -82,9 +85,24 @@ export interface OrbitalGyroRingPresetConfig {
   tiltX: number;
   tiltY: number;
   tiltZ: number;
+
+  /*
+   * Движение сегментов вдоль
+   * собственной окружности кольца.
+   */
   spinSpeed: number;
   direction: 1 | -1;
   phase: number;
+
+  /*
+   * Пространственная хореография
+   * кольца вокруг центрального ядра.
+   */
+  spatialMotion: OrbitalGyroSpatialMotion;
+  spatialSpeed: number;
+  spatialDirection: 1 | -1;
+  spatialPhase: number;
+
   segments: number;
   gapRatio: number;
   railInset: number;

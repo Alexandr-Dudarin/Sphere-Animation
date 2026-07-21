@@ -26,15 +26,16 @@ function getCurveSegments(
 ) {
   switch (quality) {
     case 'low':
-      return 24;
+      return 28;
 
     case 'high':
-      return 72;
+      return 80;
 
     default:
-      return 48;
+      return 54;
   }
 }
+
 
 function createBandSegmentGeometry({
   radius,
@@ -97,8 +98,8 @@ function createBandSegmentGeometry({
 
   const bevelSize =
     Math.min(
-      width * 0.09,
-      depth * 0.3,
+      width * 0.085,
+      depth * 0.28,
     ) *
     bevelScale;
 
@@ -140,6 +141,12 @@ export default function GyroRing({
   glowFactor,
   index,
 }: GyroRingProps) {
+  const precessionRef =
+    useRef<THREE.Group>(null);
+
+  const axisRef =
+    useRef<THREE.Group>(null);
+
   const spinRef =
     useRef<THREE.Group>(null);
 
@@ -160,8 +167,15 @@ export default function GyroRing({
     THREE.MathUtils.clamp(
       1 -
         config.gapRatio,
-      0.68,
-      0.993,
+      0.72,
+      0.996,
+    );
+
+  const gapAngle =
+    Math.max(
+      segmentStep -
+        segmentArc,
+      0.001,
     );
 
   const curveSegments =
@@ -172,28 +186,28 @@ export default function GyroRing({
   const bandWidth =
     Math.max(
       config.thickness *
-        2.35,
-      0.056,
+        2.42,
+      0.058,
     );
 
   const bandDepth =
     Math.max(
       config.thickness *
-        0.72,
-      0.018,
+        0.78,
+      0.019,
     );
 
   const railWidth =
     Math.max(
       bandWidth *
         config.railThicknessScale,
-      0.014,
+      0.013,
     );
 
   const railDepth =
     Math.max(
-      bandDepth * 0.11,
-      0.003,
+      bandDepth * 0.095,
+      0.0028,
     );
 
   const segmentGeometry =
@@ -234,9 +248,9 @@ export default function GyroRing({
           depth:
             railDepth,
           arc:
-            segmentArc * 0.94,
+            segmentArc * 0.955,
           curveSegments,
-          bevelScale: 0.35,
+          bevelScale: 0.28,
         }),
       [
         config.radius,
@@ -248,14 +262,45 @@ export default function GyroRing({
       ],
     );
 
+  const edgeRailGeometry =
+    useMemo(
+      () =>
+        createBandSegmentGeometry({
+          radius:
+            config.radius +
+            bandWidth * 0.32,
+          width:
+            Math.max(
+              railWidth * 0.32,
+              0.004,
+            ),
+          depth:
+            railDepth,
+          arc:
+            segmentArc * 0.92,
+          curveSegments,
+          bevelScale: 0.2,
+        }),
+      [
+        config.radius,
+        bandWidth,
+        railWidth,
+        railDepth,
+        segmentArc,
+        curveSegments,
+      ],
+    );
+
   useEffect(() => {
     return () => {
       segmentGeometry.dispose();
       railGeometry.dispose();
+      edgeRailGeometry.dispose();
     };
   }, [
     segmentGeometry,
     railGeometry,
+    edgeRailGeometry,
   ]);
 
   const segmentIndexes =
@@ -269,6 +314,24 @@ export default function GyroRing({
             segmentIndex,
         ),
       [segments],
+    );
+
+  const jointAngles =
+    useMemo(
+      () =>
+        segmentIndexes.map(
+          (segmentIndex) =>
+            segmentIndex *
+              segmentStep +
+            segmentArc +
+            gapAngle / 2,
+        ),
+      [
+        segmentIndexes,
+        segmentStep,
+        segmentArc,
+        gapAngle,
+      ],
     );
 
   const markerCount =
@@ -297,13 +360,11 @@ export default function GyroRing({
             ) *
               Math.PI *
               2 +
-            config.phase +
             segmentStep *
-              0.51,
+              0.34,
         ),
       [
         markerCount,
-        config.phase,
         segmentStep,
       ],
     );
@@ -315,16 +376,34 @@ export default function GyroRing({
           .clone()
           .lerp(
             colors.glow,
-            0.055 +
+            0.08 +
               index * 0.018,
           )
           .multiplyScalar(
-            1.06,
+            1.14,
           ),
       [
         colors.metal,
         colors.glow,
         index,
+      ],
+    );
+
+  const connectorColor =
+    useMemo(
+      () =>
+        colors.metal
+          .clone()
+          .lerp(
+            colors.glow,
+            0.035,
+          )
+          .multiplyScalar(
+            0.82,
+          ),
+      [
+        colors.metal,
+        colors.glow,
       ],
     );
 
@@ -335,8 +414,8 @@ export default function GyroRing({
           .clone()
           .lerp(
             colors.hot,
-            0.12 +
-              index * 0.045,
+            0.1 +
+              index * 0.04,
           ),
       [
         colors.glow,
@@ -352,7 +431,7 @@ export default function GyroRing({
           .clone()
           .lerp(
             colors.glow,
-            0.38,
+            0.42,
           ),
       [
         colors.hot,
@@ -361,7 +440,11 @@ export default function GyroRing({
     );
 
   useFrame((state) => {
-    if (!spinRef.current) {
+    if (
+      !precessionRef.current ||
+      !axisRef.current ||
+      !spinRef.current
+    ) {
       return;
     }
 
@@ -374,6 +457,65 @@ export default function GyroRing({
         0.2,
       );
 
+    const spatialAngle =
+      config.spatialPhase +
+      elapsed *
+        config.spatialSpeed *
+        config.spatialDirection *
+        safeSpeed;
+
+    /*
+     * Пространственное движение теперь
+     * задаётся явно в пресете.
+     *
+     * Большое и среднее кольца сохраняют
+     * почти реберный наклон и вращаются
+     * только в одной экранной плоскости.
+     */
+    if (
+      config.spatialMotion ===
+      'planar-orbit'
+    ) {
+      precessionRef.current.rotation.set(
+        0,
+        0,
+        spatialAngle,
+      );
+
+      axisRef.current.rotation.set(
+        config.tiltX,
+        config.tiltY,
+        config.tiltZ,
+      );
+    } else {
+      /*
+       * Маленькое кольцо остаётся
+       * вертикальным и непрерывно
+       * поворачивается вокруг своей
+       * вертикальной оси. Поэтому оно
+       * циклически видно то ребром,
+       * то широкой овальной частью.
+       */
+      precessionRef.current.rotation.set(
+        0,
+        0,
+        0,
+      );
+
+      axisRef.current.rotation.set(
+        config.tiltX,
+        config.tiltY +
+          spatialAngle,
+        config.tiltZ,
+      );
+    }
+
+    /*
+     * Отдельный внутренний уровень:
+     * сегменты, соединители и маркеры
+     * продолжают двигаться вдоль
+     * собственной окружности кольца.
+     */
     spinRef.current.rotation.z =
       config.phase +
       elapsed *
@@ -384,31 +526,41 @@ export default function GyroRing({
 
   const frontRailZ =
     bandDepth / 2 +
-    railDepth * 0.6;
+    railDepth * 0.72;
 
   const backRailZ =
     -frontRailZ;
 
+  const jointTangentialLength =
+    THREE.MathUtils.clamp(
+      config.radius *
+        gapAngle *
+        1.05,
+      bandWidth * 0.16,
+      bandWidth * 0.5,
+    );
+
   return (
-    <group
-      position={[
-        config.offsetX ?? 0,
-        config.offsetY ?? 0,
-        config.offsetZ ?? 0,
-      ]}
-      rotation={[
-        config.tiltX,
-        config.tiltY,
-        config.tiltZ,
-      ]}
-    >
-      <group ref={spinRef}>
+    <group ref={precessionRef}>
+      <group
+        ref={axisRef}
+        position={[
+          config.offsetX ?? 0,
+          config.offsetY ?? 0,
+          config.offsetZ ?? 0,
+        ]}
+        rotation={[
+          config.tiltX,
+          config.tiltY,
+          config.tiltZ,
+        ]}
+      >
+        <group ref={spinRef}>
         {segmentIndexes.map(
           (segmentIndex) => {
             const startAngle =
               segmentIndex *
-                segmentStep +
-              config.phase;
+              segmentStep;
 
             return (
               <group
@@ -427,7 +579,7 @@ export default function GyroRing({
                   }
                   renderOrder={
                     10 +
-                    index * 4
+                    index * 5
                   }
                 >
                   <meshPhysicalMaterial
@@ -437,15 +589,15 @@ export default function GyroRing({
                     }
                     emissiveIntensity={
                       (
-                        0.025 +
-                        index * 0.008
+                        0.035 +
+                        index * 0.009
                       ) *
                       glowFactor
                     }
-                    metalness={0.74}
-                    roughness={0.26}
-                    clearcoat={0.86}
-                    clearcoatRoughness={0.2}
+                    metalness={0.58}
+                    roughness={0.22}
+                    clearcoat={1}
+                    clearcoatRoughness={0.16}
                     transparent
                     opacity={
                       config.opacity
@@ -467,7 +619,7 @@ export default function GyroRing({
                   ]}
                   renderOrder={
                     14 +
-                    index * 4
+                    index * 5
                   }
                 >
                   <meshBasicMaterial
@@ -476,10 +628,10 @@ export default function GyroRing({
                     opacity={
                       THREE.MathUtils.clamp(
                         config.opacity *
-                          0.78 *
+                          0.64 *
                           glowFactor,
                         0,
-                        0.94,
+                        0.82,
                       )
                     }
                     blending={
@@ -507,7 +659,7 @@ export default function GyroRing({
                   ]}
                   renderOrder={
                     13 +
-                    index * 4
+                    index * 5
                   }
                 >
                   <meshBasicMaterial
@@ -516,10 +668,46 @@ export default function GyroRing({
                     opacity={
                       THREE.MathUtils.clamp(
                         config.opacity *
-                          0.48 *
+                          0.34 *
                           glowFactor,
                         0,
-                        0.72,
+                        0.56,
+                      )
+                    }
+                    blending={
+                      THREE.AdditiveBlending
+                    }
+                    depthWrite={false}
+                    depthTest
+                    toneMapped={false}
+                  />
+                </mesh>
+
+                <mesh
+                  geometry={
+                    edgeRailGeometry
+                  }
+                  position={[
+                    0,
+                    0,
+                    frontRailZ *
+                      0.98,
+                  ]}
+                  renderOrder={
+                    15 +
+                    index * 5
+                  }
+                >
+                  <meshBasicMaterial
+                    color={railColor}
+                    transparent
+                    opacity={
+                      THREE.MathUtils.clamp(
+                        config.opacity *
+                          0.2 *
+                          glowFactor,
+                        0,
+                        0.32,
                       )
                     }
                     blending={
@@ -535,6 +723,117 @@ export default function GyroRing({
           },
         )}
 
+        {jointAngles.map(
+          (
+            angle,
+            jointIndex,
+          ) => (
+            <group
+              key={`joint-${jointIndex}`}
+              position={[
+                Math.cos(
+                  angle,
+                ) *
+                  config.radius,
+                Math.sin(
+                  angle,
+                ) *
+                  config.radius,
+                0,
+              ]}
+              rotation={[
+                0,
+                0,
+                angle,
+              ]}
+            >
+              <mesh
+                renderOrder={
+                  18 +
+                  index * 5
+                }
+              >
+                <boxGeometry
+                  args={[
+                    bandWidth *
+                      1.08,
+                    jointTangentialLength,
+                    bandDepth *
+                      1.22,
+                  ]}
+                />
+
+                <meshPhysicalMaterial
+                  color={
+                    connectorColor
+                  }
+                  emissive={
+                    colors.glow
+                  }
+                  emissiveIntensity={
+                    0.018 *
+                    glowFactor
+                  }
+                  metalness={0.76}
+                  roughness={0.25}
+                  clearcoat={0.88}
+                  clearcoatRoughness={0.2}
+                  depthWrite
+                  depthTest
+                  toneMapped={false}
+                />
+              </mesh>
+
+              <mesh
+                position={[
+                  0,
+                  0,
+                  bandDepth *
+                    0.69,
+                ]}
+                renderOrder={
+                  20 +
+                  index * 5
+                }
+              >
+                <boxGeometry
+                  args={[
+                    bandWidth *
+                      0.55,
+                    Math.max(
+                      jointTangentialLength *
+                        0.38,
+                      bandWidth *
+                        0.035,
+                    ),
+                    bandDepth *
+                      0.08,
+                  ]}
+                />
+
+                <meshBasicMaterial
+                  color={railColor}
+                  transparent
+                  opacity={
+                    THREE.MathUtils.clamp(
+                      0.42 *
+                        glowFactor,
+                      0,
+                      0.66,
+                    )
+                  }
+                  blending={
+                    THREE.AdditiveBlending
+                  }
+                  depthWrite={false}
+                  depthTest
+                  toneMapped={false}
+                />
+              </mesh>
+            </group>
+          ),
+        )}
+
         {markerAngles.map(
           (
             angle,
@@ -542,8 +841,8 @@ export default function GyroRing({
           ) => {
             const markerRadius =
               config.radius -
-              config.railInset *
-                0.25;
+              bandWidth *
+                0.12;
 
             return (
               <group
@@ -572,21 +871,21 @@ export default function GyroRing({
                     0,
                     0,
                     bandDepth *
-                      0.58,
+                      0.67,
                   ]}
                   renderOrder={
-                    22 +
+                    24 +
                     index
                   }
                 >
                   <boxGeometry
                     args={[
                       bandWidth *
-                        0.62,
+                        0.48,
                       bandWidth *
-                        0.16,
+                        0.075,
                       bandDepth *
-                        0.19,
+                        0.09,
                     ]}
                   />
 
@@ -597,10 +896,10 @@ export default function GyroRing({
                     transparent
                     opacity={
                       THREE.MathUtils.clamp(
-                        0.82 *
+                        0.58 *
                           glowFactor,
                         0,
-                        1,
+                        0.78,
                       )
                     }
                     blending={
@@ -615,6 +914,7 @@ export default function GyroRing({
             );
           },
         )}
+        </group>
       </group>
     </group>
   );

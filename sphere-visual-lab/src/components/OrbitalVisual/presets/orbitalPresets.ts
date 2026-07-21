@@ -442,17 +442,17 @@ const ringPlanetEclipse =
 const gyroCoreBase: OrbitalPresetConfig = {
   coreKind: 'gyro',
 
-  coreRgb: '143 215 228',
-  glowRgb: '55 202 232',
-  accentRgb: '92 104 118',
-  hotRgb: '247 255 255',
+  coreRgb: '145 218 230',
+  glowRgb: '58 204 232',
+  accentRgb: '108 118 132',
+  hotRgb: '248 255 255',
 
   ringCount: 3,
   baseRadius: 1,
   ringThickness: 0.046,
 
-  coreSize: 0.26,
-  haloSize: 0.4,
+  coreSize: 0.29,
+  haloSize: 0.42,
   haloOpacity: 0.012,
   coreGlowOpacity: 0.12,
   coreInnerOpacity: 1,
@@ -460,64 +460,106 @@ const gyroCoreBase: OrbitalPresetConfig = {
   families: [],
 
   gyro: {
-    coreScale: 1.08,
-    corePulse: 0.012,
-    coreRotationSpeed: 0.1,
-    coreShellOpacity: 0.024,
-    coreGlowOpacity: 0.16,
+    coreScale: 1.1,
+    corePulse: 0.011,
+    coreRotationSpeed: 0.095,
+    coreShellOpacity: 0.021,
+    coreGlowOpacity: 0.14,
 
     rings: [
       {
-        radius: 1.36,
-        thickness: 0.047,
-        tiltX: 1.24,
-        tiltY: 0.08,
-        tiltZ: -0.16,
-        spinSpeed: 0.09,
+        /*
+         * Кольцо 1 — самое большое.
+         * Заметно ближе к ребру зрителя,
+         * но с небольшим раскрытием дуг.
+         * Вращается в экранной плоскости.
+         */
+        radius: 1.46,
+        thickness: 0.044,
+        tiltX: 1.4,
+        tiltY: 0.06,
+        tiltZ: -0.18,
+
+        spinSpeed: 0.082,
         direction: 1,
         phase: 0.04,
+
+        spatialMotion: 'planar-orbit',
+        spatialSpeed: 0.16,
+        spatialDirection: 1,
+        spatialPhase: 0.12,
+
         segments: 4,
-        gapRatio: 0.045,
+        gapRatio: 0.025,
         railInset: 0.014,
-        railThicknessScale: 0.16,
+        railThicknessScale: 0.15,
         opacity: 0.96,
-        markerCount: 2,
-        offsetY: -0.1,
+        markerCount: 1,
+        offsetY: -0.08,
       },
       {
-        radius: 1.06,
-        thickness: 0.042,
-        tiltX: 0.74,
-        tiltY: 0.82,
-        tiltZ: 0.46,
-        spinSpeed: 0.135,
+        /*
+         * Кольцо 2 — среднее.
+         * Чуть сильнее раскрыто, чем
+         * большое, но остаётся почти ребром.
+         * Идёт в противоположную сторону
+         * и в 1.5 раза быстрее большого.
+         */
+        radius: 1.14,
+        thickness: 0.037,
+        tiltX: 1.34,
+        tiltY: -0.08,
+        tiltZ: 0.25,
+
+        spinSpeed: 0.125,
         direction: -1,
         phase: 0.34,
+
+        spatialMotion: 'planar-orbit',
+        spatialSpeed: 0.24,
+        spatialDirection: -1,
+        spatialPhase: 1.42,
+
         segments: 5,
-        gapRatio: 0.06,
+        gapRatio: 0.035,
         railInset: 0.012,
-        railThicknessScale: 0.18,
-        opacity: 0.94,
-        markerCount: 2,
-        offsetX: 0.035,
+        railThicknessScale: 0.17,
+        opacity: 0.9,
+        markerCount: 1,
+        offsetX: -0.018,
         offsetY: 0.025,
       },
       {
-        radius: 0.8,
-        thickness: 0.034,
-        tiltX: 0.12,
-        tiltY: 1.46,
-        tiltZ: -0.1,
-        spinSpeed: 0.19,
+        /*
+         * Кольцо 3 — маленькое.
+         * Остаётся вертикальным и
+         * непрерывно раскрывается:
+         * от положения ребром к зрителю
+         * до широкой овальной формы.
+         */
+        radius: 0.92,
+        thickness: 0.033,
+        tiltX: 0.14,
+        tiltY: 0,
+        tiltZ: 0.04,
+
+        spinSpeed: 0.18,
         direction: 1,
         phase: 0.67,
+
+        spatialMotion: 'axial-reveal',
+        spatialSpeed: 0.21,
+        spatialDirection: 1,
+        spatialPhase: 0.58,
+
         segments: 4,
-        gapRatio: 0.075,
+        gapRatio: 0.045,
         railInset: 0.01,
-        railThicknessScale: 0.2,
+        railThicknessScale: 0.19,
         opacity: 0.9,
-        markerCount: 2,
-        offsetX: -0.025,
+        markerCount: 1,
+        offsetX: 0,
+        offsetY: 0.02,
       },
     ],
   },
