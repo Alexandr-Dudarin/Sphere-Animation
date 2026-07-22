@@ -109,7 +109,16 @@ export default function OrbitalPlaygroundPanel({
             ring-planet-eclipse — затмение
           </option>
           <option value="gyro-core">
-            gyro-core — гироскопическое ядро
+            gyro-core — базовое гироскопическое ядро
+          </option>
+          <option value="gyro-core-precision">
+            gyro-core-precision — точное ледяное ядро
+          </option>
+          <option value="gyro-core-reactor">
+            gyro-core-reactor — реакторное ядро
+          </option>
+          <option value="gyro-core-amber">
+            gyro-core-amber — янтарное ядро
           </option>
         </select>
       </div>
@@ -197,9 +206,9 @@ export default function OrbitalPlaygroundPanel({
       </div>
 
       <div className="infoBox">
-        Сейчас в orbital-family уже есть атомные варианты и полноценная
-        линейка ring-planet: сдержанная, декоративная, песочная, ледяная и
-        eclipse-версии и первый механический объект — gyro-core.
+        Сейчас в orbital-family уже есть атомные варианты, полноценная
+        линейка ring-planet и gyro-core family: базовая, точная ледяная,
+        реакторная и тёплая янтарная версии.
       </div>
     </aside>
   );

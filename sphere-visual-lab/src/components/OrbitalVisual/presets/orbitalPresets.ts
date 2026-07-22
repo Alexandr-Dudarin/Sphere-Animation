@@ -1,5 +1,7 @@
 import type {
   OrbitalFamilyPresetConfig,
+  OrbitalGyroPresetConfig,
+  OrbitalGyroRingPresetConfig,
   OrbitalPlanetDustPresetConfig,
   OrbitalPresetConfig,
   OrbitalPresetName,
@@ -567,6 +569,239 @@ const gyroCoreBase: OrbitalPresetConfig = {
   },
 };
 
+interface GyroPresetOverrides
+  extends Omit<
+    Partial<OrbitalPresetConfig>,
+    'families' | 'gyro'
+  > {
+  gyro?: Omit<
+    Partial<OrbitalGyroPresetConfig>,
+    'rings'
+  > & {
+    rings?: OrbitalGyroRingPresetConfig[];
+  };
+}
+
+function cloneGyroRing(
+  ring: OrbitalGyroRingPresetConfig,
+): OrbitalGyroRingPresetConfig {
+  return {
+    ...ring,
+  };
+}
+
+function createGyroPreset(
+  overrides: GyroPresetOverrides = {},
+): OrbitalPresetConfig {
+  const baseGyro =
+    gyroCoreBase.gyro!;
+
+  const rings =
+    overrides.gyro?.rings ??
+    baseGyro.rings;
+
+  return {
+    ...gyroCoreBase,
+    ...overrides,
+    families: [],
+    gyro: {
+      ...baseGyro,
+      ...overrides.gyro,
+      rings:
+        rings.map(cloneGyroRing),
+    },
+  };
+}
+
+const gyroCorePrecision =
+  createGyroPreset({
+    coreRgb: '236 250 255',
+    glowRgb: '153 226 255',
+    accentRgb: '116 145 167',
+    hotRgb: '255 255 255',
+
+    coreSize: 0.272,
+    haloSize: 0.39,
+    haloOpacity: 0.009,
+    coreGlowOpacity: 0.105,
+
+    gyro: {
+      coreScale: 1.035,
+      corePulse: 0.006,
+      coreRotationSpeed: 0.072,
+      coreShellOpacity: 0.028,
+      coreGlowOpacity: 0.115,
+
+      rings:
+        gyroCoreBase.gyro!.rings.map(
+          (ring, index) => ({
+            ...ring,
+            thickness:
+              [
+                0.038,
+                0.032,
+                0.028,
+              ][index] ??
+              ring.thickness,
+            spinSpeed:
+              [
+                0.118,
+                0.176,
+                0.248,
+              ][index] ??
+              ring.spinSpeed,
+            spatialSpeed:
+              [
+                0.154,
+                0.219,
+                0.266,
+              ][index] ??
+              ring.spatialSpeed,
+            opacity:
+              [
+                0.9,
+                0.82,
+                0.84,
+              ][index] ??
+              ring.opacity,
+            railThicknessScale:
+              [
+                0.13,
+                0.15,
+                0.17,
+              ][index] ??
+              ring.railThicknessScale,
+          }),
+        ),
+    },
+  });
+
+const gyroCoreReactor =
+  createGyroPreset({
+    coreRgb: '232 224 255',
+    glowRgb: '103 225 255',
+    accentRgb: '118 76 178',
+    hotRgb: '255 246 255',
+
+    coreSize: 0.315,
+    haloSize: 0.48,
+    haloOpacity: 0.018,
+    coreGlowOpacity: 0.17,
+
+    gyro: {
+      coreScale: 1.16,
+      corePulse: 0.017,
+      coreRotationSpeed: 0.138,
+      coreShellOpacity: 0.034,
+      coreGlowOpacity: 0.205,
+
+      rings:
+        gyroCoreBase.gyro!.rings.map(
+          (ring, index) => ({
+            ...ring,
+            thickness:
+              [
+                0.049,
+                0.041,
+                0.036,
+              ][index] ??
+              ring.thickness,
+            spinSpeed:
+              [
+                0.176,
+                0.264,
+                0.372,
+              ][index] ??
+              ring.spinSpeed,
+            spatialSpeed:
+              [
+                0.181,
+                0.258,
+                0.307,
+              ][index] ??
+              ring.spatialSpeed,
+            opacity:
+              [
+                0.98,
+                0.93,
+                0.95,
+              ][index] ??
+              ring.opacity,
+            railThicknessScale:
+              [
+                0.18,
+                0.2,
+                0.22,
+              ][index] ??
+              ring.railThicknessScale,
+          }),
+        ),
+    },
+  });
+
+const gyroCoreAmber =
+  createGyroPreset({
+    coreRgb: '255 224 170',
+    glowRgb: '244 160 68',
+    accentRgb: '116 72 42',
+    hotRgb: '255 247 220',
+
+    coreSize: 0.296,
+    haloSize: 0.4,
+    haloOpacity: 0.01,
+    coreGlowOpacity: 0.11,
+
+    gyro: {
+      coreScale: 1.085,
+      corePulse: 0.008,
+      coreRotationSpeed: 0.068,
+      coreShellOpacity: 0.024,
+      coreGlowOpacity: 0.13,
+
+      rings:
+        gyroCoreBase.gyro!.rings.map(
+          (ring, index) => ({
+            ...ring,
+            thickness:
+              [
+                0.05,
+                0.042,
+                0.036,
+              ][index] ??
+              ring.thickness,
+            spinSpeed:
+              [
+                0.112,
+                0.169,
+                0.238,
+              ][index] ??
+              ring.spinSpeed,
+            spatialSpeed:
+              [
+                0.146,
+                0.207,
+                0.252,
+              ][index] ??
+              ring.spatialSpeed,
+            opacity:
+              [
+                0.94,
+                0.86,
+                0.89,
+              ][index] ??
+              ring.opacity,
+            railThicknessScale:
+              [
+                0.16,
+                0.18,
+                0.2,
+              ][index] ??
+              ring.railThicknessScale,
+          }),
+        ),
+    },
+  });
+
 export const orbitalPresets = {
   'atomic-orb': atomicOrbBase,
 
@@ -669,4 +904,13 @@ export const orbitalPresets = {
 
   'gyro-core':
     gyroCoreBase,
+
+  'gyro-core-precision':
+    gyroCorePrecision,
+
+  'gyro-core-reactor':
+    gyroCoreReactor,
+
+  'gyro-core-amber':
+    gyroCoreAmber,
 } satisfies Record<OrbitalPresetName, OrbitalPresetConfig>;

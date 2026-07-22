@@ -190,6 +190,27 @@ const orbitalPresetCards: OrbitalPresetCard[] = [
     previewKind: 'gyro',
     palette: { core: '#eaffff', glow: '#64efff', accent: '#1b6977' },
   },
+  {
+    preset: 'gyro-core-precision',
+    title: 'gyro-core-precision',
+    text: 'Точный ледяной вариант: более тонкие кольца, мягкое бело-голубое ядро и спокойная механическая хореография.',
+    previewKind: 'gyro',
+    palette: { core: '#f3fcff', glow: '#9fe8ff', accent: '#6e91a8' },
+  },
+  {
+    preset: 'gyro-core-reactor',
+    title: 'gyro-core-reactor',
+    text: 'Активный реакторный вариант: увеличенное фиолетово-лазурное ядро, яркие дорожки и более энергичное движение.',
+    previewKind: 'gyro',
+    palette: { core: '#eee5ff', glow: '#68e9ff', accent: '#764cb2' },
+  },
+  {
+    preset: 'gyro-core-amber',
+    title: 'gyro-core-amber',
+    text: 'Тёплый механический вариант: бронзовые кольца, янтарное ядро и более тяжёлое, размеренное вращение.',
+    previewKind: 'gyro',
+    palette: { core: '#ffe1ad', glow: '#f4a348', accent: '#75472b' },
+  },
 ];
 
 function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {

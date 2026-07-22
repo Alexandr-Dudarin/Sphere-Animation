@@ -10,7 +10,10 @@ export type OrbitalPresetName =
   | 'ring-planet-sand-stardust'
   | 'ring-planet-ice'
   | 'ring-planet-eclipse'
-  | 'gyro-core';
+  | 'gyro-core'
+  | 'gyro-core-precision'
+  | 'gyro-core-reactor'
+  | 'gyro-core-amber';
 
 export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
