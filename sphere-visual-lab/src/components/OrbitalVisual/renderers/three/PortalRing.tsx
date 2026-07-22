@@ -6,6 +6,8 @@ import type {
   OrbitalQuality,
 } from '../../OrbitalVisual.types';
 
+const PORTAL_MECHANICAL_RING_SPEED_MULTIPLIER = 1.3;
+
 interface PortalRingColors {
   glow: THREE.Color;
   accent: THREE.Color;
@@ -528,7 +530,8 @@ export default function PortalRing({
           elapsed *
             config.spinSpeed *
             config.direction *
-            safeSpeed +
+            safeSpeed *
+            PORTAL_MECHANICAL_RING_SPEED_MULTIPLIER +
           config.phase,
       );
     }

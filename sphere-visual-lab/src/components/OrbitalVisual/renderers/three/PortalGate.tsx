@@ -12,6 +12,8 @@ import type {
 import PortalMembrane from './PortalMembrane';
 import PortalRing from './PortalRing';
 
+const PORTAL_MECHANICAL_RING_SPEED_MULTIPLIER = 1.3;
+
 interface PortalGateColors {
   core: THREE.Color;
   glow: THREE.Color;
@@ -621,12 +623,18 @@ export default function PortalGate({
 
     if (housingRef.current) {
       housingRef.current.rotation.z =
-        -elapsed * 0.008 * safeSpeed;
+        -elapsed *
+        0.008 *
+        safeSpeed *
+        PORTAL_MECHANICAL_RING_SPEED_MULTIPLIER;
     }
 
     if (innerHousingRef.current) {
       innerHousingRef.current.rotation.z =
-        elapsed * 0.014 * safeSpeed;
+        elapsed *
+        0.014 *
+        safeSpeed *
+        PORTAL_MECHANICAL_RING_SPEED_MULTIPLIER;
     }
 
     if (energyRimRef.current) {

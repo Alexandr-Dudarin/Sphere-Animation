@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import PlaygroundPanel from './PlaygroundPanel';
 import OrbitalPlaygroundPanel from './OrbitalPlaygroundPanel';
 import {
@@ -96,6 +96,51 @@ const presetCards: PresetCard[] = [
     palette: { core: '#ffffff', glow: '#8cf5ff', accent: '#bd69ff' },
   },
 ];
+
+const STORAGE_KEYS = {
+  spherePreset: 'sphere-visual-lab:sphere-preset',
+  sphereMode: 'sphere-visual-lab:sphere-mode',
+  orbitalPreset: 'sphere-visual-lab:orbital-preset',
+} as const;
+
+const spherePresetNames = presetCards.map((card) => card.preset);
+const sphereModeNames: readonly SphereMode[] = [
+  'idle',
+  'thinking',
+  'searching',
+];
+const orbitalPresetNames = orbitalObjectCatalog.flatMap((object) =>
+  object.presets.map((item) => item.preset),
+);
+
+function readStoredValue<T extends string>(
+  key: string,
+  allowedValues: readonly T[],
+  fallback: T,
+): T {
+  if (typeof window === 'undefined') {
+    return fallback;
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(key);
+
+    return allowedValues.includes(storedValue as T)
+      ? (storedValue as T)
+      : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function persistValue(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // В приватном режиме или при запрете storage демо продолжает работать
+    // без сохранения состояния.
+  }
+}
 
 function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
   const style = {
@@ -227,8 +272,20 @@ export default function DemoPage() {
   const orbitalSectionRef = useRef<HTMLElement>(null);
 
   const [size, setSize] = useState(440);
-  const [mode, setMode] = useState<SphereMode>('thinking');
-  const [preset, setPreset] = useState<SpherePresetName>('glass-petal');
+  const [mode, setMode] = useState<SphereMode>(() =>
+    readStoredValue(
+      STORAGE_KEYS.sphereMode,
+      sphereModeNames,
+      'thinking',
+    ),
+  );
+  const [preset, setPreset] = useState<SpherePresetName>(() =>
+    readStoredValue(
+      STORAGE_KEYS.spherePreset,
+      spherePresetNames,
+      'glass-petal',
+    ),
+  );
   const [quality, setQuality] = useState<SphereQuality>('high');
   const [glowIntensity, setGlowIntensity] = useState<GlowIntensity>('high');
   const [speed, setSpeed] = useState(1.1);
@@ -238,7 +295,13 @@ export default function DemoPage() {
 
   const [orbitalSize, setOrbitalSize] = useState(440);
   const [orbitalPreset, setOrbitalPreset] =
-    useState<OrbitalPresetName>('atomic-orb');
+    useState<OrbitalPresetName>(() =>
+      readStoredValue(
+        STORAGE_KEYS.orbitalPreset,
+        orbitalPresetNames,
+        'atomic-orb',
+      ),
+    );
   const [orbitalQuality, setOrbitalQuality] =
     useState<OrbitalQuality>('high');
   const [orbitalGlowIntensity, setOrbitalGlowIntensity] =
@@ -246,6 +309,18 @@ export default function DemoPage() {
   const [orbitalSpeed, setOrbitalSpeed] = useState(1);
   const [orbitalBackground, setOrbitalBackground] =
     useState<OrbitalBackground>('transparent');
+
+  useEffect(() => {
+    persistValue(STORAGE_KEYS.spherePreset, preset);
+  }, [preset]);
+
+  useEffect(() => {
+    persistValue(STORAGE_KEYS.sphereMode, mode);
+  }, [mode]);
+
+  useEffect(() => {
+    persistValue(STORAGE_KEYS.orbitalPreset, orbitalPreset);
+  }, [orbitalPreset]);
 
   const openSpherePreset = (card: PresetCard) => {
     setPreset(card.preset);
