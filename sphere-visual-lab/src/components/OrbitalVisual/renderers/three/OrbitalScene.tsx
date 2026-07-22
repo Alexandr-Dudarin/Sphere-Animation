@@ -12,6 +12,7 @@ import GyroCore from './GyroCore';
 import OrbitRibbon from './OrbitRibbon';
 import PlanetCore from './PlanetCore';
 import PlanetRing from './PlanetRing';
+import PortalGate from './PortalGate';
 
 interface OrbitalSceneProps {
   presetConfig: OrbitalPresetConfig;
@@ -339,6 +340,7 @@ export default function OrbitalScene({
   const isAtomicCore = coreKind === 'atomic';
   const isPlanetCore = coreKind === 'planet';
   const isGyroCore = coreKind === 'gyro';
+  const isPortalCore = coreKind === 'portal';
 
   // PlanetCore always uses the dedicated flat PlanetRing renderer.
   // The optional preset field remains useful for future non-planet styles,
@@ -493,6 +495,16 @@ export default function OrbitalScene({
         <GyroCore
           coreSize={presetConfig.coreSize}
           config={presetConfig.gyro}
+          colors={colors}
+          quality={quality}
+          speed={speed}
+          glowFactor={glowFactor}
+        />
+      ) : null}
+
+      {isPortalCore && presetConfig.portal ? (
+        <PortalGate
+          config={presetConfig.portal}
           colors={colors}
           quality={quality}
           speed={speed}

@@ -72,7 +72,7 @@ const FRAGMENT_SHADER = `
     float fresnel = pow(
       1.0 -
       abs(dot(normalValue, viewDirection)),
-      1.72
+      1.62
     );
 
     float faceLight = pow(
@@ -84,35 +84,43 @@ const FRAGMENT_SHADER = `
         0.0,
         1.0
       ),
-      1.34
+      1.28
     );
 
     float along = fract(
       vWorldAngle +
       uPhase -
-      uTime * (0.034 + uRingRole * 0.013)
+      uTime * (0.052 + uRingRole * 0.019)
     );
 
     float hotHead = exp(
       -pow(
-        loopDistance(along, 0.19) / 0.038,
+        loopDistance(along, 0.19) / 0.032,
         2.0
       )
     );
 
     float warmTail = exp(
       -pow(
-        loopDistance(along, 0.285) / 0.155,
+        loopDistance(along, 0.285) / 0.13,
         2.0
       )
-    ) * 0.24;
+    ) * 0.3;
+
+    float secondaryHead = exp(
+      -pow(
+        loopDistance(along, 0.67) / 0.055,
+        2.0
+      )
+    ) *
+      (0.24 + uRingRole * 0.08);
 
     float crossSection =
       abs(vUv.y - 0.5) * 2.0;
 
     float tubeBand = pow(
       max(1.0 - crossSection, 0.0),
-      0.42
+      0.4
     );
 
     float edgeBand =
@@ -122,8 +130,8 @@ const FRAGMENT_SHADER = `
     float technicalScan =
       0.5 +
       0.5 * sin(
-        vUv.x * 16.0 -
-        uTime * 0.36 +
+        vUv.x * 17.0 -
+        uTime * 0.68 +
         vUv.y * 5.0 +
         uPhase * 6.2831
       );
@@ -131,7 +139,7 @@ const FRAGMENT_SHADER = `
     float machinedBand =
       0.5 +
       0.5 * sin(
-        vUv.x * 42.0 +
+        vUv.x * 46.0 +
         vUv.y * 8.0 +
         uPhase * 11.0
       );
@@ -139,31 +147,31 @@ const FRAGMENT_SHADER = `
     float microBand =
       0.5 +
       0.5 * sin(
-        vUv.y * 34.0 +
+        vUv.y * 36.0 +
         vUv.x * 5.0 +
         uPhase * 9.0
       );
 
     vec3 metalShadow = mix(
-      uAccentColor * 0.12,
-      uBaseColor * 0.09,
-      0.42
+      uAccentColor * 0.075,
+      uBaseColor * 0.065,
+      0.45
     );
 
     vec3 metalBody = mix(
       uAccentColor *
-        (0.36 + uAccentMix * 0.12),
+        (0.32 + uAccentMix * 0.13),
       uBaseColor *
-        (0.42 + uRingRole * 0.08),
-      0.34
+        (0.38 + uRingRole * 0.08),
+      0.36
     );
 
     float metalLight = clamp(
-      0.16 +
-      faceLight * 0.48 +
-      fresnel * 0.44 +
-      technicalScan * 0.06 +
-      machinedBand * 0.025,
+      0.14 +
+      faceLight * 0.5 +
+      fresnel * 0.52 +
+      technicalScan * 0.07 +
+      machinedBand * 0.028,
       0.0,
       1.0
     );
@@ -178,20 +186,21 @@ const FRAGMENT_SHADER = `
       uBaseColor *
       (
         fresnel *
-          (0.09 + uRingRole * 0.025) +
-        microBand * 0.018
+          (0.12 + uRingRole * 0.035) +
+        microBand * 0.022
       );
 
     float hotAmount = clamp(
       (
-        hotHead * 0.72 +
-        warmTail * 0.3
+        hotHead * 0.9 +
+        warmTail * 0.34 +
+        secondaryHead * 0.5
       ) *
       uHotMix +
       fresnel *
-        (0.035 + uRingRole * 0.018),
+        (0.045 + uRingRole * 0.022),
       0.0,
-      0.78
+      0.88
     );
 
     color = mix(
@@ -205,10 +214,11 @@ const FRAGMENT_SHADER = `
       tubeBand *
       edgeBand *
       (
-        0.78 +
-        fresnel * 0.19 +
-        faceLight * 0.08 +
-        hotHead * 0.08
+        0.76 +
+        fresnel * 0.2 +
+        faceLight * 0.09 +
+        hotHead * 0.12 +
+        secondaryHead * 0.05
       );
 
     gl_FragColor = vec4(color, alpha);
@@ -286,15 +296,36 @@ export default function PortalRing({
       new THREE.TorusGeometry(
         config.radius,
         Math.max(
-          config.thickness * 0.16,
-          0.0045,
+          config.thickness * 0.145,
+          0.0042,
         ),
-        Math.max(
-          detail.radialSegments - 2,
-          4,
-        ),
+        Math.max(detail.radialSegments - 2, 4),
         detail.tubularSegments,
         segmentArc * 0.7,
+      ),
+    [
+      config.radius,
+      config.thickness,
+      detail.radialSegments,
+      detail.tubularSegments,
+      segmentArc,
+    ],
+  );
+
+  const pulseGeometry = useMemo(
+    () =>
+      new THREE.TorusGeometry(
+        config.radius,
+        Math.max(
+          config.thickness * 0.2,
+          0.005,
+        ),
+        Math.max(detail.radialSegments - 2, 4),
+        Math.max(
+          Math.round(detail.tubularSegments * 0.48),
+          18,
+        ),
+        segmentArc * 0.2,
       ),
     [
       config.radius,
@@ -370,7 +401,15 @@ export default function PortalRing({
     () =>
       colors.glow
         .clone()
-        .lerp(colors.hot, 0.34),
+        .lerp(colors.hot, 0.36),
+    [colors.glow, colors.hot],
+  );
+
+  const pulseColor = useMemo(
+    () =>
+      colors.hot
+        .clone()
+        .lerp(colors.glow, 0.18),
     [colors.glow, colors.hot],
   );
 
@@ -380,20 +419,16 @@ export default function PortalRing({
         .clone()
         .lerp(
           colors.glow,
-          0.22 + ringRole * 0.16,
+          0.2 + ringRole * 0.14,
         ),
-    [
-      colors.hot,
-      colors.glow,
-      ringRole,
-    ],
+    [colors.hot, colors.glow, ringRole],
   );
 
   const markerBaseColor = useMemo(
     () =>
       colors.accent
         .clone()
-        .multiplyScalar(0.18),
+        .multiplyScalar(0.16),
     [colors.accent],
   );
 
@@ -405,7 +440,7 @@ export default function PortalRing({
         opacity:
           config.opacity *
           glowFactor *
-          (0.16 + ringRole * 0.035),
+          (0.22 + ringRole * 0.03),
         blending: THREE.AdditiveBlending,
         depthTest: true,
         depthWrite: false,
@@ -425,23 +460,53 @@ export default function PortalRing({
     ringRole,
   ]);
 
+  const pulseMaterial = useMemo(() => {
+    const nextMaterial =
+      new THREE.MeshBasicMaterial({
+        color: pulseColor,
+        transparent: true,
+        opacity:
+          config.opacity *
+          glowFactor *
+          0.42,
+        blending: THREE.AdditiveBlending,
+        depthTest: true,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+        toneMapped: false,
+      });
+
+    nextMaterial.name =
+      `PortalRingPulseMaterial-${index}`;
+
+    return nextMaterial;
+  }, [
+    config.opacity,
+    glowFactor,
+    index,
+    pulseColor,
+  ]);
+
   useEffect(() => {
     return () => {
       geometry.dispose();
       railGeometry.dispose();
+      pulseGeometry.dispose();
       material.dispose();
       railMaterial.dispose();
+      pulseMaterial.dispose();
     };
   }, [
     geometry,
     material,
+    pulseGeometry,
+    pulseMaterial,
     railGeometry,
     railMaterial,
   ]);
 
   useFrame((state) => {
-    const elapsed =
-      state.clock.getElapsedTime();
+    const elapsed = state.clock.getElapsedTime();
     const safeSpeed = Math.max(speed, 0.2);
 
     if (ringRef.current) {
@@ -469,30 +534,47 @@ export default function PortalRing({
       (
         0.99 +
         Math.sin(
-          elapsed * 0.34 +
+          elapsed * 0.44 +
           index * 1.37,
         ) *
-          0.012
+          0.016
       );
 
     railMaterial.opacity =
       config.opacity *
       glowFactor *
       (
-        0.13 +
-        ringRole * 0.035 +
+        0.16 +
+        ringRole * 0.03 +
         (
           0.5 +
           0.5 *
             Math.sin(
               elapsed *
-                (0.82 +
-                  ringRole * 0.16) *
+                (1.1 + ringRole * 0.22) *
                 safeSpeed +
               config.phase * 8.0,
             )
         ) *
-          0.08
+          0.15
+      );
+
+    pulseMaterial.opacity =
+      config.opacity *
+      glowFactor *
+      (
+        0.24 +
+        (
+          0.5 +
+          0.5 *
+            Math.sin(
+              elapsed *
+                (1.54 + ringRole * 0.28) *
+                safeSpeed +
+              config.phase * 11.0,
+            )
+        ) *
+          0.34
       );
   });
 
@@ -502,7 +584,7 @@ export default function PortalRing({
   );
 
   const markerOpacity =
-    (0.46 - ringRole * 0.12) *
+    (0.5 - ringRole * 0.12) *
     config.opacity *
     glowFactor;
 
@@ -525,17 +607,22 @@ export default function PortalRing({
             segmentAngle +
             segmentArc * 0.15;
 
+          const pulseAngle =
+            segmentAngle +
+            segmentArc *
+              (
+                0.18 +
+                ((segmentIndex + index) % 3) *
+                  0.17
+              );
+
           return (
             <group
               key={`${index}-portal-segment-${segmentIndex}`}
             >
               <mesh
                 geometry={geometry}
-                rotation={[
-                  0,
-                  0,
-                  segmentAngle,
-                ]}
+                rotation={[0, 0, segmentAngle]}
               >
                 <primitive
                   object={material}
@@ -543,25 +630,36 @@ export default function PortalRing({
                 />
               </mesh>
 
+              <mesh
+                geometry={railGeometry}
+                rotation={[0, 0, railAngle]}
+                position={[
+                  0,
+                  0,
+                  config.thickness * 0.52,
+                ]}
+                renderOrder={18}
+              >
+                <primitive
+                  object={railMaterial}
+                  attach="material"
+                />
+              </mesh>
+
               {showMarker ? (
                 <>
                   <mesh
-                    geometry={railGeometry}
-                    rotation={[
-                      0,
-                      0,
-                      railAngle,
-                    ]}
+                    geometry={pulseGeometry}
+                    rotation={[0, 0, pulseAngle]}
                     position={[
                       0,
                       0,
-                      config.thickness *
-                        0.44,
+                      config.thickness * 0.72,
                     ]}
-                    renderOrder={19}
+                    renderOrder={20}
                   >
                     <primitive
-                      object={railMaterial}
+                      object={pulseMaterial}
                       attach="material"
                     />
                   </mesh>
@@ -572,25 +670,17 @@ export default function PortalRing({
                         config.radius,
                       Math.sin(markerAngle) *
                         config.radius,
-                      config.thickness *
-                        0.66,
+                      config.thickness * 0.62,
                     ]}
-                    rotation={[
-                      0,
-                      0,
-                      markerAngle,
-                    ]}
+                    rotation={[0, 0, markerAngle]}
                     renderOrder={19}
                   >
                     <boxGeometry
                       args={[
+                        config.thickness * 0.64,
                         config.thickness *
-                          0.66,
-                        config.thickness *
-                          (1.62 -
-                            ringRole * 0.2),
-                        config.thickness *
-                          0.34,
+                          (1.52 - ringRole * 0.18),
+                        config.thickness * 0.32,
                       ]}
                     />
 
@@ -612,25 +702,17 @@ export default function PortalRing({
                         config.radius,
                       Math.sin(markerAngle) *
                         config.radius,
-                      config.thickness *
-                        0.9,
+                      config.thickness * 0.88,
                     ]}
-                    rotation={[
-                      0,
-                      0,
-                      markerAngle,
-                    ]}
-                    renderOrder={20}
+                    rotation={[0, 0, markerAngle]}
+                    renderOrder={21}
                   >
                     <boxGeometry
                       args={[
+                        config.thickness * 0.26,
                         config.thickness *
-                          0.28,
-                        config.thickness *
-                          (0.96 -
-                            ringRole * 0.12),
-                        config.thickness *
-                          0.12,
+                          (0.9 - ringRole * 0.1),
+                        config.thickness * 0.11,
                       ]}
                     />
 

@@ -13,12 +13,15 @@ export type OrbitalPresetName =
   | 'gyro-core'
   | 'gyro-core-precision'
   | 'gyro-core-reactor'
-  | 'gyro-core-amber';
+  | 'gyro-core-amber'
+  | 'portal-gate'
+  | 'portal-gate-violet'
+  | 'portal-gate-ember';
 
 export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';
 export type OrbitalBackground = 'transparent' | 'dark';
-export type OrbitalCoreKind = 'atomic' | 'planet' | 'gyro';
+export type OrbitalCoreKind = 'atomic' | 'planet' | 'gyro' | 'portal';
 export type OrbitalRingStyle = 'energy' | 'planetary';
 export type OrbitalGyroSpatialMotion =
   | 'planar-orbit'
@@ -127,11 +130,44 @@ export interface OrbitalGyroPresetConfig {
   rings: OrbitalGyroRingPresetConfig[];
 }
 
+export interface OrbitalPortalRingPresetConfig {
+  radius: number;
+  thickness: number;
+  depthOffset: number;
+  tiltX: number;
+  tiltY: number;
+  tiltZ: number;
+  segments: number;
+  gapRatio: number;
+  spinSpeed: number;
+  direction: 1 | -1;
+  phase: number;
+  opacity: number;
+  accentMix: number;
+  hotMix: number;
+  markerEvery: number;
+}
+
+export interface OrbitalPortalPresetConfig {
+  membraneRadius: number;
+  membraneOpacity: number;
+  membraneFlowSpeed: number;
+  membraneTurbulence: number;
+  membranePulse: number;
+  membraneDepth: number;
+  frameTiltX: number;
+  frameTiltY: number;
+  frameTiltZ: number;
+  frameRotationSpeed: number;
+  rings: OrbitalPortalRingPresetConfig[];
+}
+
 export interface OrbitalPresetConfig {
   coreKind?: OrbitalCoreKind;
   ringStyle?: OrbitalRingStyle;
   planetDust?: OrbitalPlanetDustPresetConfig;
   gyro?: OrbitalGyroPresetConfig;
+  portal?: OrbitalPortalPresetConfig;
   coreRgb: string;
   glowRgb: string;
   accentRgb: string;

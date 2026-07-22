@@ -1,8 +1,12 @@
 import type { OrbitalPresetName } from '../components/OrbitalVisual';
 import type { CustomSelectOption } from '../shared/ui/CustomSelect';
 
-export type OrbitalObjectId = 'atomic-orb' | 'ring-planet' | 'gyro-core';
-export type OrbitalPreviewKind = 'atom' | 'planet' | 'gyro';
+export type OrbitalObjectId =
+  | 'atomic-orb'
+  | 'ring-planet'
+  | 'gyro-core'
+  | 'portal-gate';
+export type OrbitalPreviewKind = 'atom' | 'planet' | 'gyro' | 'portal';
 
 export interface PreviewPalette {
   core: string;
@@ -158,6 +162,33 @@ const gyroPresets: readonly OrbitalPresetCatalogItem[] = [
   },
 ];
 
+const portalPresets: readonly OrbitalPresetCatalogItem[] = [
+  {
+    preset: 'portal-gate',
+    title: 'portal-gate',
+    selectLabel: 'portal-gate — базовый энергетический портал',
+    text: 'Базовый холодный портал: сегментированные концентрические кольца, живая энергетическая мембрана и независимое вращение слоёв.',
+    previewKind: 'portal',
+    palette: { core: '#efffff', glow: '#4ee1ff', accent: '#2d5bd6' },
+  },
+  {
+    preset: 'portal-gate-violet',
+    title: 'portal-gate-violet',
+    selectLabel: 'portal-gate-violet — фиолетовый портал',
+    text: 'Более активный фиолетово-лазурный портал с усиленной турбулентностью мембраны и более быстрым движением колец.',
+    previewKind: 'portal',
+    palette: { core: '#fff5ff', glow: '#b969ff', accent: '#454fe8' },
+  },
+  {
+    preset: 'portal-gate-ember',
+    title: 'portal-gate-ember',
+    selectLabel: 'portal-gate-ember — янтарный портал',
+    text: 'Тёплый тяжёлый вариант: массивные янтарно-бронзовые сегменты, более медленное вращение и огненная энергетическая глубина.',
+    previewKind: 'portal',
+    palette: { core: '#fff0c2', glow: '#ff9234', accent: '#8e3020' },
+  },
+];
+
 export const orbitalObjectCatalog: readonly OrbitalObjectCatalogItem[] = [
   {
     id: 'atomic-orb',
@@ -185,6 +216,15 @@ export const orbitalObjectCatalog: readonly OrbitalObjectCatalogItem[] = [
     description: 'Механические ядра с сегментированными кольцами, световыми дорожками и независимой пространственной хореографией.',
     defaultPreset: 'gyro-core',
     presets: gyroPresets,
+  },
+  {
+    id: 'portal-gate',
+    title: 'Portal Gate',
+    selectLabel: 'portal-gate — энергетические порталы',
+    eyebrow: 'Orbital family 04',
+    description: 'Энергетические порталы с объёмной сегментированной рамой, независимыми кольцами и процедурной мембраной.',
+    defaultPreset: 'portal-gate',
+    presets: portalPresets,
   },
 ];
 

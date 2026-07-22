@@ -156,6 +156,68 @@ function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
           <span className="miniPreviewCore" />
         </>
       )}
+
+      {kind === 'portal' && (
+        <>
+          <span
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: 132,
+              height: 132,
+              border: '6px solid var(--preview-accent)',
+              borderRadius: '50%',
+              boxShadow:
+                '0 0 22px color-mix(in srgb, var(--preview-glow) 68%, transparent), inset 0 0 14px color-mix(in srgb, var(--preview-glow) 38%, transparent)',
+              transform: 'translate(-50%, -50%) rotate(-7deg)',
+              opacity: 0.9,
+            }}
+          />
+          <span
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: 104,
+              height: 104,
+              border: '3px dashed var(--preview-glow)',
+              borderRadius: '50%',
+              transform: 'translate(-50%, -50%) rotate(18deg)',
+              opacity: 0.86,
+            }}
+          />
+          <span
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: 78,
+              height: 78,
+              borderRadius: '50%',
+              background:
+                'radial-gradient(circle, var(--preview-core) 0%, var(--preview-glow) 24%, color-mix(in srgb, var(--preview-accent) 72%, transparent) 58%, transparent 76%)',
+              boxShadow:
+                '0 0 28px color-mix(in srgb, var(--preview-glow) 78%, transparent)',
+              transform: 'translate(-50%, -50%)',
+              opacity: 0.92,
+            }}
+          />
+          <span
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: 88,
+              height: 88,
+              border: '1px solid var(--preview-core)',
+              borderRadius: '50%',
+              transform: 'translate(-50%, -50%) rotate(-24deg)',
+              opacity: 0.62,
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }
@@ -301,7 +363,7 @@ export default function DemoPage() {
             Отдельная ветка orbital / ring / ribbon объектов: гладкие
             светящиеся орбиты без point-look, на базе TubeGeometry и flow по
             линии. Общая база для orbital / ring / ribbon объектов: атомных
-            систем, кольцевых планет и будущих механических visual family.
+            систем, кольцевых планет, механических ядер и энергетических порталов.
           </p>
         </header>
 
