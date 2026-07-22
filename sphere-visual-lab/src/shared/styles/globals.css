@@ -12,6 +12,40 @@ body,
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  min-height: 42px;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: var(--scrollbar-thumb);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 body {
@@ -510,6 +544,68 @@ a {
   color: rgba(166, 225, 255, 0.98);
 }
 
+
+.presetFamilies {
+  display: grid;
+  gap: 34px;
+  margin-top: 24px;
+}
+
+.presetFamilySection {
+  padding-top: 4px;
+}
+
+.presetFamilySection + .presetFamilySection {
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.presetFamilyHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.presetFamilyEyebrow {
+  margin: 0 0 7px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(103, 200, 255, 0.72);
+}
+
+.presetFamilyTitle {
+  margin: 0;
+  font-size: clamp(23px, 3vw, 32px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.presetFamilyDescription {
+  width: min(100%, 720px);
+  margin: 9px 0 0;
+  font-size: 14px;
+  line-height: 1.62;
+  color: rgba(232, 238, 255, 0.76);
+}
+
+.presetFamilyCount {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  border: 1px solid rgba(103, 200, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(89, 194, 255, 0.07);
+  color: rgba(194, 230, 255, 0.86);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.presetFamilyGrid {
+  margin-top: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -531,5 +627,11 @@ a {
 
   .miniGrid {
     grid-template-columns: 1fr;
+  }
+
+  .presetFamilyHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
   }
 }

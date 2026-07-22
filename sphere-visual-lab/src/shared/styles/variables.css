@@ -10,6 +10,25 @@
   --accent: #59c2ff;
   --accent-soft: rgba(89, 194, 255, 0.16);
 
+  --control-bg: rgba(255, 255, 255, 0.06);
+  --control-bg-hover: rgba(255, 255, 255, 0.085);
+  --control-border: rgba(255, 255, 255, 0.12);
+  --control-border-hover: rgba(146, 215, 255, 0.3);
+  --control-border-focus: rgba(89, 194, 255, 0.62);
+  --control-focus-ring: rgba(89, 194, 255, 0.13);
+
+  --dropdown-bg: rgba(10, 15, 31, 0.98);
+  --dropdown-border: rgba(164, 214, 255, 0.18);
+  --dropdown-option-hover: rgba(89, 194, 255, 0.1);
+  --dropdown-option-selected: rgba(89, 194, 255, 0.16);
+  --dropdown-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(118, 166, 210, 0.46);
+  --scrollbar-thumb-hover: rgba(119, 203, 255, 0.7);
+
   --shadow-lg: 0 20px 80px rgba(0, 0, 0, 0.38);
   --radius-lg: 28px;
   --radius-md: 20px;

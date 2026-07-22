@@ -4,6 +4,17 @@ import type {
   OrbitalPresetName,
   OrbitalQuality,
 } from '../components/OrbitalVisual';
+import {
+  CustomSelect,
+  type CustomSelectOption,
+} from '../shared/ui/CustomSelect';
+import {
+  getOrbitalObjectById,
+  getOrbitalObjectIdForPreset,
+  getOrbitalPresetOptions,
+  orbitalObjectOptions,
+  type OrbitalObjectId,
+} from './orbitalCatalog';
 
 interface OrbitalPlaygroundPanelProps {
   size: number;
@@ -20,6 +31,23 @@ interface OrbitalPlaygroundPanelProps {
   onBackgroundChange: (value: OrbitalBackground) => void;
 }
 
+const qualityOptions: readonly CustomSelectOption<OrbitalQuality>[] = [
+  { value: 'low', label: 'low — низкое' },
+  { value: 'medium', label: 'medium — среднее' },
+  { value: 'high', label: 'high — высокое' },
+];
+
+const glowOptions: readonly CustomSelectOption<OrbitalGlowIntensity>[] = [
+  { value: 'low', label: 'low — слабое' },
+  { value: 'medium', label: 'medium — среднее' },
+  { value: 'high', label: 'high — сильное' },
+];
+
+const backgroundOptions: readonly CustomSelectOption<OrbitalBackground>[] = [
+  { value: 'dark', label: 'dark — тёмный' },
+  { value: 'transparent', label: 'transparent — прозрачный' },
+];
+
 export default function OrbitalPlaygroundPanel({
   size,
   onSizeChange,
@@ -34,12 +62,20 @@ export default function OrbitalPlaygroundPanel({
   background,
   onBackgroundChange,
 }: OrbitalPlaygroundPanelProps) {
+  const objectId = getOrbitalObjectIdForPreset(preset);
+  const selectedObject = getOrbitalObjectById(objectId);
+  const presetOptions = getOrbitalPresetOptions(objectId);
+
+  const handleObjectChange = (nextObjectId: OrbitalObjectId) => {
+    onPresetChange(getOrbitalObjectById(nextObjectId).defaultPreset);
+  };
+
   return (
     <aside>
       <h2 className="panelTitle">Панель orbital-настройки</h2>
       <p className="panelText">
-        Это первая база для orbital / ring visual family. Здесь можно менять
-        размер, пресет, качество, свечение и скорость движения орбит.
+        Сначала выберите объект, затем его конкретный пресет. Размер,
+        качество, свечение и общая скорость применяются к текущему варианту.
       </p>
 
       <div className="controlGroup">
@@ -64,63 +100,32 @@ export default function OrbitalPlaygroundPanel({
 
       <div className="controlGroup">
         <div className="controlLabelRow">
+          <label htmlFor="orbital-object" className="controlLabel">
+            Объект
+          </label>
+        </div>
+
+        <CustomSelect<OrbitalObjectId>
+          id="orbital-object"
+          value={objectId}
+          options={orbitalObjectOptions}
+          onChange={handleObjectChange}
+        />
+      </div>
+
+      <div className="controlGroup">
+        <div className="controlLabelRow">
           <label htmlFor="orbital-preset" className="controlLabel">
             Пресет
           </label>
         </div>
 
-        <select
+        <CustomSelect<OrbitalPresetName>
           id="orbital-preset"
-          className="controlSelect"
           value={preset}
-          onChange={(event) =>
-            onPresetChange(event.target.value as OrbitalPresetName)
-          }
-        >
-          <option value="atomic-orb">atomic-orb — базовый атом</option>
-          <option value="atomic-orb-no-electrons">
-            atomic-orb-no-electrons — без электронов
-          </option>
-          <option value="atomic-orb-more-electrons">
-            atomic-orb-more-electrons — больше электронов
-          </option>
-          <option value="atomic-orb-white">
-            atomic-orb-white — белый вариант
-          </option>
-          <option value="atomic-orb-violet">
-            atomic-orb-violet — фиолетовый вариант
-          </option>
-          <option value="ring-planet">
-            ring-planet — сдержанная планета
-          </option>
-          <option value="ring-planet-stardust">
-            ring-planet-stardust — планета со звёздной пылью
-          </option>
-          <option value="ring-planet-sand">
-            ring-planet-sand — песочная планета
-          </option>
-          <option value="ring-planet-sand-stardust">
-            ring-planet-sand-stardust — песочная планета с пылью
-          </option>
-          <option value="ring-planet-ice">
-            ring-planet-ice — ледяная планета
-          </option>
-          <option value="ring-planet-eclipse">
-            ring-planet-eclipse — затмение
-          </option>
-          <option value="gyro-core">
-            gyro-core — базовое гироскопическое ядро
-          </option>
-          <option value="gyro-core-precision">
-            gyro-core-precision — точное ледяное ядро
-          </option>
-          <option value="gyro-core-reactor">
-            gyro-core-reactor — реакторное ядро
-          </option>
-          <option value="gyro-core-amber">
-            gyro-core-amber — янтарное ядро
-          </option>
-        </select>
+          options={presetOptions}
+          onChange={onPresetChange}
+        />
       </div>
 
       <div className="controlGroup">
@@ -130,18 +135,12 @@ export default function OrbitalPlaygroundPanel({
           </label>
         </div>
 
-        <select
+        <CustomSelect<OrbitalQuality>
           id="orbital-quality"
-          className="controlSelect"
           value={quality}
-          onChange={(event) =>
-            onQualityChange(event.target.value as OrbitalQuality)
-          }
-        >
-          <option value="low">low — низкое</option>
-          <option value="medium">medium — среднее</option>
-          <option value="high">high — высокое</option>
-        </select>
+          options={qualityOptions}
+          onChange={onQualityChange}
+        />
       </div>
 
       <div className="controlGroup">
@@ -151,18 +150,12 @@ export default function OrbitalPlaygroundPanel({
           </label>
         </div>
 
-        <select
+        <CustomSelect<OrbitalGlowIntensity>
           id="orbital-glow"
-          className="controlSelect"
           value={glowIntensity}
-          onChange={(event) =>
-            onGlowIntensityChange(event.target.value as OrbitalGlowIntensity)
-          }
-        >
-          <option value="low">low — слабое</option>
-          <option value="medium">medium — среднее</option>
-          <option value="high">high — сильное</option>
-        </select>
+          options={glowOptions}
+          onChange={onGlowIntensityChange}
+        />
       </div>
 
       <div className="controlGroup">
@@ -192,23 +185,18 @@ export default function OrbitalPlaygroundPanel({
           </label>
         </div>
 
-        <select
+        <CustomSelect<OrbitalBackground>
           id="orbital-background"
-          className="controlSelect"
           value={background}
-          onChange={(event) =>
-            onBackgroundChange(event.target.value as OrbitalBackground)
-          }
-        >
-          <option value="dark">dark — тёмный</option>
-          <option value="transparent">transparent — прозрачный</option>
-        </select>
+          options={backgroundOptions}
+          onChange={onBackgroundChange}
+        />
       </div>
 
       <div className="infoBox">
-        Сейчас в orbital-family уже есть атомные варианты, полноценная
-        линейка ring-planet и gyro-core family: базовая, точная ледяная,
-        реакторная и тёплая янтарная версии.
+        Выбрано семейство <strong>{selectedObject.title}</strong>. В нём
+        доступно пресетов: {selectedObject.presets.length}. Карточки ниже
+        остаются синхронизированы с обоими селектами.
       </div>
     </aside>
   );

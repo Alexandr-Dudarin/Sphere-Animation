@@ -5,6 +5,10 @@ import type {
   SpherePresetName,
   SphereQuality,
 } from '../components/SphereVisual';
+import {
+  CustomSelect,
+  type CustomSelectOption,
+} from '../shared/ui/CustomSelect';
 
 interface PlaygroundPanelProps {
   size: number;
@@ -24,6 +28,43 @@ interface PlaygroundPanelProps {
   interactive: boolean;
   onInteractiveChange: (value: boolean) => void;
 }
+
+const modeOptions: readonly CustomSelectOption<SphereMode>[] = [
+  { value: 'idle', label: 'idle — спокойный' },
+  { value: 'thinking', label: 'thinking — размышление' },
+  { value: 'searching', label: 'searching — поиск' },
+];
+
+const presetOptions: readonly CustomSelectOption<SpherePresetName>[] = [
+  { value: 'glass-petal', label: 'glass-petal — базовый petal' },
+  { value: 'thinking-blue', label: 'thinking-blue — синий thinking' },
+  {
+    value: 'searching-violet',
+    label: 'searching-violet — фиолетовый поиск',
+  },
+  { value: 'calm-pearl', label: 'calm-pearl — спокойный премиальный' },
+  { value: 'neon-core', label: 'neon-core — яркий tech' },
+  { value: 'bio-glow', label: 'bio-glow — биолюминесцентный' },
+  { value: 'soft-ai', label: 'soft-ai — мягкий AI' },
+  { value: 'prism-bloom', label: 'prism-bloom — яркий multicolor' },
+];
+
+const qualityOptions: readonly CustomSelectOption<SphereQuality>[] = [
+  { value: 'low', label: 'low — низкое' },
+  { value: 'medium', label: 'medium — среднее' },
+  { value: 'high', label: 'high — высокое' },
+];
+
+const glowOptions: readonly CustomSelectOption<GlowIntensity>[] = [
+  { value: 'low', label: 'low — слабое' },
+  { value: 'medium', label: 'medium — среднее' },
+  { value: 'high', label: 'high — сильное' },
+];
+
+const backgroundOptions: readonly CustomSelectOption<SphereBackground>[] = [
+  { value: 'dark', label: 'dark — тёмный' },
+  { value: 'transparent', label: 'transparent — прозрачный' },
+];
 
 export default function PlaygroundPanel({
   size,
@@ -78,16 +119,12 @@ export default function PlaygroundPanel({
           </label>
         </div>
 
-        <select
+        <CustomSelect<SphereMode>
           id="mode"
-          className="controlSelect"
           value={mode}
-          onChange={(event) => onModeChange(event.target.value as SphereMode)}
-        >
-          <option value="idle">idle — спокойный</option>
-          <option value="thinking">thinking — размышление</option>
-          <option value="searching">searching — поиск</option>
-        </select>
+          options={modeOptions}
+          onChange={onModeChange}
+        />
       </div>
 
       <div className="controlGroup">
@@ -97,25 +134,12 @@ export default function PlaygroundPanel({
           </label>
         </div>
 
-        <select
+        <CustomSelect<SpherePresetName>
           id="preset"
-          className="controlSelect"
           value={preset}
-          onChange={(event) =>
-            onPresetChange(event.target.value as SpherePresetName)
-          }
-        >
-          <option value="glass-petal">glass-petal — базовый petal</option>
-          <option value="thinking-blue">thinking-blue — синий thinking</option>
-          <option value="searching-violet">
-            searching-violet — фиолетовый поиск
-          </option>
-          <option value="calm-pearl">calm-pearl — спокойный премиальный</option>
-          <option value="neon-core">neon-core — яркий tech</option>
-          <option value="bio-glow">bio-glow — биолюминесцентный</option>
-          <option value="soft-ai">soft-ai — мягкий AI</option>
-          <option value="prism-bloom">prism-bloom — яркий multicolor</option>
-        </select>
+          options={presetOptions}
+          onChange={onPresetChange}
+        />
       </div>
 
       <div className="controlGroup">
@@ -125,18 +149,12 @@ export default function PlaygroundPanel({
           </label>
         </div>
 
-        <select
+        <CustomSelect<SphereQuality>
           id="quality"
-          className="controlSelect"
           value={quality}
-          onChange={(event) =>
-            onQualityChange(event.target.value as SphereQuality)
-          }
-        >
-          <option value="low">low — низкое</option>
-          <option value="medium">medium — среднее</option>
-          <option value="high">high — высокое</option>
-        </select>
+          options={qualityOptions}
+          onChange={onQualityChange}
+        />
       </div>
 
       <div className="controlGroup">
@@ -146,18 +164,12 @@ export default function PlaygroundPanel({
           </label>
         </div>
 
-        <select
+        <CustomSelect<GlowIntensity>
           id="glow"
-          className="controlSelect"
           value={glowIntensity}
-          onChange={(event) =>
-            onGlowIntensityChange(event.target.value as GlowIntensity)
-          }
-        >
-          <option value="low">low — слабое</option>
-          <option value="medium">medium — среднее</option>
-          <option value="high">high — сильное</option>
-        </select>
+          options={glowOptions}
+          onChange={onGlowIntensityChange}
+        />
       </div>
 
       <div className="controlGroup">
@@ -187,17 +199,12 @@ export default function PlaygroundPanel({
           </label>
         </div>
 
-        <select
+        <CustomSelect<SphereBackground>
           id="background"
-          className="controlSelect"
           value={background}
-          onChange={(event) =>
-            onBackgroundChange(event.target.value as SphereBackground)
-          }
-        >
-          <option value="dark">dark — тёмный</option>
-          <option value="transparent">transparent — прозрачный</option>
-        </select>
+          options={backgroundOptions}
+          onChange={onBackgroundChange}
+        />
       </div>
 
       <div className="controlGroup">
@@ -216,8 +223,8 @@ export default function PlaygroundPanel({
 
       <div className="infoBox">
         Следующий шаг после этой базы — либо усиливать CSS-версию, либо позже
-        заменить внутренний рендер (способ отрисовки) на более сложный, не
-        ломая внешний интерфейс компонента.
+        заменить внутренний рендер на более сложный, не ломая внешний
+        интерфейс компонента.
       </div>
     </aside>
   );
