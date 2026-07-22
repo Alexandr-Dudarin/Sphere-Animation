@@ -159,10 +159,10 @@ export default function PortalGate({
     innerPanelStep * 0.62;
 
   const outerPanelGlowArc =
-    outerPanelArc * 0.58;
+    outerPanelArc * 0.72;
 
   const innerPanelGlowArc =
-    innerPanelArc * 0.5;
+    innerPanelArc * 0.68;
 
   const outerPanelInnerRadius =
     middleRingRadius +
@@ -233,12 +233,12 @@ export default function PortalGate({
     () =>
       new THREE.RingGeometry(
         Math.max(
-          outerPanelOuterRadius - 0.019,
+          outerPanelOuterRadius - 0.024,
           outerPanelInnerRadius + 0.01,
         ),
         Math.max(
-          outerPanelOuterRadius - 0.006,
-          outerPanelInnerRadius + 0.022,
+          outerPanelOuterRadius - 0.005,
+          outerPanelInnerRadius + 0.027,
         ),
         quality === 'high' ? 48 : 30,
         1,
@@ -256,10 +256,10 @@ export default function PortalGate({
   const innerPanelGlowGeometry = useMemo(
     () =>
       new THREE.RingGeometry(
-        innerPanelInnerRadius + 0.006,
+        innerPanelInnerRadius + 0.005,
         Math.min(
-          innerPanelInnerRadius + 0.017,
-          innerPanelOuterRadius - 0.008,
+          innerPanelInnerRadius + 0.022,
+          innerPanelOuterRadius - 0.007,
         ),
         quality === 'high' ? 42 : 26,
         1,
@@ -316,7 +316,7 @@ export default function PortalGate({
     () =>
       colors.glow
         .clone()
-        .lerp(colors.hot, 0.24),
+        .lerp(colors.hot, 0.34),
     [colors.glow, colors.hot],
   );
 
@@ -355,7 +355,7 @@ export default function PortalGate({
     () =>
       colors.glow
         .clone()
-        .lerp(colors.hot, 0.22),
+        .lerp(colors.hot, 0.38),
     [colors.glow, colors.hot],
   );
 
@@ -427,7 +427,7 @@ export default function PortalGate({
       new THREE.MeshBasicMaterial({
         color: innerRimColor,
         transparent: true,
-        opacity: 0.42 * glowFactor,
+        opacity: 0.52 * glowFactor,
         blending: THREE.AdditiveBlending,
         depthTest: true,
         depthWrite: false,
@@ -445,7 +445,7 @@ export default function PortalGate({
       new THREE.MeshBasicMaterial({
         color: bridgeHotColor,
         transparent: true,
-        opacity: 0.54 * glowFactor,
+        opacity: 0.64 * glowFactor,
         blending: THREE.AdditiveBlending,
         depthTest: true,
         depthWrite: false,
@@ -463,7 +463,7 @@ export default function PortalGate({
       new THREE.MeshBasicMaterial({
         color: panelGlowColor,
         transparent: true,
-        opacity: 0.26 * glowFactor,
+        opacity: 0.4 * glowFactor,
         side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending,
         depthTest: true,
@@ -482,7 +482,7 @@ export default function PortalGate({
       new THREE.MeshBasicMaterial({
         color: innerRimColor,
         transparent: true,
-        opacity: 0.3 * glowFactor,
+        opacity: 0.44 * glowFactor,
         side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending,
         depthTest: true,
@@ -669,19 +669,19 @@ export default function PortalGate({
       0.27 + pulse * 0.09;
 
     bridgeLightMaterial.opacity =
-      (0.32 + pulse * 0.26) *
+      (0.4 + pulse * 0.3) *
       glowFactor;
 
     bridgeHotMaterial.opacity =
-      (0.28 + secondaryPulse * 0.42) *
+      (0.36 + secondaryPulse * 0.46) *
       glowFactor;
 
     outerPanelGlowMaterial.opacity =
-      (0.18 + pulse * 0.18) *
+      (0.3 + pulse * 0.28) *
       glowFactor;
 
     innerPanelGlowMaterial.opacity =
-      (0.2 + secondaryPulse * 0.22) *
+      (0.32 + secondaryPulse * 0.3) *
       glowFactor;
 
     rimPulseMaterialA.opacity =

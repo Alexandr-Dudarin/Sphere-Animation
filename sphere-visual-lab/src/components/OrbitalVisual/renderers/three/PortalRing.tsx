@@ -25,7 +25,7 @@ const VERTEX_SHADER = `
   varying vec2 vUv;
   varying vec3 vViewNormal;
   varying vec3 vViewPosition;
-  varying float vWorldAngle;
+  varying vec2 vWorldPosition;
 
   void main() {
     vUv = uv;
@@ -35,10 +35,13 @@ const VERTEX_SHADER = `
 
     vViewPosition = mvPosition.xyz;
     vViewNormal = normalize(normalMatrix * normal);
-    vWorldAngle =
-      atan(worldPosition.y, worldPosition.x) /
-      6.28318530718 +
-      0.5;
+
+    /*
+     * Передаём непрерывные координаты, а не уже вычисленный угол.
+     * Угол, интерполированный между вершинами около -PI / PI, создавал
+     * заметную радиальную линию-склейку на вращающихся кольцах.
+     */
+    vWorldPosition = worldPosition.xy;
 
     gl_Position = projectionMatrix * mvPosition;
   }
@@ -58,7 +61,7 @@ const FRAGMENT_SHADER = `
   varying vec2 vUv;
   varying vec3 vViewNormal;
   varying vec3 vViewPosition;
-  varying float vWorldAngle;
+  varying vec2 vWorldPosition;
 
   float loopDistance(float a, float b) {
     float distanceValue = abs(a - b);
@@ -87,8 +90,13 @@ const FRAGMENT_SHADER = `
       1.28
     );
 
+    float worldAngle =
+      atan(vWorldPosition.y, vWorldPosition.x) /
+      6.28318530718 +
+      0.5;
+
     float along = fract(
-      vWorldAngle +
+      worldAngle +
       uPhase -
       uTime * (0.052 + uRingRole * 0.019)
     );
@@ -440,7 +448,7 @@ export default function PortalRing({
         opacity:
           config.opacity *
           glowFactor *
-          (0.22 + ringRole * 0.03),
+          (0.27 + ringRole * 0.04),
         blending: THREE.AdditiveBlending,
         depthTest: true,
         depthWrite: false,
@@ -468,7 +476,7 @@ export default function PortalRing({
         opacity:
           config.opacity *
           glowFactor *
-          0.42,
+          0.5,
         blending: THREE.AdditiveBlending,
         depthTest: true,
         depthWrite: false,
@@ -544,8 +552,8 @@ export default function PortalRing({
       config.opacity *
       glowFactor *
       (
-        0.16 +
-        ringRole * 0.03 +
+        0.21 +
+        ringRole * 0.04 +
         (
           0.5 +
           0.5 *
@@ -556,14 +564,14 @@ export default function PortalRing({
               config.phase * 8.0,
             )
         ) *
-          0.15
+          0.18
       );
 
     pulseMaterial.opacity =
       config.opacity *
       glowFactor *
       (
-        0.24 +
+        0.3 +
         (
           0.5 +
           0.5 *
@@ -574,7 +582,7 @@ export default function PortalRing({
               config.phase * 11.0,
             )
         ) *
-          0.34
+          0.4
       );
   });
 

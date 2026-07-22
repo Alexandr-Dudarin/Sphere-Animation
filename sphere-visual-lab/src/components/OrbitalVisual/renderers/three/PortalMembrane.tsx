@@ -132,15 +132,37 @@ const FRAGMENT_SHADER = `
       uDirection +
       uPhase;
 
+    /*
+     * Пространственная закрутка отделена от времени. Раньше время
+     * умножалось на radial acceleration, из-за чего с каждой секундой
+     * вихрь становился всё плотнее и начинал давать муар и дрожание.
+     */
     float inwardAcceleration =
       1.0 +
       pow(1.0 - radiusValue, 1.55) * 2.85;
 
+    float radialTwist =
+      pow(1.0 - radiusValue, 1.38) *
+      (2.7 + uLayer * 0.58);
+
+    float flowRotation =
+      timeValue *
+      (0.86 + uLayer * 0.24);
+
+    float boundedPull =
+      sin(
+        timeValue * 0.62 +
+        radiusValue * 5.4 +
+        uPhase
+      ) *
+      (1.0 - radiusValue) *
+      0.065;
+
     float advectedAngle =
       angleValue +
-      timeValue *
-        (0.92 + uLayer * 0.42) *
-        inwardAcceleration;
+      radialTwist +
+      flowRotation +
+      boundedPull;
 
     vec2 rotatedPoint =
       vec2(
@@ -150,39 +172,49 @@ const FRAGMENT_SHADER = `
 
     vec2 broadPoint =
       rotatedPoint *
-      (2.1 + uTurbulence * 1.45);
+      (1.72 + uTurbulence * 1.08);
 
+    /*
+     * ВАЖНО: любые гармоники от atan-угла должны иметь целое
+     * количество повторов за полный оборот. Дробные множители
+     * создают разрыв на границе -PI / PI, который визуально
+     * превращается в движущийся конус от центра к краю.
+     */
     broadPoint += vec2(
       cos(
-        advectedAngle * 3.0 -
-        timeValue * 0.55
+        advectedAngle * 2.0 -
+        timeValue * 0.42
       ),
       sin(
-        advectedAngle * 4.0 +
-        timeValue * 0.43
+        advectedAngle * 3.0 +
+        timeValue * 0.34
       )
-    ) * (0.085 + uTurbulence * 0.075);
+    ) * (0.11 + uTurbulence * 0.085);
 
+    /*
+     * Основной рисунок строится на крупных массах. Detail и micro
+     * сохранены, но больше не формируют мелкую песочную поверхность.
+     */
     float broadNoise = fbm(
       broadPoint +
-      timeValue * vec2(0.13, -0.09)
+      timeValue * vec2(0.085, -0.058)
     );
 
     float detailNoise = fbm(
-      broadPoint * 2.55 -
-      timeValue * vec2(0.21, 0.12)
+      broadPoint * 1.82 -
+      timeValue * vec2(0.14, 0.085)
     );
 
     float microNoise = fbm(
-      broadPoint * 5.4 +
-      timeValue * vec2(-0.34, 0.24)
+      broadPoint * 3.15 +
+      timeValue * vec2(-0.19, 0.13)
     );
 
     float spiralCoordinate =
-      advectedAngle * 5.35 -
-      log(safeRadius + 0.06) * 12.7 +
-      broadNoise * 4.9 +
-      detailNoise * 1.55;
+      advectedAngle * 4.0 -
+      log(safeRadius + 0.07) * 10.9 +
+      broadNoise * 4.25 +
+      detailNoise * 1.08;
 
     float spiralWave =
       0.5 +
@@ -191,107 +223,119 @@ const FRAGMENT_SHADER = `
     float spiralWaveTwo =
       0.5 +
       0.5 * sin(
-        advectedAngle * 8.2 -
-        log(safeRadius + 0.085) * 18.4 +
-        timeValue * 1.7 * inwardAcceleration +
-        detailNoise * 4.1
+        advectedAngle * 6.0 -
+        log(safeRadius + 0.09) * 14.6 +
+        timeValue *
+          (1.16 + uLayer * 0.16) +
+        radialTwist * 1.28 +
+        detailNoise * 2.85
       );
 
     float primaryFilament =
-      smoothstep(0.48, 0.92, spiralWave) *
-      (0.54 + spiralWaveTwo * 0.46);
+      smoothstep(0.42, 0.89, spiralWave) *
+      (0.58 + spiralWaveTwo * 0.42);
 
     float sharpFilament =
       pow(
-        smoothstep(0.58, 0.96, spiralWaveTwo),
-        1.55
+        smoothstep(0.55, 0.93, spiralWaveTwo),
+        1.28
       ) *
-      (0.62 + microNoise * 0.38);
+      (0.78 + microNoise * 0.22);
 
+    /*
+     * Две широкие волны идут от внешнего края к горизонту. Их частота
+     * ниже прежней, поэтому движение читается как втягивание, а не шум.
+     */
     float suctionPhase = fract(
-      radiusValue * 9.2 +
+      radiusValue * 6.45 +
       timeValue *
-        (1.34 + uLayer * 0.34) +
-      angleValue * 0.38 +
-      broadNoise * 0.48
+        (1.42 + uLayer * 0.31) +
+      sin(
+        angleValue * 3.0 +
+        uPhase
+      ) * 0.085 +
+      broadNoise * 0.31
     );
 
     float suctionBand =
-      softBand(suctionPhase, 0.86, 0.075) *
-      smoothstep(0.13, 0.95, radiusValue);
+      softBand(suctionPhase, 0.84, 0.118) *
+      smoothstep(0.12, 0.96, radiusValue);
 
     float fastSuctionPhase = fract(
-      radiusValue * 15.0 +
+      radiusValue * 10.4 +
       timeValue *
-        (2.05 + uLayer * 0.48) +
-      advectedAngle * 0.24 +
-      detailNoise * 0.34
+        (2.16 + uLayer * 0.44) +
+      sin(
+        advectedAngle * 4.0 -
+        uPhase
+      ) * 0.07 +
+      detailNoise * 0.22
     );
 
     float fastSuctionBand =
       softBand(
         fastSuctionPhase,
-        0.9,
-        0.055
+        0.88,
+        0.082
       ) *
-      smoothstep(0.18, 0.92, radiusValue);
+      smoothstep(0.17, 0.94, radiusValue);
 
     float inwardStreaks =
       (
-        suctionBand * 0.68 +
-        fastSuctionBand * 0.42
+        suctionBand * 0.78 +
+        fastSuctionBand * 0.5
       ) *
       (
-        0.34 +
-        primaryFilament * 0.42 +
-        sharpFilament * 0.34
+        0.42 +
+        primaryFilament * 0.46 +
+        sharpFilament * 0.22
       ) *
       (
-        0.72 +
-        (1.0 - radiusValue) * 0.9
+        0.74 +
+        (1.0 - radiusValue) * 1.08
       );
 
     float angularStreaks =
       pow(
         0.5 +
         0.5 * sin(
-          advectedAngle * 34.0 +
-          detailNoise * 4.2 -
-          timeValue * 2.4
+          advectedAngle * 14.0 +
+          detailNoise * 2.55 -
+          timeValue * 1.82
         ),
-        5.0
+        2.65
       ) *
       inwardStreaks;
 
     float softCloud =
-      broadNoise * 0.58 +
-      detailNoise * 0.3 +
-      microNoise * 0.12;
+      broadNoise * 0.78 +
+      detailNoise * 0.205 +
+      microNoise * 0.015;
 
     float centerVoid =
-      smoothstep(0.065, 0.235, radiusValue);
+      smoothstep(0.07, 0.255, radiusValue);
 
     float horizonRadius =
-      0.205 +
-      (broadNoise - 0.5) * 0.018 +
+      0.222 +
+      (broadNoise - 0.5) * 0.015 +
       sin(
-        timeValue * 2.15 +
-        angleValue * 5.0
-      ) * 0.0045;
+        timeValue * 2.0 +
+        angleValue * 4.0
+      ) * 0.004;
 
     float eventHorizon =
       1.0 -
       smoothstep(
-        0.012,
-        0.052,
+        0.014,
+        0.059,
         abs(radiusValue - horizonRadius)
       );
 
     float innerHalo =
-      softBand(radiusValue, 0.34, 0.19);
+      softBand(radiusValue, 0.36, 0.205);
 
     float sinkGlow =
-      softBand(radiusValue, 0.275, 0.105) *
+      softBand(radiusValue, 0.292, 0.122) *
       (
         0.66 +
         primaryFilament * 0.34
@@ -327,13 +371,13 @@ const FRAGMENT_SHADER = `
       uPulse;
 
     float energy =
-      softCloud * 0.16 +
-      primaryFilament * 0.48 +
-      sharpFilament * 0.24 +
-      innerHalo * 0.12 +
-      inwardStreaks * 0.58 +
-      angularStreaks * 0.28 +
-      sinkGlow * 0.22;
+      softCloud * 0.12 +
+      primaryFilament * 0.54 +
+      sharpFilament * 0.145 +
+      innerHalo * 0.14 +
+      inwardStreaks * 0.7 +
+      angularStreaks * 0.18 +
+      sinkGlow * 0.27;
 
     vec3 deepColor = mix(
       uAccentColor * 0.075,
@@ -377,13 +421,13 @@ const FRAGMENT_SHADER = `
       outerFalloff *
       centerVoid *
       (
-        0.08 +
-        softCloud * 0.16 +
-        primaryFilament * 0.31 +
-        sharpFilament * 0.18 +
-        innerHalo * 0.11 +
-        inwardStreaks * 0.37 +
-        angularStreaks * 0.18
+        0.075 +
+        softCloud * 0.1 +
+        primaryFilament * 0.36 +
+        sharpFilament * 0.12 +
+        innerHalo * 0.13 +
+        inwardStreaks * 0.48 +
+        angularStreaks * 0.14
       );
 
     float alpha =
