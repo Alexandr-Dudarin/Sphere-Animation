@@ -15,12 +15,12 @@
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  min-height: 46px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 11px 14px 12px;
   border: 1px solid var(--control-border);
   border-radius: 12px;
   color: var(--text-primary);
@@ -53,13 +53,10 @@
   flex: 1 1 auto;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  padding: 1px 0 2px;
   overflow-wrap: anywhere;
-  line-height: 1.25;
+  line-height: 1.45;
   white-space: normal;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .chevron {
@@ -126,12 +123,12 @@
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  min-height: 40px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 9px 10px;
+  padding: 10px 11px 11px;
   border: 0;
   border-radius: 9px;
   color: rgba(244, 247, 255, 0.9);
@@ -160,7 +157,7 @@
   flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: anywhere;
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .check {

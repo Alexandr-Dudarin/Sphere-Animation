@@ -515,6 +515,228 @@ a {
   transform: rotate(-72deg);
 }
 
+.miniStaticPreview--portal .miniPreviewAura {
+  width: 176px;
+  height: 176px;
+  opacity: 0.72;
+}
+
+.miniPreviewPortalHalo,
+.miniPreviewPortalFrame,
+.miniPreviewPortalTrack,
+.miniPreviewPortalMembrane,
+.miniPreviewPortalAperture {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.miniPreviewPortalHalo {
+  z-index: 1;
+  width: 172px;
+  height: 172px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--preview-glow) 18%, transparent) 0%,
+    color-mix(in srgb, var(--preview-accent) 12%, transparent) 42%,
+    transparent 72%
+  );
+  filter: blur(12px);
+}
+
+.miniPreviewPortalFrame {
+  z-index: 4;
+  background: repeating-conic-gradient(
+    from 4deg,
+    color-mix(in srgb, var(--preview-accent) 78%, #081022) 0deg 25deg,
+    color-mix(in srgb, var(--preview-glow) 34%, var(--preview-accent)) 25deg 31deg,
+    transparent 31deg 38deg
+  );
+  filter:
+    drop-shadow(0 0 3px color-mix(in srgb, var(--preview-glow) 32%, transparent))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--preview-accent) 22%, transparent));
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 0 39%,
+    #000 40% 49%,
+    transparent 50%
+  );
+  mask: radial-gradient(
+    circle,
+    transparent 0 39%,
+    #000 40% 49%,
+    transparent 50%
+  );
+}
+
+.miniPreviewPortalFrame--outer {
+  width: 166px;
+  height: 166px;
+  opacity: 0.96;
+  animation: miniPortalFrameSpin 20s linear infinite;
+}
+
+.miniPreviewPortalFrame--middle {
+  width: 143px;
+  height: 143px;
+  opacity: 0.82;
+  animation: miniPortalFrameSpinReverse 15s linear infinite;
+}
+
+.miniPreviewPortalFrame--inner {
+  width: 122px;
+  height: 122px;
+  opacity: 0.68;
+  animation: miniPortalFrameSpin 11s linear infinite;
+}
+
+.miniPreviewPortalTrack {
+  z-index: 6;
+  background: conic-gradient(
+    from 18deg,
+    transparent 0deg 18deg,
+    var(--preview-core) 18deg 36deg,
+    transparent 36deg 72deg,
+    var(--preview-glow) 72deg 104deg,
+    transparent 104deg 148deg,
+    color-mix(in srgb, var(--preview-core) 78%, var(--preview-glow)) 148deg 176deg,
+    transparent 176deg 232deg,
+    var(--preview-glow) 232deg 268deg,
+    transparent 268deg 326deg,
+    var(--preview-core) 326deg 344deg,
+    transparent 344deg 360deg
+  );
+  filter:
+    drop-shadow(0 0 3px var(--preview-core))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--preview-glow) 72%, transparent));
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 0 46%,
+    #000 47% 49%,
+    transparent 50%
+  );
+  mask: radial-gradient(
+    circle,
+    transparent 0 46%,
+    #000 47% 49%,
+    transparent 50%
+  );
+}
+
+.miniPreviewPortalTrack--outer {
+  width: 151px;
+  height: 151px;
+  animation: miniPortalFrameSpin 8s linear infinite;
+}
+
+.miniPreviewPortalTrack--inner {
+  width: 116px;
+  height: 116px;
+  opacity: 0.82;
+  animation: miniPortalFrameSpinReverse 6.4s linear infinite;
+}
+
+.miniPreviewPortalMembrane {
+  z-index: 3;
+  width: 104px;
+  height: 104px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle,
+      transparent 0 15%,
+      color-mix(in srgb, var(--preview-core) 92%, transparent) 16% 19%,
+      color-mix(in srgb, var(--preview-glow) 46%, transparent) 22%,
+      transparent 30%
+    ),
+    repeating-conic-gradient(
+      from 12deg,
+      color-mix(in srgb, var(--preview-core) 58%, transparent) 0deg 7deg,
+      color-mix(in srgb, var(--preview-glow) 74%, transparent) 9deg 18deg,
+      color-mix(in srgb, var(--preview-accent) 48%, transparent) 22deg 30deg,
+      transparent 34deg 43deg
+    ),
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--preview-glow) 70%, #091126) 0%,
+      color-mix(in srgb, var(--preview-accent) 76%, #07101f) 54%,
+      rgba(2, 5, 14, 0.98) 76%
+    );
+  box-shadow:
+    inset 0 0 18px rgba(0, 0, 0, 0.62),
+    0 0 16px color-mix(in srgb, var(--preview-glow) 46%, transparent);
+  animation: miniPortalMembraneSpin 5.2s linear infinite;
+}
+
+.miniPreviewPortalMembrane::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 20deg,
+    transparent 0deg 20deg,
+    color-mix(in srgb, var(--preview-core) 65%, transparent) 36deg,
+    transparent 66deg 94deg,
+    color-mix(in srgb, var(--preview-glow) 62%, transparent) 118deg,
+    transparent 150deg 188deg,
+    color-mix(in srgb, var(--preview-core) 44%, transparent) 220deg,
+    transparent 252deg 292deg,
+    color-mix(in srgb, var(--preview-glow) 54%, transparent) 326deg,
+    transparent 360deg
+  );
+  filter: blur(2px);
+  mix-blend-mode: screen;
+}
+
+.miniPreviewPortalAperture {
+  z-index: 8;
+  width: 27px;
+  height: 27px;
+  border: 3px solid color-mix(in srgb, var(--preview-core) 88%, var(--preview-glow));
+  background: #02050d;
+  box-shadow:
+    0 0 7px var(--preview-core),
+    0 0 15px color-mix(in srgb, var(--preview-glow) 72%, transparent),
+    inset 0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+@keyframes miniPortalFrameSpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes miniPortalFrameSpinReverse {
+  from {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+
+@keyframes miniPortalMembraneSpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1.025);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+  }
+}
+
 .miniLabel {
   display: block;
   margin: 14px 0 6px;
@@ -613,6 +835,12 @@ a {
 
   .miniCardButton {
     transition: none;
+  }
+
+  .miniPreviewPortalFrame,
+  .miniPreviewPortalTrack,
+  .miniPreviewPortalMembrane {
+    animation: none;
   }
 }
 

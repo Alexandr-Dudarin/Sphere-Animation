@@ -78,6 +78,78 @@ function persistValue(key: string, value: string) {
   }
 }
 
+function animateScrollToElement(element: HTMLElement): () => void {
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  ).matches;
+  const targetTop = Math.max(
+    0,
+    element.getBoundingClientRect().top + window.scrollY - 22,
+  );
+
+  if (prefersReducedMotion) {
+    window.scrollTo({ top: targetTop, behavior: 'auto' });
+    return () => undefined;
+  }
+
+  const startTop = window.scrollY;
+  const distance = targetTop - startTop;
+
+  if (Math.abs(distance) < 2) {
+    return () => undefined;
+  }
+
+  const duration = Math.min(
+    1100,
+    Math.max(720, Math.abs(distance) * 0.38),
+  );
+  const startTime = window.performance.now();
+  const root = document.documentElement;
+  const previousScrollBehavior = root.style.scrollBehavior;
+  let animationFrame = 0;
+  let isFinished = false;
+
+  root.style.scrollBehavior = 'auto';
+
+  const restoreScrollBehavior = () => {
+    if (isFinished) {
+      return;
+    }
+
+    isFinished = true;
+    root.style.scrollBehavior = previousScrollBehavior;
+  };
+
+  const easeInOutCubic = (progress: number) =>
+    progress < 0.5
+      ? 4 * progress * progress * progress
+      : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+  const step = (currentTime: number) => {
+    const progress = Math.min(1, (currentTime - startTime) / duration);
+    const easedProgress = easeInOutCubic(progress);
+
+    window.scrollTo({
+      top: startTop + distance * easedProgress,
+      behavior: 'auto',
+    });
+
+    if (progress < 1) {
+      animationFrame = window.requestAnimationFrame(step);
+      return;
+    }
+
+    restoreScrollBehavior();
+  };
+
+  animationFrame = window.requestAnimationFrame(step);
+
+  return () => {
+    window.cancelAnimationFrame(animationFrame);
+    restoreScrollBehavior();
+  };
+}
+
 function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
   const style = {
     '--preview-core': palette.core,
@@ -140,63 +212,14 @@ function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
 
       {kind === 'portal' && (
         <>
-          <span
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: 132,
-              height: 132,
-              border: '6px solid var(--preview-accent)',
-              borderRadius: '50%',
-              boxShadow:
-                '0 0 22px color-mix(in srgb, var(--preview-glow) 68%, transparent), inset 0 0 14px color-mix(in srgb, var(--preview-glow) 38%, transparent)',
-              transform: 'translate(-50%, -50%) rotate(-7deg)',
-              opacity: 0.9,
-            }}
-          />
-          <span
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: 104,
-              height: 104,
-              border: '3px dashed var(--preview-glow)',
-              borderRadius: '50%',
-              transform: 'translate(-50%, -50%) rotate(18deg)',
-              opacity: 0.86,
-            }}
-          />
-          <span
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: 78,
-              height: 78,
-              borderRadius: '50%',
-              background:
-                'radial-gradient(circle, var(--preview-core) 0%, var(--preview-glow) 24%, color-mix(in srgb, var(--preview-accent) 72%, transparent) 58%, transparent 76%)',
-              boxShadow:
-                '0 0 28px color-mix(in srgb, var(--preview-glow) 78%, transparent)',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.92,
-            }}
-          />
-          <span
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: 88,
-              height: 88,
-              border: '1px solid var(--preview-core)',
-              borderRadius: '50%',
-              transform: 'translate(-50%, -50%) rotate(-24deg)',
-              opacity: 0.62,
-            }}
-          />
+          <span className="miniPreviewPortalHalo" />
+          <span className="miniPreviewPortalFrame miniPreviewPortalFrame--outer" />
+          <span className="miniPreviewPortalFrame miniPreviewPortalFrame--middle" />
+          <span className="miniPreviewPortalFrame miniPreviewPortalFrame--inner" />
+          <span className="miniPreviewPortalTrack miniPreviewPortalTrack--outer" />
+          <span className="miniPreviewPortalTrack miniPreviewPortalTrack--inner" />
+          <span className="miniPreviewPortalMembrane" />
+          <span className="miniPreviewPortalAperture" />
         </>
       )}
     </div>
@@ -206,6 +229,7 @@ function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
 export default function DemoPage() {
   const sphereSectionRef = useRef<HTMLElement>(null);
   const orbitalSectionRef = useRef<HTMLElement>(null);
+  const cancelScrollAnimationRef = useRef<(() => void) | null>(null);
 
   const [size, setSize] = useState(440);
   const [mode, setMode] = useState<SphereMode>(() =>
@@ -258,14 +282,29 @@ export default function DemoPage() {
     persistValue(STORAGE_KEYS.orbitalPreset, orbitalPreset);
   }, [orbitalPreset]);
 
+  useEffect(
+    () => () => {
+      cancelScrollAnimationRef.current?.();
+    },
+    [],
+  );
+
+  const scrollToSection = (element: HTMLElement | null) => {
+    if (!element) {
+      return;
+    }
+
+    cancelScrollAnimationRef.current?.();
+    cancelScrollAnimationRef.current = animateScrollToElement(element);
+  };
+
   const openSpherePreset = (card: SpherePresetCatalogItem) => {
     setPreset(card.preset);
     setMode(card.mode);
 
     window.requestAnimationFrame(() => {
-      sphereSectionRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
+      window.requestAnimationFrame(() => {
+        scrollToSection(sphereSectionRef.current);
       });
     });
   };
@@ -274,9 +313,8 @@ export default function DemoPage() {
     setOrbitalPreset(card.preset);
 
     window.requestAnimationFrame(() => {
-      orbitalSectionRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
+      window.requestAnimationFrame(() => {
+        scrollToSection(orbitalSectionRef.current);
       });
     });
   };
