@@ -1,0 +1,1 @@
+{"version":3,"file":"visualCatalog.types.d.ts","sourceRoot":"","sources":["../../../../src/shared/catalog/visualCatalog.types.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,cAAc;IAC7B,IAAI,EAAE,MAAM,CAAC;IACb,IAAI,EAAE,MAAM,CAAC;IACb,MAAM,EAAE,MAAM,CAAC;CAChB;AAED,MAAM,WAAW,mBAAmB,CAAC,CAAC,SAAS,MAAM;IACnD,KAAK,EAAE,CAAC,CAAC;IACT,KAAK,EAAE,MAAM,CAAC;CACf"}

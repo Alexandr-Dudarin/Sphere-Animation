@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:lib": "vite build --config vite.lib.config.ts && tsc -p tsconfig.lib.json && node scripts/verify-library-output.mjs",
+    "build:all": "npm run build && npm run build:lib",
+    "check:all": "npm test && npm run build && npm run build:lib"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -37,5 +40,22 @@
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.9",
     "vitest": "^4.1.10"
-  }
+  },
+  "files": [
+    "dist-lib"
+  ],
+  "main": "./dist-lib/index.js",
+  "module": "./dist-lib/index.js",
+  "types": "./dist-lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist-lib/types/index.d.ts",
+      "import": "./dist-lib/index.js",
+      "default": "./dist-lib/index.js"
+    },
+    "./style.css": "./dist-lib/style.css"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ]
 }
