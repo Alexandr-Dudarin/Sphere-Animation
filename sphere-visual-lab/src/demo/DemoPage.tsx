@@ -78,78 +78,6 @@ function persistValue(key: string, value: string) {
   }
 }
 
-function animateScrollToElement(element: HTMLElement): () => void {
-  const prefersReducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)',
-  ).matches;
-  const targetTop = Math.max(
-    0,
-    element.getBoundingClientRect().top + window.scrollY - 22,
-  );
-
-  if (prefersReducedMotion) {
-    window.scrollTo({ top: targetTop, behavior: 'auto' });
-    return () => undefined;
-  }
-
-  const startTop = window.scrollY;
-  const distance = targetTop - startTop;
-
-  if (Math.abs(distance) < 2) {
-    return () => undefined;
-  }
-
-  const duration = Math.min(
-    1100,
-    Math.max(720, Math.abs(distance) * 0.38),
-  );
-  const startTime = window.performance.now();
-  const root = document.documentElement;
-  const previousScrollBehavior = root.style.scrollBehavior;
-  let animationFrame = 0;
-  let isFinished = false;
-
-  root.style.scrollBehavior = 'auto';
-
-  const restoreScrollBehavior = () => {
-    if (isFinished) {
-      return;
-    }
-
-    isFinished = true;
-    root.style.scrollBehavior = previousScrollBehavior;
-  };
-
-  const easeInOutCubic = (progress: number) =>
-    progress < 0.5
-      ? 4 * progress * progress * progress
-      : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-
-  const step = (currentTime: number) => {
-    const progress = Math.min(1, (currentTime - startTime) / duration);
-    const easedProgress = easeInOutCubic(progress);
-
-    window.scrollTo({
-      top: startTop + distance * easedProgress,
-      behavior: 'auto',
-    });
-
-    if (progress < 1) {
-      animationFrame = window.requestAnimationFrame(step);
-      return;
-    }
-
-    restoreScrollBehavior();
-  };
-
-  animationFrame = window.requestAnimationFrame(step);
-
-  return () => {
-    window.cancelAnimationFrame(animationFrame);
-    restoreScrollBehavior();
-  };
-}
-
 function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
   const style = {
     '--preview-core': palette.core,
@@ -229,7 +157,8 @@ function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
 export default function DemoPage() {
   const sphereSectionRef = useRef<HTMLElement>(null);
   const orbitalSectionRef = useRef<HTMLElement>(null);
-  const cancelScrollAnimationRef = useRef<(() => void) | null>(null);
+  const scrollTimeoutRef = useRef<number | null>(null);
+  const scrollFrameRef = useRef<number | null>(null);
 
   const [size, setSize] = useState(440);
   const [mode, setMode] = useState<SphereMode>(() =>
@@ -284,7 +213,13 @@ export default function DemoPage() {
 
   useEffect(
     () => () => {
-      cancelScrollAnimationRef.current?.();
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current);
+      }
+
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+      }
     },
     [],
   );
@@ -294,29 +229,42 @@ export default function DemoPage() {
       return;
     }
 
-    cancelScrollAnimationRef.current?.();
-    cancelScrollAnimationRef.current = animateScrollToElement(element);
+    if (scrollTimeoutRef.current !== null) {
+      window.clearTimeout(scrollTimeoutRef.current);
+    }
+
+    if (scrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(scrollFrameRef.current);
+    }
+
+    scrollTimeoutRef.current = window.setTimeout(() => {
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        const prefersReducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
+
+        element.scrollIntoView({
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          block: 'start',
+          inline: 'nearest',
+        });
+
+        scrollFrameRef.current = null;
+      });
+
+      scrollTimeoutRef.current = null;
+    }, 140);
   };
 
   const openSpherePreset = (card: SpherePresetCatalogItem) => {
     setPreset(card.preset);
     setMode(card.mode);
-
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        scrollToSection(sphereSectionRef.current);
-      });
-    });
+    scrollToSection(sphereSectionRef.current);
   };
 
   const openOrbitalPreset = (card: OrbitalPresetCatalogItem) => {
     setOrbitalPreset(card.preset);
-
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        scrollToSection(orbitalSectionRef.current);
-      });
-    });
+    scrollToSection(orbitalSectionRef.current);
   };
 
   return (
