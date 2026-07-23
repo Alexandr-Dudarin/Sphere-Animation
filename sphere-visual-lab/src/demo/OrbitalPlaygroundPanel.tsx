@@ -15,6 +15,10 @@ import {
   orbitalObjectOptions,
   type OrbitalObjectId,
 } from '../components/OrbitalVisual/catalog';
+import {
+  demoStageBackgroundOptions,
+  type DemoStageBackground,
+} from './demoBackgrounds';
 
 interface OrbitalPlaygroundPanelProps {
   size: number;
@@ -27,6 +31,8 @@ interface OrbitalPlaygroundPanelProps {
   onGlowIntensityChange: (value: OrbitalGlowIntensity) => void;
   speed: number;
   onSpeedChange: (value: number) => void;
+  stageBackground: DemoStageBackground;
+  onStageBackgroundChange: (value: DemoStageBackground) => void;
   background: OrbitalBackground;
   onBackgroundChange: (value: OrbitalBackground) => void;
 }
@@ -59,6 +65,8 @@ export default function OrbitalPlaygroundPanel({
   onGlowIntensityChange,
   speed,
   onSpeedChange,
+  stageBackground,
+  onStageBackgroundChange,
   background,
   onBackgroundChange,
 }: OrbitalPlaygroundPanelProps) {
@@ -175,6 +183,22 @@ export default function OrbitalPlaygroundPanel({
           step="0.1"
           value={speed}
           onChange={(event) => onSpeedChange(Number(event.target.value))}
+        />
+      </div>
+
+
+      <div className="controlGroup">
+        <div className="controlLabelRow">
+          <label htmlFor="orbital-stage-background" className="controlLabel">
+            Фон сцены
+          </label>
+        </div>
+
+        <CustomSelect<DemoStageBackground>
+          id="orbital-stage-background"
+          value={stageBackground}
+          options={demoStageBackgroundOptions}
+          onChange={onStageBackgroundChange}
         />
       </div>
 

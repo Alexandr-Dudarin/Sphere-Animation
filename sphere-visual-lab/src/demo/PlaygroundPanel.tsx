@@ -10,6 +10,10 @@ import {
   type CustomSelectOption,
 } from '../shared/ui/CustomSelect';
 import { spherePresetOptions } from '../components/SphereVisual/catalog';
+import {
+  demoStageBackgroundOptions,
+  type DemoStageBackground,
+} from './demoBackgrounds';
 
 interface PlaygroundPanelProps {
   size: number;
@@ -24,6 +28,8 @@ interface PlaygroundPanelProps {
   onGlowIntensityChange: (value: GlowIntensity) => void;
   speed: number;
   onSpeedChange: (value: number) => void;
+  stageBackground: DemoStageBackground;
+  onStageBackgroundChange: (value: DemoStageBackground) => void;
   background: SphereBackground;
   onBackgroundChange: (value: SphereBackground) => void;
   interactive: boolean;
@@ -67,6 +73,8 @@ export default function PlaygroundPanel({
   onGlowIntensityChange,
   speed,
   onSpeedChange,
+  stageBackground,
+  onStageBackgroundChange,
   background,
   onBackgroundChange,
   interactive,
@@ -177,6 +185,22 @@ export default function PlaygroundPanel({
           step="0.1"
           value={speed}
           onChange={(event) => onSpeedChange(Number(event.target.value))}
+        />
+      </div>
+
+
+      <div className="controlGroup">
+        <div className="controlLabelRow">
+          <label htmlFor="stage-background" className="controlLabel">
+            Фон сцены
+          </label>
+        </div>
+
+        <CustomSelect<DemoStageBackground>
+          id="stage-background"
+          value={stageBackground}
+          options={demoStageBackgroundOptions}
+          onChange={onStageBackgroundChange}
         />
       </div>
 

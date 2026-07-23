@@ -16,6 +16,8 @@ function createProps(): ComponentProps<typeof OrbitalPlaygroundPanel> {
     onGlowIntensityChange: vi.fn(),
     speed: 1,
     onSpeedChange: vi.fn(),
+    stageBackground: 'space',
+    onStageBackgroundChange: vi.fn(),
     background: 'transparent',
     onBackgroundChange: vi.fn(),
   };
@@ -114,6 +116,22 @@ describe('OrbitalPlaygroundPanel', () => {
     await user.click(screen.getByRole('option', { name: 'medium — среднее' }));
 
     expect(props.onQualityChange).toHaveBeenCalledWith('medium');
+  });
+
+  it('changes the demo stage background through the custom select', async () => {
+    const user = userEvent.setup();
+    const props = createProps();
+
+    render(<OrbitalPlaygroundPanel {...props} />);
+
+    await user.click(screen.getByLabelText('Фон сцены'));
+    await user.click(
+      screen.getByRole('option', {
+        name: 'tech — технологическая сетка',
+      }),
+    );
+
+    expect(props.onStageBackgroundChange).toHaveBeenCalledWith('tech');
   });
 
   it('changes the component background through the custom select', async () => {

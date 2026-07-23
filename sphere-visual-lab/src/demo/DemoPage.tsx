@@ -28,6 +28,10 @@ import {
   type SpherePresetCatalogItem,
 } from '../components/SphereVisual/catalog';
 import type { PreviewPalette } from '../shared/catalog/visualCatalog.types';
+import {
+  demoStageBackgroundNames,
+  type DemoStageBackground,
+} from './demoBackgrounds';
 
 type PreviewKind = 'sphere' | OrbitalPreviewKind;
 
@@ -40,7 +44,9 @@ interface StaticPresetPreviewProps {
 const STORAGE_KEYS = {
   spherePreset: 'sphere-visual-lab:sphere-preset',
   sphereMode: 'sphere-visual-lab:sphere-mode',
+  sphereStageBackground: 'sphere-visual-lab:sphere-stage-background',
   orbitalPreset: 'sphere-visual-lab:orbital-preset',
+  orbitalStageBackground: 'sphere-visual-lab:orbital-stage-background',
 } as const;
 
 const sphereModeNames: readonly SphereMode[] = [
@@ -181,6 +187,14 @@ export default function DemoPage() {
   const [background, setBackground] =
     useState<SphereBackground>('transparent');
   const [interactive, setInteractive] = useState(true);
+  const [sphereStageBackground, setSphereStageBackground] =
+    useState<DemoStageBackground>(() =>
+      readStoredValue(
+        STORAGE_KEYS.sphereStageBackground,
+        demoStageBackgroundNames,
+        'studio',
+      ),
+    );
 
   const [orbitalSize, setOrbitalSize] = useState(440);
   const [orbitalPreset, setOrbitalPreset] =
@@ -198,6 +212,14 @@ export default function DemoPage() {
   const [orbitalSpeed, setOrbitalSpeed] = useState(1);
   const [orbitalBackground, setOrbitalBackground] =
     useState<OrbitalBackground>('transparent');
+  const [orbitalStageBackground, setOrbitalStageBackground] =
+    useState<DemoStageBackground>(() =>
+      readStoredValue(
+        STORAGE_KEYS.orbitalStageBackground,
+        demoStageBackgroundNames,
+        'space',
+      ),
+    );
 
   useEffect(() => {
     persistValue(STORAGE_KEYS.spherePreset, preset);
@@ -210,6 +232,20 @@ export default function DemoPage() {
   useEffect(() => {
     persistValue(STORAGE_KEYS.orbitalPreset, orbitalPreset);
   }, [orbitalPreset]);
+
+  useEffect(() => {
+    persistValue(
+      STORAGE_KEYS.sphereStageBackground,
+      sphereStageBackground,
+    );
+  }, [sphereStageBackground]);
+
+  useEffect(() => {
+    persistValue(
+      STORAGE_KEYS.orbitalStageBackground,
+      orbitalStageBackground,
+    );
+  }, [orbitalStageBackground]);
 
   useEffect(
     () => () => {
@@ -282,7 +318,11 @@ export default function DemoPage() {
 
         <section ref={sphereSectionRef} className="demoLayout demoAnchor">
           <div className="panel previewPanel">
-            <div className="previewStage">
+            <div
+              className={`previewStage previewStage--${sphereStageBackground}`}
+              data-stage-background={sphereStageBackground}
+            >
+              <span className="previewStageBackdrop" aria-hidden="true" />
               <SphereVisual
                 renderer="three"
                 width="100%"
@@ -313,6 +353,8 @@ export default function DemoPage() {
               onGlowIntensityChange={setGlowIntensity}
               speed={speed}
               onSpeedChange={setSpeed}
+              stageBackground={sphereStageBackground}
+              onStageBackgroundChange={setSphereStageBackground}
               background={background}
               onBackgroundChange={setBackground}
               interactive={interactive}
@@ -366,7 +408,11 @@ export default function DemoPage() {
 
         <section ref={orbitalSectionRef} className="demoLayout demoAnchor">
           <div className="panel previewPanel">
-            <div className="previewStage">
+            <div
+              className={`previewStage previewStage--${orbitalStageBackground}`}
+              data-stage-background={orbitalStageBackground}
+            >
+              <span className="previewStageBackdrop" aria-hidden="true" />
               <OrbitalVisual
                 width="100%"
                 height="100%"
@@ -392,6 +438,8 @@ export default function DemoPage() {
               onGlowIntensityChange={setOrbitalGlowIntensity}
               speed={orbitalSpeed}
               onSpeedChange={setOrbitalSpeed}
+              stageBackground={orbitalStageBackground}
+              onStageBackgroundChange={setOrbitalStageBackground}
               background={orbitalBackground}
               onBackgroundChange={setOrbitalBackground}
             />

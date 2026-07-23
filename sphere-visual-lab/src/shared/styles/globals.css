@@ -152,21 +152,163 @@ a {
   padding: 28px;
   box-sizing: border-box;
   border-radius: 24px;
-  background:
-    radial-gradient(circle at 50% 28%, rgba(104, 142, 255, 0.22), transparent 22%),
-    radial-gradient(circle at 50% 42%, rgba(70, 183, 255, 0.1), transparent 28%),
-    radial-gradient(circle at 50% 76%, rgba(11, 17, 34, 0.92), rgba(4, 7, 16, 1) 68%);
+  isolation: isolate;
   overflow: hidden;
+  background: #040710;
+  transition: background 320ms ease;
 }
 
-.previewStage::before {
+.previewStage > :not(.previewStageBackdrop) {
+  position: relative;
+  z-index: 2;
+}
+
+.previewStageBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.previewStageBackdrop::before,
+.previewStageBackdrop::after {
   content: "";
   position: absolute;
-  inset: 10% 20%;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(87, 163, 255, 0.1), transparent 70%);
-  filter: blur(40px);
   pointer-events: none;
+}
+
+/* Нейтральная сцена: мягкий студийный свет без визуального шума. */
+.previewStage--studio {
+  background:
+    radial-gradient(circle at 50% 24%, rgba(124, 151, 255, 0.24), transparent 24%),
+    radial-gradient(circle at 50% 48%, rgba(72, 190, 255, 0.1), transparent 34%),
+    linear-gradient(180deg, #0a1020 0%, #050914 57%, #03060d 100%);
+}
+
+.previewStage--studio .previewStageBackdrop::before {
+  inset: 7% 16% 23%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(111, 178, 255, 0.18), transparent 64%);
+  filter: blur(32px);
+  opacity: 0.86;
+}
+
+.previewStage--studio .previewStageBackdrop::after {
+  left: 12%;
+  right: 12%;
+  bottom: 5%;
+  height: 31%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at center, rgba(72, 124, 205, 0.16), transparent 68%);
+  filter: blur(22px);
+  transform: scaleX(1.08);
+}
+
+/* Космос: звёздная глубина и очень медленное движение туманности. */
+.previewStage--space {
+  background:
+    radial-gradient(circle at 72% 24%, rgba(76, 83, 218, 0.2), transparent 24%),
+    radial-gradient(circle at 24% 68%, rgba(34, 137, 201, 0.13), transparent 30%),
+    linear-gradient(180deg, #040817 0%, #02050e 54%, #010309 100%);
+}
+
+.previewStage--space .previewStageBackdrop::before {
+  inset: -12%;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.92) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(150, 216, 255, 0.72) 0 1px, transparent 1.7px),
+    radial-gradient(circle, rgba(202, 189, 255, 0.56) 0 1.2px, transparent 1.8px);
+  background-position:
+    8px 12px,
+    42px 56px,
+    76px 28px;
+  background-size:
+    74px 74px,
+    112px 112px,
+    148px 148px;
+  opacity: 0.58;
+  transform: translate3d(0, 0, 0);
+  animation: previewSpaceDrift 22s ease-in-out infinite alternate;
+}
+
+.previewStage--space .previewStageBackdrop::after {
+  inset: 4% -10% 12%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 38% 48%, rgba(56, 148, 255, 0.15), transparent 48%),
+    radial-gradient(ellipse at 68% 42%, rgba(126, 88, 255, 0.14), transparent 44%);
+  filter: blur(34px);
+  opacity: 0.78;
+  transform: rotate(-8deg);
+}
+
+/* Tech: перспективная сетка и мягкое основание без яркой линии через объект. */
+.previewStage--tech {
+  background:
+    radial-gradient(circle at 50% 31%, rgba(34, 176, 255, 0.18), transparent 23%),
+    linear-gradient(180deg, #07101d 0%, #040914 52%, #02050b 100%);
+}
+
+.previewStage--tech .previewStageBackdrop::before {
+  left: -20%;
+  right: -20%;
+  top: 45%;
+  bottom: -38%;
+  background-image:
+    linear-gradient(rgba(70, 185, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(70, 185, 255, 0.16) 1px, transparent 1px);
+  background-size: 46px 46px;
+  transform: perspective(440px) rotateX(62deg);
+  transform-origin: center top;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 24%, #000 74%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 24%, #000 74%, transparent 100%);
+  opacity: 0.62;
+}
+
+.previewStage--tech .previewStageBackdrop::after {
+  left: 10%;
+  right: 10%;
+  top: 58%;
+  height: 22%;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(82, 203, 255, 0.17) 0%,
+      rgba(48, 119, 214, 0.08) 36%,
+      transparent 72%
+    );
+  filter: blur(18px);
+  opacity: 0.48;
+  transform: scaleX(1.08);
+  animation: previewTechPulse 6.2s ease-in-out infinite;
+}
+
+@keyframes previewSpaceDrift {
+  from {
+    transform: translate3d(-0.8%, -0.5%, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(0.8%, 0.5%, 0) scale(1.018);
+  }
+}
+
+@keyframes previewTechPulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleX(1.02) scaleY(0.92);
+  }
+
+  50% {
+    opacity: 0.56;
+    transform: scaleX(1.08) scaleY(1);
+  }
 }
 
 .controlPanel {
@@ -839,8 +981,14 @@ a {
 
   .miniPreviewPortalFrame,
   .miniPreviewPortalTrack,
-  .miniPreviewPortalMembrane {
+  .miniPreviewPortalMembrane,
+  .previewStage--space .previewStageBackdrop::before,
+  .previewStage--tech .previewStageBackdrop::after {
     animation: none;
+  }
+
+  .previewStage {
+    transition: none;
   }
 }
 
