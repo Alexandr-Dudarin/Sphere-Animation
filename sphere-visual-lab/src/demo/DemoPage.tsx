@@ -18,84 +18,24 @@ import {
 } from '../components/OrbitalVisual';
 import {
   orbitalObjectCatalog,
+  orbitalPresetNames,
   type OrbitalPresetCatalogItem,
   type OrbitalPreviewKind,
-  type PreviewPalette,
-} from './orbitalCatalog';
+} from '../components/OrbitalVisual/catalog';
+import {
+  spherePresetCatalog,
+  spherePresetNames,
+  type SpherePresetCatalogItem,
+} from '../components/SphereVisual/catalog';
+import type { PreviewPalette } from '../shared/catalog/visualCatalog.types';
 
 type PreviewKind = 'sphere' | OrbitalPreviewKind;
 
-interface PresetCard {
-  preset: SpherePresetName;
-  mode: SphereMode;
-  title: string;
-  text: string;
-  palette: PreviewPalette;
-}
 
 interface StaticPresetPreviewProps {
   kind: PreviewKind;
   palette: PreviewPalette;
 }
-
-const presetCards: PresetCard[] = [
-  {
-    preset: 'glass-petal',
-    mode: 'thinking',
-    title: 'glass-petal',
-    text: 'Наша текущая сильная baseline-версия: стеклянная оболочка, лепестковая структура и мягкий внутренний haze.',
-    palette: { core: '#f7fbff', glow: '#72ddff', accent: '#9b83ff' },
-  },
-  {
-    preset: 'thinking-blue',
-    mode: 'thinking',
-    title: 'thinking-blue',
-    text: 'Более собранный и холодный характер с ощущением концентрации и размышления.',
-    palette: { core: '#f4fbff', glow: '#66c8ff', accent: '#4078ff' },
-  },
-  {
-    preset: 'searching-violet',
-    mode: 'searching',
-    title: 'searching-violet',
-    text: 'Более активный и выразительный вариант, хорошо подходящий под поиск, AI и lab-настроение.',
-    palette: { core: '#fff7ff', glow: '#d477ff', accent: '#6b54ff' },
-  },
-  {
-    preset: 'calm-pearl',
-    mode: 'idle',
-    title: 'calm-pearl',
-    text: 'Спокойный премиальный пресет: мягкий, светлый и деликатный, почти luxury-настроение.',
-    palette: { core: '#ffffff', glow: '#d9ecff', accent: '#aab7d7' },
-  },
-  {
-    preset: 'neon-core',
-    mode: 'searching',
-    title: 'neon-core',
-    text: 'Яркий технологичный вариант с более контрастным свечением и выраженным AI/tech-характером.',
-    palette: { core: '#ffffff', glow: '#69f3ff', accent: '#d24cff' },
-  },
-  {
-    preset: 'bio-glow',
-    mode: 'thinking',
-    title: 'bio-glow',
-    text: 'Более органичный и биолюминесцентный вариант: живой, мягкий и мятно-лазурный.',
-    palette: { core: '#effff9', glow: '#6fffd2', accent: '#3ba9c9' },
-  },
-  {
-    preset: 'soft-ai',
-    mode: 'idle',
-    title: 'soft-ai',
-    text: 'Мягкий базовый AI-вариант: спокойный, светящийся, универсальный для нейтральных интерфейсов.',
-    palette: { core: '#ffffff', glow: '#9fdfff', accent: '#7e91ff' },
-  },
-  {
-    preset: 'prism-bloom',
-    mode: 'searching',
-    title: 'prism-bloom',
-    text: 'Более яркий и насыщенный вариант с усиленным внутренним glow и более спектральным характером.',
-    palette: { core: '#ffffff', glow: '#8cf5ff', accent: '#bd69ff' },
-  },
-];
 
 const STORAGE_KEYS = {
   spherePreset: 'sphere-visual-lab:sphere-preset',
@@ -103,15 +43,11 @@ const STORAGE_KEYS = {
   orbitalPreset: 'sphere-visual-lab:orbital-preset',
 } as const;
 
-const spherePresetNames = presetCards.map((card) => card.preset);
 const sphereModeNames: readonly SphereMode[] = [
   'idle',
   'thinking',
   'searching',
 ];
-const orbitalPresetNames = orbitalObjectCatalog.flatMap((object) =>
-  object.presets.map((item) => item.preset),
-);
 
 function readStoredValue<T extends string>(
   key: string,
@@ -322,7 +258,7 @@ export default function DemoPage() {
     persistValue(STORAGE_KEYS.orbitalPreset, orbitalPreset);
   }, [orbitalPreset]);
 
-  const openSpherePreset = (card: PresetCard) => {
+  const openSpherePreset = (card: SpherePresetCatalogItem) => {
     setPreset(card.preset);
     setMode(card.mode);
 
@@ -400,7 +336,7 @@ export default function DemoPage() {
         </section>
 
         <section className="miniGrid" aria-label="Пресеты сферы">
-          {presetCards.map((card) => {
+          {spherePresetCatalog.map((card) => {
             const isSelected = preset === card.preset;
 
             return (

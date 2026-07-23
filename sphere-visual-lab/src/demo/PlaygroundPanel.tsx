@@ -9,6 +9,7 @@ import {
   CustomSelect,
   type CustomSelectOption,
 } from '../shared/ui/CustomSelect';
+import { spherePresetOptions } from '../components/SphereVisual/catalog';
 
 interface PlaygroundPanelProps {
   size: number;
@@ -35,19 +36,6 @@ const modeOptions: readonly CustomSelectOption<SphereMode>[] = [
   { value: 'searching', label: 'searching — поиск' },
 ];
 
-const presetOptions: readonly CustomSelectOption<SpherePresetName>[] = [
-  { value: 'glass-petal', label: 'glass-petal — базовый petal' },
-  { value: 'thinking-blue', label: 'thinking-blue — синий thinking' },
-  {
-    value: 'searching-violet',
-    label: 'searching-violet — фиолетовый поиск',
-  },
-  { value: 'calm-pearl', label: 'calm-pearl — спокойный премиальный' },
-  { value: 'neon-core', label: 'neon-core — яркий tech' },
-  { value: 'bio-glow', label: 'bio-glow — биолюминесцентный' },
-  { value: 'soft-ai', label: 'soft-ai — мягкий AI' },
-  { value: 'prism-bloom', label: 'prism-bloom — яркий multicolor' },
-];
 
 const qualityOptions: readonly CustomSelectOption<SphereQuality>[] = [
   { value: 'low', label: 'low — низкое' },
@@ -137,7 +125,7 @@ export default function PlaygroundPanel({
         <CustomSelect<SpherePresetName>
           id="preset"
           value={preset}
-          options={presetOptions}
+          options={spherePresetOptions}
           onChange={onPresetChange}
         />
       </div>

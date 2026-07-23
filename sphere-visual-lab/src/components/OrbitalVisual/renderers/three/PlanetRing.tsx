@@ -1,44 +1,44 @@
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import type {
-  OrbitalPortalRingPresetConfig,
-  OrbitalQuality,
-} from '../../OrbitalVisual.types';
+import type { OrbitalPlanetDustPresetConfig } from '../../OrbitalVisual.types';
+import PlanetRingDust from './PlanetRingDust';
 
-interface PortalRingColors {
-  glow: THREE.Color;
-  accent: THREE.Color;
-  hot: THREE.Color;
-}
-
-interface PortalRingProps {
-  config: OrbitalPortalRingPresetConfig;
-  colors: PortalRingColors;
-  quality: OrbitalQuality;
+interface PlanetRingProps {
+  radius: number;
+  thickness: number;
+  ellipseX: number;
+  ellipseY: number;
+  tiltX: number;
+  tiltY: number;
+  tiltZ: number;
+  wobble: number;
+  seed: number;
+  baseColor: THREE.Color;
+  opacity: number;
+  flowSpeed: number;
+  shimmerSpeed: number;
+  offset: number;
   speed: number;
   glowFactor: number;
-  index: number;
+  splitDepthLayers?: boolean;
+  dust?: OrbitalPlanetDustPresetConfig;
 }
 
 const VERTEX_SHADER = `
   varying vec2 vUv;
-  varying vec3 vViewNormal;
-  varying vec3 vViewPosition;
-  varying float vWorldAngle;
+  varying float vViewZ;
+  varying float vCenterViewZ;
 
   void main() {
     vUv = uv;
 
-    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-    vec4 mvPosition = viewMatrix * worldPosition;
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    vec4 centerMvPosition =
+      modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
 
-    vViewPosition = mvPosition.xyz;
-    vViewNormal = normalize(normalMatrix * normal);
-    vWorldAngle =
-      atan(worldPosition.y, worldPosition.x) /
-      6.28318530718 +
-      0.5;
+    vViewZ = mvPosition.z;
+    vCenterViewZ = centerMvPosition.z;
 
     gl_Position = projectionMatrix * mvPosition;
   }
@@ -47,610 +47,763 @@ const VERTEX_SHADER = `
 const FRAGMENT_SHADER = `
   uniform float uTime;
   uniform float uOpacity;
-  uniform float uPhase;
-  uniform float uAccentMix;
-  uniform float uHotMix;
-  uniform float uRingRole;
+  uniform float uFlowSpeed;
+  uniform float uShimmerSpeed;
+  uniform float uOffset;
+  uniform float uDepthSide;
+  uniform float uDepthFeather;
   uniform vec3 uBaseColor;
-  uniform vec3 uAccentColor;
-  uniform vec3 uHotColor;
 
   varying vec2 vUv;
-  varying vec3 vViewNormal;
-  varying vec3 vViewPosition;
-  varying float vWorldAngle;
+  varying float vViewZ;
+  varying float vCenterViewZ;
 
-  float loopDistance(float a, float b) {
-    float distanceValue = abs(a - b);
-    return min(distanceValue, 1.0 - distanceValue);
+  float softBand(
+    float coordinate,
+    float center,
+    float width
+  ) {
+    float distanceFromCenter =
+      abs(coordinate - center);
+
+    return 1.0 - smoothstep(
+      width * 0.48,
+      width,
+      distanceFromCenter
+    );
   }
 
   void main() {
-    vec3 viewDirection = normalize(-vViewPosition);
-    vec3 normalValue = normalize(vViewNormal);
+    /*
+     * Кольцо по-прежнему делится на переднюю и заднюю части,
+     * чтобы оно действительно проходило вокруг планеты.
+     *
+     * Но вместо жёсткого discard на одной точной границе
+     * используется мягкая переходная зона.
+     */
+    float depthDelta =
+      vViewZ - vCenterViewZ;
 
-    float fresnel = pow(
-      1.0 -
-      abs(dot(normalValue, viewDirection)),
-      1.72
-    );
+    float frontBlend =
+      smoothstep(
+        -uDepthFeather,
+        uDepthFeather,
+        depthDelta
+      );
 
-    float faceLight = pow(
-      clamp(
-        dot(
-          normalValue,
-          normalize(vec3(-0.36, 0.58, 0.74))
-        ) * 0.5 + 0.5,
+    float backBlend =
+      1.0 - frontBlend;
+
+    float depthBlend = 1.0;
+
+    if (uDepthSide > 0.5) {
+      depthBlend = frontBlend;
+    } else if (uDepthSide < -0.5) {
+      depthBlend = backBlend;
+    }
+
+    if (depthBlend <= 0.001) {
+      discard;
+    }
+
+    float radial =
+      clamp(vUv.y, 0.0, 1.0);
+
+    float innerFeather =
+      smoothstep(
         0.0,
-        1.0
-      ),
-      1.34
-    );
+        0.075,
+        radial
+      );
 
-    float along = fract(
-      vWorldAngle +
-      uPhase -
-      uTime * (0.034 + uRingRole * 0.013)
-    );
-
-    float hotHead = exp(
-      -pow(
-        loopDistance(along, 0.19) / 0.038,
-        2.0
-      )
-    );
-
-    float warmTail = exp(
-      -pow(
-        loopDistance(along, 0.285) / 0.155,
-        2.0
-      )
-    ) * 0.24;
-
-    float crossSection =
-      abs(vUv.y - 0.5) * 2.0;
-
-    float tubeBand = pow(
-      max(1.0 - crossSection, 0.0),
-      0.42
-    );
-
-    float edgeBand =
+    float outerFeather =
       1.0 -
-      smoothstep(0.78, 1.0, crossSection);
+      smoothstep(
+        0.925,
+        1.0,
+        radial
+      );
 
-    float technicalScan =
+    float edgeMask =
+      innerFeather *
+      outerFeather;
+
+    /*
+     * Четыре широкие ледяные полосы.
+     */
+    float bandA =
+      softBand(
+        radial,
+        0.13,
+        0.15
+      );
+
+    float bandB =
+      softBand(
+        radial,
+        0.35,
+        0.2
+      );
+
+    float bandC =
+      softBand(
+        radial,
+        0.63,
+        0.22
+      );
+
+    float bandD =
+      softBand(
+        radial,
+        0.87,
+        0.14
+      );
+
+    float broadMass =
+      bandA * 0.74 +
+      bandB * 0.92 +
+      bandC * 1.0 +
+      bandD * 0.76;
+
+    /*
+     * Две тёмные щели между основными полосами.
+     */
+    float gapA =
+      softBand(
+        radial,
+        0.245,
+        0.055
+      );
+
+    float gapB =
+      softBand(
+        radial,
+        0.505,
+        0.07
+      );
+
+    float gapMask =
+      1.0 -
+      gapA * 0.74 -
+      gapB * 0.64;
+
+    float slowDrift =
       0.5 +
-      0.5 * sin(
-        vUv.x * 16.0 -
-        uTime * 0.36 +
-        vUv.y * 5.0 +
-        uPhase * 6.2831
-      );
+      0.5 *
+        sin(
+          vUv.x * 12.5664 -
+          uTime *
+            uFlowSpeed *
+            0.13 +
+          uOffset * 6.2831
+        );
 
-    float machinedBand =
+    float secondaryDrift =
       0.5 +
-      0.5 * sin(
-        vUv.x * 42.0 +
-        vUv.y * 8.0 +
-        uPhase * 11.0
-      );
+      0.5 *
+        sin(
+          vUv.x * 25.1327 -
+          uTime *
+            uShimmerSpeed *
+            0.045 +
+          radial * 4.6 +
+          uOffset * 9.0
+        );
 
-    float microBand =
+    float broadVariation =
       0.5 +
-      0.5 * sin(
-        vUv.y * 34.0 +
-        vUv.x * 5.0 +
-        uPhase * 9.0
-      );
+      0.5 *
+        sin(
+          radial * 17.0 +
+          vUv.x * 3.0 +
+          uOffset * 5.0
+        );
 
-    vec3 metalShadow = mix(
-      uAccentColor * 0.12,
-      uBaseColor * 0.09,
-      0.42
-    );
+    float fineDust =
+      0.5 +
+      0.5 *
+        sin(
+          radial * 74.0 -
+          vUv.x * 6.0 +
+          uOffset * 11.0
+        );
 
-    vec3 metalBody = mix(
-      uAccentColor *
-        (0.36 + uAccentMix * 0.12),
-      uBaseColor *
-        (0.42 + uRingRole * 0.08),
-      0.34
-    );
+    /*
+     * Небольшая общая дымка связывает полосы
+     * и убирает ощущение набора проводов.
+     */
+    float baseHaze =
+      edgeMask * 0.08;
 
-    float metalLight = clamp(
-      0.16 +
-      faceLight * 0.48 +
-      fresnel * 0.44 +
-      technicalScan * 0.06 +
-      machinedBand * 0.025,
-      0.0,
-      1.0
-    );
-
-    vec3 color = mix(
-      metalShadow,
-      metalBody,
-      metalLight
-    );
-
-    color +=
-      uBaseColor *
-      (
-        fresnel *
-          (0.09 + uRingRole * 0.025) +
-        microBand * 0.018
-      );
-
-    float hotAmount = clamp(
-      (
-        hotHead * 0.72 +
-        warmTail * 0.3
-      ) *
-      uHotMix +
-      fresnel *
-        (0.035 + uRingRole * 0.018),
-      0.0,
-      0.78
-    );
-
-    color = mix(
-      color,
-      uHotColor,
-      hotAmount
-    );
-
-    float alpha =
-      uOpacity *
-      tubeBand *
-      edgeBand *
+    float structure =
+      baseHaze +
+      broadMass *
+      gapMask *
       (
         0.78 +
-        fresnel * 0.19 +
-        faceLight * 0.08 +
-        hotHead * 0.08
+        broadVariation * 0.15 +
+        fineDust * 0.07
       );
 
-    gl_FragColor = vec4(color, alpha);
+    vec3 deepColor =
+      uBaseColor * 0.42;
+
+    vec3 middleColor =
+      uBaseColor * 0.76 +
+      vec3(
+        0.0,
+        0.018,
+        0.055
+      );
+
+    vec3 lightColor =
+      uBaseColor * 1.08 +
+      vec3(
+        0.015,
+        0.07,
+        0.13
+      );
+
+    vec3 color =
+      mix(
+        deepColor,
+        middleColor,
+        smoothstep(
+          0.16,
+          0.56,
+          structure
+        )
+      );
+
+    color =
+      mix(
+        color,
+        lightColor,
+        smoothstep(
+          0.55,
+          0.92,
+          structure
+        ) *
+        0.72
+      );
+
+    color *=
+      0.9 +
+      slowDrift * 0.075 +
+      secondaryDrift * 0.03;
+
+    /*
+     * Передняя и задняя части используют одинаковый цвет.
+     * Разница между ними теперь создаётся только глубиной,
+     * а не резким скачком яркости.
+     */
+    float alpha =
+      uOpacity *
+      edgeMask *
+      structure *
+      (
+        0.66 +
+        slowDrift * 0.1 +
+        secondaryDrift * 0.035
+      ) *
+      depthBlend;
+
+    gl_FragColor =
+      vec4(
+        color,
+        alpha
+      );
   }
 `;
 
-function getTorusDetail(quality: OrbitalQuality) {
-  switch (quality) {
-    case 'low':
-      return {
-        radialSegments: 6,
-        tubularSegments: 26,
-      };
-    case 'high':
-      return {
-        radialSegments: 14,
-        tubularSegments: 88,
-      };
-    default:
-      return {
-        radialSegments: 9,
-        tubularSegments: 54,
-      };
-  }
-}
+function createPlanetRingGeometry(
+  radius: number,
+  thickness: number,
+  ellipseX: number,
+  ellipseY: number,
+  wobble: number,
+  seed: number,
+) {
+  const angularSegments = 256;
+  const radialSegments = 24;
 
-export default function PortalRing({
-  config,
-  colors,
-  quality,
-  speed,
-  glowFactor,
-  index,
-}: PortalRingProps) {
-  const ringRef = useRef<THREE.Group>(null);
-
-  const segmentCount = Math.max(
-    3,
-    Math.round(config.segments),
+  const ringWidth = Math.max(
+    thickness * 8.4,
+    radius * 0.112,
   );
 
-  const segmentStep =
-    (Math.PI * 2) / segmentCount;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
 
-  const segmentArc =
-    segmentStep *
-    THREE.MathUtils.clamp(
-      1 - config.gapRatio,
-      0.5,
-      0.997,
-    );
+  for (
+    let radialIndex = 0;
+    radialIndex <= radialSegments;
+    radialIndex += 1
+  ) {
+    const radialProgress =
+      radialIndex / radialSegments;
 
-  const detail = getTorusDetail(quality);
+    const radialOffset =
+      radialProgress - 0.5;
+
+    const localRadius =
+      radius +
+      radialOffset * ringWidth;
+
+    for (
+      let angularIndex = 0;
+      angularIndex <= angularSegments;
+      angularIndex += 1
+    ) {
+      const angularProgress =
+        angularIndex / angularSegments;
+
+      const angle =
+        angularProgress *
+        Math.PI *
+        2;
+
+      const localWobble =
+        Math.sin(
+          angle * 3 +
+          seed * 0.73 +
+          radialProgress * Math.PI,
+        ) *
+        wobble *
+        0.4;
+
+      positions.push(
+        Math.cos(angle) *
+          localRadius *
+          ellipseX,
+        Math.sin(angle) *
+          localRadius *
+          ellipseY,
+        localWobble,
+      );
+
+      uvs.push(
+        angularProgress,
+        radialProgress,
+      );
+    }
+  }
+
+  const rowLength =
+    angularSegments + 1;
+
+  for (
+    let radialIndex = 0;
+    radialIndex < radialSegments;
+    radialIndex += 1
+  ) {
+    for (
+      let angularIndex = 0;
+      angularIndex < angularSegments;
+      angularIndex += 1
+    ) {
+      const a =
+        radialIndex *
+          rowLength +
+        angularIndex;
+
+      const b =
+        a + rowLength;
+
+      const c =
+        b + 1;
+
+      const d =
+        a + 1;
+
+      indices.push(a, b, d);
+      indices.push(b, c, d);
+    }
+  }
+
+  const geometry =
+    new THREE.BufferGeometry();
+
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(
+      positions,
+      3,
+    ),
+  );
+
+  geometry.setAttribute(
+    'uv',
+    new THREE.Float32BufferAttribute(
+      uvs,
+      2,
+    ),
+  );
+
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+
+  return geometry;
+}
+
+function createUniforms(
+  opacity: number,
+  glowFactor: number,
+  flowSpeed: number,
+  shimmerSpeed: number,
+  offset: number,
+  baseColor: THREE.Color,
+  depthSide: number,
+  depthFeather: number,
+) {
+  return {
+    uTime: {
+      value: 0,
+    },
+    uOpacity: {
+      value:
+        opacity *
+        glowFactor,
+    },
+    uFlowSpeed: {
+      value:
+        flowSpeed,
+    },
+    uShimmerSpeed: {
+      value:
+        shimmerSpeed,
+    },
+    uOffset: {
+      value:
+        offset,
+    },
+    uDepthSide: {
+      value:
+        depthSide,
+    },
+    uDepthFeather: {
+      value:
+        depthFeather,
+    },
+    uBaseColor: {
+      value:
+        baseColor.clone(),
+    },
+  };
+}
+
+function createMaterial(
+  uniforms: ReturnType<
+    typeof createUniforms
+  >,
+  depthTest: boolean,
+  name: string,
+) {
+  const material =
+    new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader:
+        VERTEX_SHADER,
+      fragmentShader:
+        FRAGMENT_SHADER,
+      transparent: true,
+      depthWrite: false,
+      depthTest,
+      side:
+        THREE.DoubleSide,
+      blending:
+        THREE.NormalBlending,
+    });
+
+  material.name = name;
+  material.toneMapped = false;
+
+  return material;
+}
+
+export default function PlanetRing({
+  radius,
+  thickness,
+  ellipseX,
+  ellipseY,
+  tiltX,
+  tiltY,
+  tiltZ,
+  wobble,
+  seed,
+  baseColor,
+  opacity,
+  flowSpeed,
+  shimmerSpeed,
+  offset,
+  speed,
+  glowFactor,
+  splitDepthLayers = true,
+  dust,
+}: PlanetRingProps) {
+  const groupRef =
+    useRef<THREE.Group>(null);
 
   const geometry = useMemo(
     () =>
-      new THREE.TorusGeometry(
-        config.radius,
-        config.thickness,
-        detail.radialSegments,
-        detail.tubularSegments,
-        segmentArc,
+      createPlanetRingGeometry(
+        radius,
+        thickness,
+        ellipseX,
+        ellipseY,
+        wobble,
+        seed,
       ),
     [
-      config.radius,
-      config.thickness,
-      detail.radialSegments,
-      detail.tubularSegments,
-      segmentArc,
+      radius,
+      thickness,
+      ellipseX,
+      ellipseY,
+      wobble,
+      seed,
     ],
   );
 
-  const railGeometry = useMemo(
+  const depthFeather = useMemo(
     () =>
-      new THREE.TorusGeometry(
-        config.radius,
-        Math.max(
-          config.thickness * 0.16,
-          0.0045,
-        ),
-        Math.max(
-          detail.radialSegments - 2,
-          4,
-        ),
-        detail.tubularSegments,
-        segmentArc * 0.7,
+      Math.max(
+        thickness * 1.6,
+        radius * 0.035,
       ),
     [
-      config.radius,
-      config.thickness,
-      detail.radialSegments,
-      detail.tubularSegments,
-      segmentArc,
+      thickness,
+      radius,
     ],
   );
 
-  const ringRole = THREE.MathUtils.clamp(
-    index / 2,
-    0,
-    1,
-  );
-
-  const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uOpacity: {
-        value:
-          config.opacity *
-          glowFactor,
-      },
-      uPhase: { value: config.phase },
-      uAccentMix: {
-        value: config.accentMix,
-      },
-      uHotMix: { value: config.hotMix },
-      uRingRole: { value: ringRole },
-      uBaseColor: {
-        value: colors.glow.clone(),
-      },
-      uAccentColor: {
-        value: colors.accent.clone(),
-      },
-      uHotColor: {
-        value: colors.hot.clone(),
-      },
-    }),
+  const fullUniforms = useMemo(
+    () =>
+      createUniforms(
+        opacity,
+        glowFactor,
+        flowSpeed,
+        shimmerSpeed,
+        offset,
+        baseColor,
+        0,
+        depthFeather,
+      ),
     [
-      colors,
-      config.accentMix,
-      config.hotMix,
-      config.opacity,
-      config.phase,
+      opacity,
       glowFactor,
-      ringRole,
+      flowSpeed,
+      shimmerSpeed,
+      offset,
+      baseColor,
+      depthFeather,
     ],
   );
 
-  const material = useMemo(() => {
-    const nextMaterial =
-      new THREE.ShaderMaterial({
-        uniforms,
-        vertexShader: VERTEX_SHADER,
-        fragmentShader: FRAGMENT_SHADER,
-        transparent: true,
-        depthTest: true,
-        depthWrite: true,
-        side: THREE.DoubleSide,
-        blending: THREE.NormalBlending,
-      });
-
-    nextMaterial.name =
-      `PortalRingMaterial-${index}`;
-    nextMaterial.toneMapped = false;
-
-    return nextMaterial;
-  }, [index, uniforms]);
-
-  const railColor = useMemo(
+  const frontUniforms = useMemo(
     () =>
-      colors.glow
-        .clone()
-        .lerp(colors.hot, 0.34),
-    [colors.glow, colors.hot],
-  );
-
-  const markerColor = useMemo(
-    () =>
-      colors.hot
-        .clone()
-        .lerp(
-          colors.glow,
-          0.22 + ringRole * 0.16,
-        ),
+      createUniforms(
+        opacity,
+        glowFactor,
+        flowSpeed,
+        shimmerSpeed,
+        offset,
+        baseColor,
+        1,
+        depthFeather,
+      ),
     [
-      colors.hot,
-      colors.glow,
-      ringRole,
+      opacity,
+      glowFactor,
+      flowSpeed,
+      shimmerSpeed,
+      offset,
+      baseColor,
+      depthFeather,
     ],
   );
 
-  const markerBaseColor = useMemo(
+  const backUniforms = useMemo(
     () =>
-      colors.accent
-        .clone()
-        .multiplyScalar(0.18),
-    [colors.accent],
+      createUniforms(
+        opacity,
+        glowFactor,
+        flowSpeed,
+        shimmerSpeed,
+        offset,
+        baseColor,
+        -1,
+        depthFeather,
+      ),
+    [
+      opacity,
+      glowFactor,
+      flowSpeed,
+      shimmerSpeed,
+      offset,
+      baseColor,
+      depthFeather,
+    ],
   );
 
-  const railMaterial = useMemo(() => {
-    const nextMaterial =
-      new THREE.MeshBasicMaterial({
-        color: railColor,
-        transparent: true,
-        opacity:
-          config.opacity *
-          glowFactor *
-          (0.16 + ringRole * 0.035),
-        blending: THREE.AdditiveBlending,
-        depthTest: true,
-        depthWrite: false,
-        side: THREE.DoubleSide,
-        toneMapped: false,
-      });
+  const fullMaterial = useMemo(
+    () =>
+      createMaterial(
+        fullUniforms,
+        true,
+        'PlanetRingFullMaterial',
+      ),
+    [
+      fullUniforms,
+      VERTEX_SHADER,
+      FRAGMENT_SHADER,
+    ],
+  );
 
-    nextMaterial.name =
-      `PortalRingRailMaterial-${index}`;
+  const frontMaterial = useMemo(
+    () =>
+      createMaterial(
+        frontUniforms,
+        false,
+        'PlanetRingFrontMaterial',
+      ),
+    [
+      frontUniforms,
+      VERTEX_SHADER,
+      FRAGMENT_SHADER,
+    ],
+  );
 
-    return nextMaterial;
-  }, [
-    config.opacity,
-    glowFactor,
-    index,
-    railColor,
-    ringRole,
-  ]);
+  const backMaterial = useMemo(
+    () =>
+      createMaterial(
+        backUniforms,
+        true,
+        'PlanetRingBackMaterial',
+      ),
+    [
+      backUniforms,
+      VERTEX_SHADER,
+      FRAGMENT_SHADER,
+    ],
+  );
 
   useEffect(() => {
     return () => {
       geometry.dispose();
-      railGeometry.dispose();
-      material.dispose();
-      railMaterial.dispose();
     };
-  }, [
-    geometry,
-    material,
-    railGeometry,
-    railMaterial,
-  ]);
+  }, [geometry]);
+
+  useEffect(() => {
+    return () => {
+      fullMaterial.dispose();
+    };
+  }, [fullMaterial]);
+
+  useEffect(() => {
+    return () => {
+      frontMaterial.dispose();
+    };
+  }, [frontMaterial]);
+
+  useEffect(() => {
+    return () => {
+      backMaterial.dispose();
+    };
+  }, [backMaterial]);
 
   useFrame((state) => {
     const elapsed =
       state.clock.getElapsedTime();
-    const safeSpeed = Math.max(speed, 0.2);
 
-    if (ringRef.current) {
-      ringRef.current.position.z =
-        config.depthOffset;
+    const safeSpeed =
+      Math.max(speed, 0.2);
 
-      ringRef.current.rotation.set(
-        config.tiltX,
-        config.tiltY,
-        config.tiltZ +
-          elapsed *
-            config.spinSpeed *
-            config.direction *
-            safeSpeed +
-          config.phase,
+    if (groupRef.current) {
+      groupRef.current.rotation.set(
+        tiltX,
+        tiltY,
+        tiltZ,
+      );
+
+      groupRef.current.scale.setScalar(
+        1,
       );
     }
 
-    material.uniforms.uTime.value =
+    const shaderTime =
       elapsed * safeSpeed;
 
-    material.uniforms.uOpacity.value =
-      config.opacity *
-      glowFactor *
-      (
-        0.99 +
-        Math.sin(
-          elapsed * 0.34 +
-          index * 1.37,
-        ) *
-          0.012
-      );
+    fullMaterial.uniforms.uTime.value =
+      shaderTime;
 
-    railMaterial.opacity =
-      config.opacity *
-      glowFactor *
-      (
-        0.13 +
-        ringRole * 0.035 +
-        (
-          0.5 +
-          0.5 *
-            Math.sin(
-              elapsed *
-                (0.82 +
-                  ringRole * 0.16) *
-                safeSpeed +
-              config.phase * 8.0,
-            )
-        ) *
-          0.08
-      );
+    frontMaterial.uniforms.uTime.value =
+      shaderTime;
+
+    backMaterial.uniforms.uTime.value =
+      shaderTime;
   });
 
-  const markerEvery = Math.max(
-    1,
-    Math.round(config.markerEvery),
-  );
-
-  const markerOpacity =
-    (0.46 - ringRole * 0.12) *
-    config.opacity *
-    glowFactor;
-
   return (
-    <group ref={ringRef}>
-      {Array.from(
-        { length: segmentCount },
-        (_, segmentIndex) => {
-          const segmentAngle =
-            segmentIndex * segmentStep;
+    <group ref={groupRef}>
+      {!splitDepthLayers ? (
+        <mesh
+          geometry={geometry}
+          renderOrder={6}
+        >
+          <primitive
+            key={fullMaterial.uuid}
+            object={fullMaterial}
+            attach="material"
+          />
+        </mesh>
+      ) : (
+        <>
+          <mesh
+            geometry={geometry}
+            renderOrder={6}
+          >
+            <primitive
+              key={backMaterial.uuid}
+              object={backMaterial}
+              attach="material"
+            />
+          </mesh>
 
-          const showMarker =
-            segmentIndex % markerEvery === 0;
-
-          const markerAngle =
-            segmentAngle +
-            segmentArc * 0.93;
-
-          const railAngle =
-            segmentAngle +
-            segmentArc * 0.15;
-
-          return (
-            <group
-              key={`${index}-portal-segment-${segmentIndex}`}
-            >
-              <mesh
-                geometry={geometry}
-                rotation={[
-                  0,
-                  0,
-                  segmentAngle,
-                ]}
-              >
-                <primitive
-                  object={material}
-                  attach="material"
-                />
-              </mesh>
-
-              {showMarker ? (
-                <>
-                  <mesh
-                    geometry={railGeometry}
-                    rotation={[
-                      0,
-                      0,
-                      railAngle,
-                    ]}
-                    position={[
-                      0,
-                      0,
-                      config.thickness *
-                        0.44,
-                    ]}
-                    renderOrder={19}
-                  >
-                    <primitive
-                      object={railMaterial}
-                      attach="material"
-                    />
-                  </mesh>
-
-                  <mesh
-                    position={[
-                      Math.cos(markerAngle) *
-                        config.radius,
-                      Math.sin(markerAngle) *
-                        config.radius,
-                      config.thickness *
-                        0.66,
-                    ]}
-                    rotation={[
-                      0,
-                      0,
-                      markerAngle,
-                    ]}
-                    renderOrder={19}
-                  >
-                    <boxGeometry
-                      args={[
-                        config.thickness *
-                          0.66,
-                        config.thickness *
-                          (1.62 -
-                            ringRole * 0.2),
-                        config.thickness *
-                          0.34,
-                      ]}
-                    />
-
-                    <meshBasicMaterial
-                      color={markerBaseColor}
-                      transparent
-                      opacity={
-                        0.82 *
-                        config.opacity
-                      }
-                      toneMapped={false}
-                      depthWrite
-                    />
-                  </mesh>
-
-                  <mesh
-                    position={[
-                      Math.cos(markerAngle) *
-                        config.radius,
-                      Math.sin(markerAngle) *
-                        config.radius,
-                      config.thickness *
-                        0.9,
-                    ]}
-                    rotation={[
-                      0,
-                      0,
-                      markerAngle,
-                    ]}
-                    renderOrder={20}
-                  >
-                    <boxGeometry
-                      args={[
-                        config.thickness *
-                          0.28,
-                        config.thickness *
-                          (0.96 -
-                            ringRole * 0.12),
-                        config.thickness *
-                          0.12,
-                      ]}
-                    />
-
-                    <meshBasicMaterial
-                      color={markerColor}
-                      transparent
-                      opacity={markerOpacity}
-                      toneMapped={false}
-                      depthWrite={false}
-                      blending={
-                        THREE.AdditiveBlending
-                      }
-                    />
-                  </mesh>
-                </>
-              ) : null}
-            </group>
-          );
-        },
+          <mesh
+            geometry={geometry}
+            renderOrder={18}
+          >
+            <primitive
+              key={frontMaterial.uuid}
+              object={frontMaterial}
+              attach="material"
+            />
+          </mesh>
+        </>
       )}
+
+      {dust?.enabled ? (
+        <PlanetRingDust
+          radius={radius}
+          thickness={thickness}
+          ellipseX={ellipseX}
+          ellipseY={ellipseY}
+          wobble={wobble}
+          seed={seed}
+          baseColor={baseColor}
+          opacity={opacity}
+          speed={speed}
+          glowFactor={glowFactor}
+          density={dust.density}
+          size={dust.size}
+          brightness={dust.brightness}
+          motion={dust.motion}
+          tintRgb={dust.tintRgb}
+          splitDepthLayers={splitDepthLayers}
+        />
+      ) : null}
     </group>
   );
 }

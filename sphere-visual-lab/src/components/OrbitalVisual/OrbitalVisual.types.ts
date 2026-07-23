@@ -1,22 +1,6 @@
-export type OrbitalPresetName =
-  | 'atomic-orb'
-  | 'atomic-orb-no-electrons'
-  | 'atomic-orb-more-electrons'
-  | 'atomic-orb-white'
-  | 'atomic-orb-violet'
-  | 'ring-planet'
-  | 'ring-planet-stardust'
-  | 'ring-planet-sand'
-  | 'ring-planet-sand-stardust'
-  | 'ring-planet-ice'
-  | 'ring-planet-eclipse'
-  | 'gyro-core'
-  | 'gyro-core-precision'
-  | 'gyro-core-reactor'
-  | 'gyro-core-amber'
-  | 'portal-gate'
-  | 'portal-gate-violet'
-  | 'portal-gate-ember';
+import type { OrbitalPresetName } from './catalog/orbitalCatalog';
+
+export type { OrbitalPresetName } from './catalog/orbitalCatalog';
 
 export type OrbitalQuality = 'low' | 'medium' | 'high';
 export type OrbitalGlowIntensity = 'low' | 'medium' | 'high';

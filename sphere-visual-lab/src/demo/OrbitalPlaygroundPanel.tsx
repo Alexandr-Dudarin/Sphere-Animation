@@ -14,7 +14,7 @@ import {
   getOrbitalPresetOptions,
   orbitalObjectOptions,
   type OrbitalObjectId,
-} from './orbitalCatalog';
+} from '../components/OrbitalVisual/catalog';
 
 interface OrbitalPlaygroundPanelProps {
   size: number;

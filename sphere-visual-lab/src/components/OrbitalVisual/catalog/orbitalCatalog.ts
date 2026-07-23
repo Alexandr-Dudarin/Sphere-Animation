@@ -1,21 +1,12 @@
-import type { OrbitalPresetName } from '../components/OrbitalVisual';
-import type { CustomSelectOption } from '../shared/ui/CustomSelect';
+import type {
+  PreviewPalette,
+  VisualCatalogOption,
+} from '../../../shared/catalog/visualCatalog.types';
 
-export type OrbitalObjectId =
-  | 'atomic-orb'
-  | 'ring-planet'
-  | 'gyro-core'
-  | 'portal-gate';
 export type OrbitalPreviewKind = 'atom' | 'planet' | 'gyro' | 'portal';
 
-export interface PreviewPalette {
-  core: string;
-  glow: string;
-  accent: string;
-}
-
-export interface OrbitalPresetCatalogItem {
-  preset: OrbitalPresetName;
+interface OrbitalPresetCatalogShape {
+  preset: string;
   title: string;
   selectLabel: string;
   text: string;
@@ -23,17 +14,17 @@ export interface OrbitalPresetCatalogItem {
   palette: PreviewPalette;
 }
 
-export interface OrbitalObjectCatalogItem {
-  id: OrbitalObjectId;
+interface OrbitalObjectCatalogShape {
+  id: string;
   title: string;
   selectLabel: string;
   eyebrow: string;
   description: string;
-  defaultPreset: OrbitalPresetName;
-  presets: readonly OrbitalPresetCatalogItem[];
+  defaultPreset: string;
+  presets: readonly OrbitalPresetCatalogShape[];
 }
 
-const atomicPresets: readonly OrbitalPresetCatalogItem[] = [
+const atomicPresets = [
   {
     preset: 'atomic-orb',
     title: 'atomic-orb',
@@ -74,9 +65,9 @@ const atomicPresets: readonly OrbitalPresetCatalogItem[] = [
     previewKind: 'atom',
     palette: { core: '#fff8ff', glow: '#e092ff', accent: '#725dff' },
   },
-];
+] as const satisfies readonly OrbitalPresetCatalogShape[];
 
-const planetPresets: readonly OrbitalPresetCatalogItem[] = [
+const planetPresets = [
   {
     preset: 'ring-planet',
     title: 'ring-planet',
@@ -125,9 +116,9 @@ const planetPresets: readonly OrbitalPresetCatalogItem[] = [
     previewKind: 'planet',
     palette: { core: '#8b3a1d', glow: '#f1722d', accent: '#32150f' },
   },
-];
+] as const satisfies readonly OrbitalPresetCatalogShape[];
 
-const gyroPresets: readonly OrbitalPresetCatalogItem[] = [
+const gyroPresets = [
   {
     preset: 'gyro-core',
     title: 'gyro-core',
@@ -160,9 +151,9 @@ const gyroPresets: readonly OrbitalPresetCatalogItem[] = [
     previewKind: 'gyro',
     palette: { core: '#ffe1ad', glow: '#f4a348', accent: '#75472b' },
   },
-];
+] as const satisfies readonly OrbitalPresetCatalogShape[];
 
-const portalPresets: readonly OrbitalPresetCatalogItem[] = [
+const portalPresets = [
   {
     preset: 'portal-gate',
     title: 'portal-gate',
@@ -187,15 +178,16 @@ const portalPresets: readonly OrbitalPresetCatalogItem[] = [
     previewKind: 'portal',
     palette: { core: '#fff0c2', glow: '#ff9234', accent: '#8e3020' },
   },
-];
+] as const satisfies readonly OrbitalPresetCatalogShape[];
 
-export const orbitalObjectCatalog: readonly OrbitalObjectCatalogItem[] = [
+export const orbitalObjectCatalog = [
   {
     id: 'atomic-orb',
     title: 'Atomic Orb',
     selectLabel: 'atomic-orb — атомные системы',
     eyebrow: 'Orbital family 01',
-    description: 'Светящиеся атомные системы с энергетическими орбитами, ядром и настраиваемыми электронами.',
+    description:
+      'Светящиеся атомные системы с энергетическими орбитами, ядром и настраиваемыми электронами.',
     defaultPreset: 'atomic-orb',
     presets: atomicPresets,
   },
@@ -204,7 +196,8 @@ export const orbitalObjectCatalog: readonly OrbitalObjectCatalogItem[] = [
     title: 'Ring Planet',
     selectLabel: 'ring-planet — кольцевые планеты',
     eyebrow: 'Orbital family 02',
-    description: 'Кольцевые планеты с отдельным планетарным ядром, слоями колец и декоративной звёздной пылью.',
+    description:
+      'Кольцевые планеты с отдельным планетарным ядром, слоями колец и декоративной звёздной пылью.',
     defaultPreset: 'ring-planet',
     presets: planetPresets,
   },
@@ -213,7 +206,8 @@ export const orbitalObjectCatalog: readonly OrbitalObjectCatalogItem[] = [
     title: 'Gyro Core',
     selectLabel: 'gyro-core — механические ядра',
     eyebrow: 'Orbital family 03',
-    description: 'Механические ядра с сегментированными кольцами, световыми дорожками и независимой пространственной хореографией.',
+    description:
+      'Механические ядра с сегментированными кольцами, световыми дорожками и независимой пространственной хореографией.',
     defaultPreset: 'gyro-core',
     presets: gyroPresets,
   },
@@ -222,13 +216,29 @@ export const orbitalObjectCatalog: readonly OrbitalObjectCatalogItem[] = [
     title: 'Portal Gate',
     selectLabel: 'portal-gate — энергетические порталы',
     eyebrow: 'Orbital family 04',
-    description: 'Энергетические порталы с объёмной сегментированной рамой, независимыми кольцами и процедурной мембраной.',
+    description:
+      'Энергетические порталы с объёмной сегментированной рамой, независимыми кольцами и процедурной мембраной.',
     defaultPreset: 'portal-gate',
     presets: portalPresets,
   },
-];
+] as const satisfies readonly OrbitalObjectCatalogShape[];
 
-export const orbitalObjectOptions: readonly CustomSelectOption<OrbitalObjectId>[] =
+export type OrbitalObjectCatalogItem =
+  (typeof orbitalObjectCatalog)[number];
+
+export type OrbitalPresetCatalogItem =
+  OrbitalObjectCatalogItem['presets'][number];
+
+export type OrbitalObjectId = OrbitalObjectCatalogItem['id'];
+
+export type OrbitalPresetName = OrbitalPresetCatalogItem['preset'];
+
+export const orbitalPresetNames: readonly OrbitalPresetName[] =
+  orbitalObjectCatalog.flatMap((object) =>
+    object.presets.map((item) => item.preset),
+  );
+
+export const orbitalObjectOptions: readonly VisualCatalogOption<OrbitalObjectId>[] =
   orbitalObjectCatalog.map((object) => ({
     value: object.id,
     label: object.selectLabel,
@@ -253,7 +263,7 @@ export function getOrbitalObjectIdForPreset(
 
 export function getOrbitalPresetOptions(
   objectId: OrbitalObjectId,
-): readonly CustomSelectOption<OrbitalPresetName>[] {
+): readonly VisualCatalogOption<OrbitalPresetName>[] {
   return getOrbitalObjectById(objectId).presets.map((item) => ({
     value: item.preset,
     label: item.selectLabel,
