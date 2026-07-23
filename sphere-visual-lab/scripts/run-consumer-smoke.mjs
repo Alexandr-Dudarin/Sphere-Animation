@@ -3,16 +3,47 @@ import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
 
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCommand = 'npm';
 const projectRoot = process.cwd();
 const rootPackagePath = resolve(projectRoot, 'package.json');
 
+function quoteWindowsArgument(value) {
+  if (!/[\s"&|<>^()%!]/.test(value)) {
+    return value;
+  }
+
+  return `"${value.replaceAll('"', '""')}"`;
+}
+
 function run(command, args, cwd, options = {}) {
   console.log(`\n> ${command} ${args.join(' ')}`);
+
+  const stdio = options.capture
+    ? ['ignore', 'pipe', 'inherit']
+    : 'inherit';
+  const encoding = options.capture ? 'utf8' : undefined;
+
+  if (process.platform === 'win32') {
+    const commandLine = [command, ...args]
+      .map(quoteWindowsArgument)
+      .join(' ');
+
+    return execFileSync(
+      process.env.ComSpec || 'cmd.exe',
+      ['/d', '/s', '/c', commandLine],
+      {
+        cwd,
+        stdio,
+        encoding,
+        windowsHide: true,
+      },
+    );
+  }
+
   return execFileSync(command, args, {
     cwd,
-    stdio: options.capture ? ['ignore', 'pipe', 'inherit'] : 'inherit',
-    encoding: options.capture ? 'utf8' : undefined,
+    stdio,
+    encoding,
   });
 }
 
