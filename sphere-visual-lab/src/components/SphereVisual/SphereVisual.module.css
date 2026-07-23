@@ -26,3 +26,16 @@
   place-items: center;
   overflow: visible;
 }
+.root,
+.stage {
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.stage > canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}

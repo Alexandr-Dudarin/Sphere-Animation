@@ -32,6 +32,10 @@ import {
   demoStageBackgroundNames,
   type DemoStageBackground,
 } from './demoBackgrounds';
+import {
+  useStageAvailableSize,
+  useStageBoundVisualSize,
+} from './useStageBoundVisualSize';
 
 type PreviewKind = 'sphere' | OrbitalPreviewKind;
 
@@ -163,6 +167,8 @@ function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
 export default function DemoPage() {
   const sphereSectionRef = useRef<HTMLElement>(null);
   const orbitalSectionRef = useRef<HTMLElement>(null);
+  const sphereStageRef = useRef<HTMLDivElement>(null);
+  const orbitalStageRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<number | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
 
@@ -220,6 +226,13 @@ export default function DemoPage() {
         'space',
       ),
     );
+
+  const sphereCanvasSize = useStageAvailableSize(sphereStageRef, size);
+  const renderedSphereSize = Math.min(size, sphereCanvasSize);
+  const renderedOrbitalSize = useStageBoundVisualSize(
+    orbitalSize,
+    orbitalStageRef,
+  );
 
   useEffect(() => {
     persistValue(STORAGE_KEYS.spherePreset, preset);
@@ -319,15 +332,18 @@ export default function DemoPage() {
         <section ref={sphereSectionRef} className="demoLayout demoAnchor">
           <div className="panel previewPanel">
             <div
+              ref={sphereStageRef}
               className={`previewStage previewStage--${sphereStageBackground}`}
               data-stage-background={sphereStageBackground}
+              data-rendered-size={renderedSphereSize}
+              data-canvas-size={sphereCanvasSize}
             >
               <span className="previewStageBackdrop" aria-hidden="true" />
               <SphereVisual
                 renderer="three"
-                width="100%"
-                height="100%"
-                size={size}
+                width={sphereCanvasSize}
+                height={sphereCanvasSize}
+                size={renderedSphereSize}
                 mode={mode}
                 preset={preset}
                 quality={quality}
@@ -409,14 +425,16 @@ export default function DemoPage() {
         <section ref={orbitalSectionRef} className="demoLayout demoAnchor">
           <div className="panel previewPanel">
             <div
+              ref={orbitalStageRef}
               className={`previewStage previewStage--${orbitalStageBackground}`}
               data-stage-background={orbitalStageBackground}
+              data-rendered-size={renderedOrbitalSize}
             >
               <span className="previewStageBackdrop" aria-hidden="true" />
               <OrbitalVisual
                 width="100%"
                 height="100%"
-                size={orbitalSize}
+                size={renderedOrbitalSize}
                 preset={orbitalPreset}
                 quality={orbitalQuality}
                 glowIntensity={orbitalGlowIntensity}
