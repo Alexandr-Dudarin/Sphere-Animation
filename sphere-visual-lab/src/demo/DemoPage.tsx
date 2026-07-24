@@ -340,6 +340,7 @@ export default function DemoPage() {
             >
               <span className="previewStageBackdrop" aria-hidden="true" />
               <SphereVisual
+                key={`sphere-canvas-${sphereCanvasSize}`}
                 renderer="three"
                 width={sphereCanvasSize}
                 height={sphereCanvasSize}
