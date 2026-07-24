@@ -25,3 +25,8 @@ dist-ssr
 
 dist-lib/
 *.tgz
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
