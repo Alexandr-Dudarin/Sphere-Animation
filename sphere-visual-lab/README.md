@@ -1,73 +1,165 @@
-# React + TypeScript + Vite
+# Sphere Visual Lab
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Переиспользуемая библиотека анимированных визуальных объектов на React и Three.js с отдельной интерактивной витриной.
 
-Currently, two official plugins are available:
+Проект состоит из двух визуальных систем:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **SphereVisual** — стеклянная светящаяся сфера с лепестковой структурой и несколькими пресетами.
+- **OrbitalVisual** — семейство orbital / ring / ribbon объектов: атомные системы, кольцевые планеты, механические ядра и энергетические порталы.
 
-## React Compiler
+Демо позволяет посмотреть объекты, переключать пресеты, размер, качество, свечение, скорость и фон сцены. При этом сами визуалы оформлены как отдельная библиотека и могут подключаться в другие React-проекты поверх фона и дизайна конкретного сайта.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Стек
 
-## Expanding the ESLint configuration
+- React 19
+- TypeScript
+- Vite
+- Three.js
+- React Three Fiber
+- Drei
+- Vitest
+- Testing Library
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Что реализовано
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- отдельные каталоги и пресеты Sphere и Orbital;
+- настройка размера, качества, свечения, скорости и фона компонента;
+- адаптивная витрина для ноутбуков, планшетов и телефонов;
+- demo-фоны `studio`, `space` и `tech`;
+- сохранение выбранных настроек в `localStorage`;
+- публичный API через `src/index.ts`;
+- отдельная library-сборка с JavaScript, CSS и TypeScript-декларациями;
+- consumer smoke test с установкой пакета в чистый React/Vite-проект;
+- разделение demo-бандла и отложенная загрузка Orbital-кода;
+- 42 unit- и component-теста.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Ключевые инженерные решения
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Библиотека отделена от демо
+
+`SphereVisual` и `OrbitalVisual` не зависят от панелей управления, карточек и фонов витрины. Demo-слой отвечает только за демонстрацию и настройку, а публичный API экспортирует компоненты, типы и каталоги без внутренних рендереров и demo-кода.
+
+### Мини-карточки не создают отдельные WebGL-сцены
+
+Для карточек пресетов используются лёгкие CSS-превью, а не полноценный Canvas для каждого объекта. Это уменьшает нагрузку на CPU/GPU, не создаёт десятки параллельных циклов рендера и снижает риск упереться в ограничения браузера по WebGL-контекстам.
+
+Полноценная Three.js-сцена работает только в основной области просмотра выбранного объекта.
+
+### Orbital-код вынесен в отдельный chunk
+
+Тяжёлые Orbital-рендереры загружаются отдельно от начального кода страницы. Предзагрузка запускается в свободный момент браузера или при приближении пользователя к Orbital-разделу.
+
+После разделения production-сборка изменилась так:
+
+```text
+initial JS: 1,228.19 kB → 1,146.87 kB
+gzip:       333.84 kB → 313.98 kB
+Orbital chunk: 87.28 kB / 22.71 kB gzip
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Sphere остаётся доступна сразу, а Orbital подготавливается заранее и появляется без перестройки страницы.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Размер объекта отделён от размера сцены
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Слайдер управляет масштабом визуала, а контейнер сцены остаётся стабильным. Доступное пространство пересчитывается через `ResizeObserver`, поэтому объекты корректно адаптируются при смене viewport без перезагрузки страницы.
+
+### Пакет проверяется как внешний потребитель
+
+Кроме внутренних тестов, проект собирается в `.tgz`, устанавливается во временный чистый React/Vite-проект и проходит TypeScript-проверку и production build только через публичные импорты пакета.
+
+## Запуск
+
+```powershell
+npm install
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
+
+Открыть:
+
+```text
+http://127.0.0.1:5173
+```
+
+## Проверки
+
+```powershell
+npm test
+npm run build
+npm run build:lib
+npm run check:all
+```
+
+Проверка установки библиотеки в отдельный проект:
+
+```powershell
+node .\scripts\run-consumer-smoke.mjs
+```
+
+## Сборки
+
+Демо-приложение:
+
+```powershell
+npm run build
+```
+
+Результат:
+
+```text
+dist/
+```
+
+Библиотека:
+
+```powershell
+npm run build:lib
+```
+
+Результат:
+
+```text
+dist-lib/
+  index.js
+  style.css
+  types/
+```
+
+## Использование как библиотеки
+
+Пакет пока не опубликован в npm, но уже устанавливается локально через архив, созданный командой `npm pack`.
+
+```tsx
+import {
+  SphereVisual,
+  OrbitalVisual,
+} from 'sphere-visual-lab';
+
+import 'sphere-visual-lab/style.css';
+```
+
+Компоненты используют фон родительского проекта. Фоны `studio`, `space` и `tech` относятся только к демонстрационной витрине.
+
+## Структура
+
+```text
+src/
+  components/
+    SphereVisual/
+    OrbitalVisual/
+  demo/
+  shared/
+  app/
+  index.ts
+```
+
+- `components` — переиспользуемые визуальные компоненты;
+- `demo` — витрина, панели, карточки и demo-фоны;
+- `shared` — общие стили, UI-компоненты и утилиты;
+- `src/index.ts` — публичная точка входа библиотеки.
+
+## Ближайшие этапы
+
+1. E2E-тесты в Playwright.
+2. Проверка runtime-производительности.
+3. Финальная документация API и упаковка библиотеки.
+4. CI и публикация живой demo-страницы.
