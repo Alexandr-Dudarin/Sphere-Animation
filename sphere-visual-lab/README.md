@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/Alexandr-Dudarin/Sphere-Animation/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexandr-Dudarin/Sphere-Animation/actions/workflows/ci.yml)
 
+[Открыть живое демо](https://sphere-visual-lab.vercel.app/)
+
 Переиспользуемая библиотека анимированных визуальных объектов на React и Three.js с отдельной интерактивной витриной.
 
 Проект состоит из двух визуальных систем:
