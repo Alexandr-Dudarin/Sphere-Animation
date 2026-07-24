@@ -120,7 +120,47 @@ test('настройка режима сферы сохраняется посл
   await expect(page.locator('#mode')).toContainText('searching — поиск');
 });
 
-test('Orbital chunk загружается при приближении к разделу', async ({
+test('idle warm-up подготавливает Orbital Canvas без фоновой анимации', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 500 });
+  await page.addInitScript(() => {
+    window.requestIdleCallback = (callback) => {
+      const handle = window.setTimeout(() => {
+        callback({
+          didTimeout: false,
+          timeRemaining: () => 50,
+        });
+      }, 0);
+
+      return handle;
+    };
+    window.cancelIdleCallback = (handle) => window.clearTimeout(handle);
+  });
+
+  const orbitalChunkResponse = page.waitForResponse(
+    (response) =>
+      /\/assets\/OrbitalVisual-[^/]+\.js$/.test(
+        new URL(response.url()).pathname,
+      ) && response.ok(),
+    { timeout: 30_000 },
+  );
+
+  await page.goto('/');
+  await orbitalChunkResponse;
+
+  const orbitalStage = page.locator('.previewStage').nth(1);
+
+  await expect(orbitalStage).toHaveAttribute('data-frameloop', 'demand');
+  await expect(orbitalStage.locator('canvas')).toHaveCount(1, {
+    timeout: 30_000,
+  });
+  await expect(
+    orbitalStage.getByText('Подготавливаем orbital-сцену…'),
+  ).toBeHidden();
+});
+
+test('сцены заранее возобновляются рядом с viewport и паузятся вдали', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -130,26 +170,28 @@ test('Orbital chunk загружается при приближении к ра
 
   await page.goto('/');
 
-  const orbitalChunkResponse = page.waitForResponse(
-    (response) =>
-      /\/assets\/OrbitalVisual-[^/]+\.js$/.test(new URL(response.url()).pathname) &&
-      response.ok(),
-    { timeout: 30_000 },
-  );
-
+  const sphereStage = page.locator('.previewStage').first();
+  const orbitalStage = page.locator('.previewStage').nth(1);
   const orbitalHeading = page.getByRole('heading', {
     level: 2,
     name: 'Reusable Orbital Visual v1',
   });
 
-  await orbitalHeading.scrollIntoViewIfNeeded();
-  await orbitalChunkResponse;
+  await expect(sphereStage).toHaveAttribute('data-frameloop', 'always');
 
-  const orbitalStage = page.locator('.previewStage').nth(1);
+  await orbitalHeading.scrollIntoViewIfNeeded();
+
+  await expect(orbitalStage).toHaveAttribute('data-frameloop', 'always');
   await expect(orbitalStage.locator('canvas')).toBeVisible({
     timeout: 30_000,
   });
-  await expect(
-    orbitalStage.getByText('Подготавливаем orbital-сцену…'),
-  ).toBeHidden();
+  await expect(sphereStage).toHaveAttribute('data-frameloop', 'demand');
+
+  await page.getByRole('heading', {
+    level: 1,
+    name: 'Reusable AI Sphere v1',
+  }).scrollIntoViewIfNeeded();
+
+  await expect(sphereStage).toHaveAttribute('data-frameloop', 'always');
+  await expect(orbitalStage).toHaveAttribute('data-frameloop', 'demand');
 });

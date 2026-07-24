@@ -15,6 +15,7 @@ export default function OrbitalVisual({
   glowIntensity = 'medium',
   speed = 1,
   background = 'dark',
+  frameloop = 'always',
   className,
 }: OrbitalVisualProps) {
   const resolvedWidth = width ?? size;
@@ -44,6 +45,7 @@ export default function OrbitalVisual({
           glowIntensity={glowIntensity}
           speed={speed}
           visualScale={visualScale}
+          frameloop={frameloop}
         />
       </div>
     </div>

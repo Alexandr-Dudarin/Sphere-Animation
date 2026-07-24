@@ -45,4 +45,5 @@ export interface SphereVisualProps {
   background?: SphereBackground;
   className?: string;
   renderer?: SphereRendererType;
+  frameloop?: 'always' | 'demand' | 'never';
 }

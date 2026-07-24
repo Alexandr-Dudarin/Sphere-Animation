@@ -5,7 +5,8 @@ interface ThreeOrbitalCanvasProps {
     glowIntensity: OrbitalGlowIntensity;
     speed: number;
     visualScale: number;
+    frameloop: 'always' | 'demand' | 'never';
 }
-export default function ThreeOrbitalCanvas({ quality, visualScale, ...sceneProps }: ThreeOrbitalCanvasProps): import("react/jsx-runtime").JSX.Element;
+export default function ThreeOrbitalCanvas({ quality, visualScale, frameloop, ...sceneProps }: ThreeOrbitalCanvasProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=ThreeOrbitalCanvas.d.ts.map

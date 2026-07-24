@@ -177,4 +177,5 @@ export interface OrbitalVisualProps {
   speed?: number;
   background?: OrbitalBackground;
   className?: string;
+  frameloop?: 'always' | 'demand' | 'never';
 }

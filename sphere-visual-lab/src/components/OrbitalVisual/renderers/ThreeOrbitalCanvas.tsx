@@ -12,6 +12,7 @@ interface ThreeOrbitalCanvasProps {
   glowIntensity: OrbitalGlowIntensity;
   speed: number;
   visualScale: number;
+  frameloop: 'always' | 'demand' | 'never';
 }
 
 const dprMap: Record<OrbitalQuality, number | [number, number]> = {
@@ -23,10 +24,12 @@ const dprMap: Record<OrbitalQuality, number | [number, number]> = {
 export default function ThreeOrbitalCanvas({
   quality,
   visualScale,
+  frameloop,
   ...sceneProps
 }: ThreeOrbitalCanvasProps) {
   return (
     <Canvas
+      frameloop={frameloop}
       dpr={dprMap[quality]}
       camera={{ position: [0, 0, 5.6], fov: 34 }}
       gl={{

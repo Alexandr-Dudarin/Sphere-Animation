@@ -1,1 +1,1 @@
-{"version":3,"file":"usePointerTracking.d.ts","sourceRoot":"","sources":["../../../../../src/components/SphereVisual/hooks/usePointerTracking.ts"],"names":[],"mappings":"AASA,wBAAgB,kBAAkB,CAAC,CAAC,SAAS,WAAW,EAAE,OAAO,EAAE,OAAO;;;;EA8DzE"}
+{"version":3,"file":"usePointerTracking.d.ts","sourceRoot":"","sources":["../../../../../src/components/SphereVisual/hooks/usePointerTracking.ts"],"names":[],"mappings":"AAaA,wBAAgB,kBAAkB,CAAC,CAAC,SAAS,WAAW,EAAE,OAAO,EAAE,OAAO;;;;EA2GzE"}

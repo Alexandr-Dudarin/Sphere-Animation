@@ -17,6 +17,7 @@ interface ThreeSphereRendererProps {
   pointerY: number;
   reducedMotion: boolean;
   visualScale: number;
+  frameloop: 'always' | 'demand' | 'never';
 }
 
 export default function ThreeSphereRenderer(

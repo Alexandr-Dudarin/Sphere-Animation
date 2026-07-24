@@ -18,6 +18,7 @@ interface ThreeSphereCanvasProps {
   pointerY: number;
   reducedMotion: boolean;
   visualScale: number;
+  frameloop: 'always' | 'demand' | 'never';
 }
 
 const dprMap: Record<SphereQuality, number | [number, number]> = {
@@ -29,10 +30,12 @@ const dprMap: Record<SphereQuality, number | [number, number]> = {
 export default function ThreeSphereCanvas({
   quality,
   visualScale,
+  frameloop,
   ...sceneProps
 }: ThreeSphereCanvasProps) {
   return (
     <Canvas
+      frameloop={frameloop}
       dpr={dprMap[quality]}
       camera={{ position: [0, 0, 5.05], fov: 32 }}
       gl={{

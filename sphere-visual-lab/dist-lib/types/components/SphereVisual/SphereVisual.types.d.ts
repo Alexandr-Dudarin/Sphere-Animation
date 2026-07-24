@@ -34,5 +34,6 @@ export interface SphereVisualProps {
     background?: SphereBackground;
     className?: string;
     renderer?: SphereRendererType;
+    frameloop?: 'always' | 'demand' | 'never';
 }
 //# sourceMappingURL=SphereVisual.types.d.ts.map

@@ -10,6 +10,7 @@ interface ThreeSphereRendererProps {
     pointerY: number;
     reducedMotion: boolean;
     visualScale: number;
+    frameloop: 'always' | 'demand' | 'never';
 }
 export default function ThreeSphereRenderer(props: ThreeSphereRendererProps): import("react/jsx-runtime").JSX.Element;
 export {};

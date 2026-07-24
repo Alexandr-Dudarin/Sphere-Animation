@@ -151,5 +151,6 @@ export interface OrbitalVisualProps {
     speed?: number;
     background?: OrbitalBackground;
     className?: string;
+    frameloop?: 'always' | 'demand' | 'never';
 }
 //# sourceMappingURL=OrbitalVisual.types.d.ts.map

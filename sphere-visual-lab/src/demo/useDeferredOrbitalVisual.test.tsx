@@ -14,7 +14,7 @@ let intersectionCallback: IntersectionObserverCallback | null = null;
 
 class MockIntersectionObserver {
   readonly root = null;
-  readonly rootMargin = '180px 0px';
+  readonly rootMargin = '1400px 0px';
   readonly thresholds = [0];
 
   constructor(callback: IntersectionObserverCallback) {
@@ -44,7 +44,7 @@ describe('useDeferredOrbitalVisual', () => {
     vi.restoreAllMocks();
   });
 
-  it('activates and preloads when the Orbital header approaches the viewport', () => {
+  it('mounts immediately when the Orbital section approaches the viewport', () => {
     const target = document.createElement('header');
     const ref = { current: target };
     const { result } = renderHook(() => useDeferredOrbitalVisual(ref));
@@ -62,12 +62,7 @@ describe('useDeferredOrbitalVisual', () => {
     expect(preloadOrbitalVisualMock).toHaveBeenCalledOnce();
   });
 
-  it('uses the idle fallback when the visitor does not scroll', () => {
-    Object.defineProperty(globalThis, 'IntersectionObserver', {
-      configurable: true,
-      value: undefined,
-    });
-
+  it('preloads and warm-mounts the scene during idle', async () => {
     let idleCallback: (() => void) | null = null;
     const requestIdleCallback = vi.fn((callback: () => void) => {
       idleCallback = callback;
@@ -83,17 +78,48 @@ describe('useDeferredOrbitalVisual', () => {
     const { result } = renderHook(() => useDeferredOrbitalVisual(ref));
 
     act(() => {
-      vi.advanceTimersByTime(900);
+      vi.advanceTimersByTime(500);
     });
 
     expect(requestIdleCallback).toHaveBeenCalledOnce();
     expect(result.current).toBe(false);
 
-    act(() => {
+    await act(async () => {
       idleCallback?.();
+      await Promise.resolve();
     });
 
-    expect(result.current).toBe(true);
     expect(preloadOrbitalVisualMock).toHaveBeenCalledOnce();
+    expect(result.current).toBe(true);
+  });
+
+  it('warm-mounts during idle when IntersectionObserver is unavailable', async () => {
+    Object.defineProperty(globalThis, 'IntersectionObserver', {
+      configurable: true,
+      value: undefined,
+    });
+
+    let idleCallback: (() => void) | null = null;
+    const requestIdleCallback = vi.fn((callback: () => void) => {
+      idleCallback = callback;
+      return 9;
+    });
+
+    Object.defineProperty(window, 'requestIdleCallback', {
+      configurable: true,
+      value: requestIdleCallback,
+    });
+
+    const ref = { current: document.createElement('header') };
+    const { result } = renderHook(() => useDeferredOrbitalVisual(ref));
+
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+      idleCallback?.();
+      await Promise.resolve();
+    });
+
+    expect(preloadOrbitalVisualMock).toHaveBeenCalledOnce();
+    expect(result.current).toBe(true);
   });
 });

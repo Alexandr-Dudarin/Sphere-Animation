@@ -9,17 +9,18 @@ type IdleCapableWindow = {
   cancelIdleCallback?: (handle: number) => void;
 };
 
-const PRELOAD_ROOT_MARGIN = '180px 0px';
-const IDLE_DELAY_MS = 900;
+const MOUNT_ROOT_MARGIN = '1400px 0px';
+const IDLE_DELAY_MS = 500;
 const IDLE_TIMEOUT_MS = 1200;
 
 /**
- * Mounts the heavy Orbital canvas shortly before the Orbital header reaches
- * the viewport. If the visitor does not scroll, an idle fallback still warms
- * the chunk after the Sphere has had time to initialise.
+ * Starts loading Orbital shortly after the initial Sphere render. Once the
+ * chunk is ready, the scene is mounted offscreen so WebGL resources can warm
+ * up before the user reaches it. The demo controls its frameloop separately,
+ * therefore this warm mount does not keep an offscreen animation running.
  */
 export function useDeferredOrbitalVisual(
-  preloadTargetRef: RefObject<HTMLElement | null>,
+  mountTargetRef: RefObject<HTMLElement | null>,
 ) {
   const [shouldMount, setShouldMount] = useState(false);
 
@@ -33,7 +34,7 @@ export function useDeferredOrbitalVisual(
     let idleDelayHandle: number | null = null;
     const idleWindow = window as unknown as IdleCapableWindow;
 
-    const activate = () => {
+    const mountVisual = () => {
       if (isDisposed) {
         return;
       }
@@ -42,22 +43,32 @@ export function useDeferredOrbitalVisual(
       setShouldMount(true);
     };
 
-    const target = preloadTargetRef.current;
-    const observer =
-      target && typeof IntersectionObserver !== 'undefined'
-        ? new IntersectionObserver(
-            (entries) => {
-              if (entries.some((entry) => entry.isIntersecting)) {
-                activate();
-              }
-            },
-            {
-              root: null,
-              rootMargin: PRELOAD_ROOT_MARGIN,
-              threshold: 0,
-            },
-          )
-        : null;
+    const warmAndMountVisual = () => {
+      void preloadOrbitalVisual().then(() => {
+        if (!isDisposed) {
+          setShouldMount(true);
+        }
+      });
+    };
+
+    const target = mountTargetRef.current;
+    const canObserve =
+      Boolean(target) && typeof IntersectionObserver !== 'undefined';
+
+    const observer = canObserve
+      ? new IntersectionObserver(
+          (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+              mountVisual();
+            }
+          },
+          {
+            root: null,
+            rootMargin: MOUNT_ROOT_MARGIN,
+            threshold: 0,
+          },
+        )
+      : null;
 
     if (target) {
       observer?.observe(target);
@@ -65,13 +76,13 @@ export function useDeferredOrbitalVisual(
 
     idleDelayHandle = window.setTimeout(() => {
       if (idleWindow.requestIdleCallback) {
-        idleHandle = idleWindow.requestIdleCallback(activate, {
+        idleHandle = idleWindow.requestIdleCallback(warmAndMountVisual, {
           timeout: IDLE_TIMEOUT_MS,
         });
         return;
       }
 
-      activate();
+      warmAndMountVisual();
     }, IDLE_DELAY_MS);
 
     return () => {
@@ -86,7 +97,7 @@ export function useDeferredOrbitalVisual(
         idleWindow.cancelIdleCallback?.(idleHandle);
       }
     };
-  }, [preloadTargetRef, shouldMount]);
+  }, [mountTargetRef, shouldMount]);
 
   return shouldMount;
 }

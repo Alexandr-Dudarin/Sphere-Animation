@@ -7,33 +7,79 @@ interface PointerState {
   y: number;
 }
 
+const POINTER_LERP_AMOUNT = 0.12;
+const POINTER_SETTLE_EPSILON = 0.001;
+const CENTER_POINTER: PointerState = { x: 0, y: 0 };
+
 export function usePointerTracking<T extends HTMLElement>(enabled: boolean) {
   const containerRef = useRef<T | null>(null);
-  const targetRef = useRef<PointerState>({ x: 0, y: 0 });
+  const targetRef = useRef<PointerState>(CENTER_POINTER);
+  const currentRef = useRef<PointerState>(CENTER_POINTER);
   const animationFrameRef = useRef<number | null>(null);
-  const [pointer, setPointer] = useState<PointerState>({ x: 0, y: 0 });
+  const [pointer, setPointer] = useState<PointerState>(CENTER_POINTER);
 
   useEffect(() => {
     const node = containerRef.current;
 
     if (!node || !enabled) {
-      targetRef.current = { x: 0, y: 0 };
-      setPointer({ x: 0, y: 0 });
+      targetRef.current = CENTER_POINTER;
+      currentRef.current = CENTER_POINTER;
+      setPointer((current) =>
+        current.x === 0 && current.y === 0 ? current : CENTER_POINTER,
+      );
       return;
     }
 
+    let isDisposed = false;
+
     const animate = () => {
-      setPointer((prev) => {
-        const nextX = lerp(prev.x, targetRef.current.x, 0.12);
-        const nextY = lerp(prev.y, targetRef.current.y, 0.12);
+      animationFrameRef.current = null;
 
-        return {
-          x: nextX,
-          y: nextY,
-        };
-      });
+      if (isDisposed) {
+        return;
+      }
 
-      animationFrameRef.current = window.requestAnimationFrame(animate);
+      const current = currentRef.current;
+      const target = targetRef.current;
+      const interpolatedX = lerp(
+        current.x,
+        target.x,
+        POINTER_LERP_AMOUNT,
+      );
+      const interpolatedY = lerp(
+        current.y,
+        target.y,
+        POINTER_LERP_AMOUNT,
+      );
+      const hasSettled =
+        Math.abs(target.x - interpolatedX) <= POINTER_SETTLE_EPSILON &&
+        Math.abs(target.y - interpolatedY) <= POINTER_SETTLE_EPSILON;
+      const nextPointer = hasSettled
+        ? { x: target.x, y: target.y }
+        : { x: interpolatedX, y: interpolatedY };
+
+      currentRef.current = nextPointer;
+      setPointer(nextPointer);
+
+      if (!hasSettled) {
+        animationFrameRef.current = window.requestAnimationFrame(animate);
+      }
+    };
+
+    const startAnimation = () => {
+      if (isDisposed || animationFrameRef.current !== null) {
+        return;
+      }
+
+      const current = currentRef.current;
+      const target = targetRef.current;
+      const isAlreadySettled =
+        Math.abs(target.x - current.x) <= POINTER_SETTLE_EPSILON &&
+        Math.abs(target.y - current.y) <= POINTER_SETTLE_EPSILON;
+
+      if (!isAlreadySettled) {
+        animationFrameRef.current = window.requestAnimationFrame(animate);
+      }
     };
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -44,22 +90,25 @@ export function usePointerTracking<T extends HTMLElement>(enabled: boolean) {
         x: normalized.x,
         y: normalized.y,
       };
+      startAnimation();
     };
 
     const handlePointerLeave = () => {
-      targetRef.current = { x: 0, y: 0 };
+      targetRef.current = CENTER_POINTER;
+      startAnimation();
     };
 
     node.addEventListener('pointermove', handlePointerMove);
     node.addEventListener('pointerleave', handlePointerLeave);
-    animationFrameRef.current = window.requestAnimationFrame(animate);
 
     return () => {
+      isDisposed = true;
       node.removeEventListener('pointermove', handlePointerMove);
       node.removeEventListener('pointerleave', handlePointerLeave);
 
       if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     };
   }, [enabled]);

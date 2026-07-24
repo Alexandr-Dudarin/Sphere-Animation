@@ -22,6 +22,7 @@ export default function SphereVisual({
   speed = SPHERE_DEFAULTS.speed,
   background = SPHERE_DEFAULTS.background,
   renderer = 'three',
+  frameloop = 'always',
   className,
 }: SphereVisualProps) {
   const reducedMotion = useReducedMotion();
@@ -60,6 +61,7 @@ export default function SphereVisual({
     pointerY,
     reducedMotion,
     visualScale,
+    frameloop,
   };
 
   return (

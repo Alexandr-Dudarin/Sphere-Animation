@@ -43,6 +43,7 @@ import {
 } from './useStageBoundVisualSize';
 import LazyOrbitalVisual from './LazyOrbitalVisual';
 import { useDeferredOrbitalVisual } from './useDeferredOrbitalVisual';
+import { useViewportRenderMode } from './useViewportRenderMode';
 
 type PreviewKind = 'sphere' | OrbitalPreviewKind;
 
@@ -260,6 +261,8 @@ export default function DemoPage() {
   const shouldMountOrbitalVisual = useDeferredOrbitalVisual(
     orbitalPreloadRef,
   );
+  const sphereFrameloop = useViewportRenderMode(sphereStageRef);
+  const orbitalFrameloop = useViewportRenderMode(orbitalStageRef);
 
   useEffect(() => {
     persistValue(STORAGE_KEYS.spherePreset, preset);
@@ -364,6 +367,7 @@ export default function DemoPage() {
               data-stage-background={sphereStageBackground}
               data-rendered-size={renderedSphereSize}
               data-canvas-size={sphereCanvasSize}
+              data-frameloop={sphereFrameloop}
             >
               <span className="previewStageBackdrop" aria-hidden="true" />
               <SphereVisual
@@ -379,6 +383,7 @@ export default function DemoPage() {
                 speed={speed}
                 background={background}
                 interactive={interactive}
+                frameloop={sphereFrameloop}
               />
             </div>
           </div>
@@ -457,6 +462,7 @@ export default function DemoPage() {
               className={`previewStage previewStage--${orbitalStageBackground}`}
               data-stage-background={orbitalStageBackground}
               data-rendered-size={renderedOrbitalSize}
+              data-frameloop={orbitalFrameloop}
             >
               <span className="previewStageBackdrop" aria-hidden="true" />
               {shouldMountOrbitalVisual ? (
@@ -470,6 +476,7 @@ export default function DemoPage() {
                     glowIntensity={orbitalGlowIntensity}
                     speed={orbitalSpeed}
                     background={orbitalBackground}
+                    frameloop={orbitalFrameloop}
                   />
                 </Suspense>
               ) : (
