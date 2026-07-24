@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import {
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 import PlaygroundPanel from './PlaygroundPanel';
 import OrbitalPlaygroundPanel from './OrbitalPlaygroundPanel';
 import {
@@ -9,12 +15,11 @@ import {
   type SpherePresetName,
   type SphereQuality,
 } from '../components/SphereVisual';
-import {
-  OrbitalVisual,
-  type OrbitalBackground,
-  type OrbitalGlowIntensity,
-  type OrbitalPresetName,
-  type OrbitalQuality,
+import type {
+  OrbitalBackground,
+  OrbitalGlowIntensity,
+  OrbitalPresetName,
+  OrbitalQuality,
 } from '../components/OrbitalVisual';
 import {
   orbitalObjectCatalog,
@@ -36,6 +41,8 @@ import {
   useStageAvailableSize,
   useStageBoundVisualSize,
 } from './useStageBoundVisualSize';
+import LazyOrbitalVisual from './LazyOrbitalVisual';
+import { useDeferredOrbitalVisual } from './useDeferredOrbitalVisual';
 
 type PreviewKind = 'sphere' | OrbitalPreviewKind;
 
@@ -86,6 +93,22 @@ function persistValue(key: string, value: string) {
     // В приватном режиме или при запрете storage демо продолжает работать
     // без сохранения состояния.
   }
+}
+
+function OrbitalVisualPlaceholder() {
+  return (
+    <div className="orbitalVisualPlaceholder" role="status" aria-live="polite">
+      <span className="orbitalVisualPlaceholderGraphic" aria-hidden="true">
+        <span className="orbitalVisualPlaceholderRing orbitalVisualPlaceholderRing--one" />
+        <span className="orbitalVisualPlaceholderRing orbitalVisualPlaceholderRing--two" />
+        <span className="orbitalVisualPlaceholderRing orbitalVisualPlaceholderRing--three" />
+        <span className="orbitalVisualPlaceholderCore" />
+      </span>
+      <span className="orbitalVisualPlaceholderText">
+        Подготавливаем orbital-сцену…
+      </span>
+    </div>
+  );
 }
 
 function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
@@ -167,6 +190,7 @@ function StaticPresetPreview({ kind, palette }: StaticPresetPreviewProps) {
 export default function DemoPage() {
   const sphereSectionRef = useRef<HTMLElement>(null);
   const orbitalSectionRef = useRef<HTMLElement>(null);
+  const orbitalPreloadRef = useRef<HTMLElement>(null);
   const sphereStageRef = useRef<HTMLDivElement>(null);
   const orbitalStageRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<number | null>(null);
@@ -232,6 +256,9 @@ export default function DemoPage() {
   const renderedOrbitalSize = useStageBoundVisualSize(
     orbitalSize,
     orbitalStageRef,
+  );
+  const shouldMountOrbitalVisual = useDeferredOrbitalVisual(
+    orbitalPreloadRef,
   );
 
   useEffect(() => {
@@ -410,7 +437,7 @@ export default function DemoPage() {
           })}
         </section>
 
-        <header className="pageHeader orbitalHeader">
+        <header ref={orbitalPreloadRef} className="pageHeader orbitalHeader">
           <p className="eyebrow">Orbital Visual Lab</p>
           <h2 className="pageTitle orbitalTitle">
             Reusable Orbital Visual v1
@@ -432,16 +459,22 @@ export default function DemoPage() {
               data-rendered-size={renderedOrbitalSize}
             >
               <span className="previewStageBackdrop" aria-hidden="true" />
-              <OrbitalVisual
-                width="100%"
-                height="100%"
-                size={renderedOrbitalSize}
-                preset={orbitalPreset}
-                quality={orbitalQuality}
-                glowIntensity={orbitalGlowIntensity}
-                speed={orbitalSpeed}
-                background={orbitalBackground}
-              />
+              {shouldMountOrbitalVisual ? (
+                <Suspense fallback={<OrbitalVisualPlaceholder />}>
+                  <LazyOrbitalVisual
+                    width="100%"
+                    height="100%"
+                    size={renderedOrbitalSize}
+                    preset={orbitalPreset}
+                    quality={orbitalQuality}
+                    glowIntensity={orbitalGlowIntensity}
+                    speed={orbitalSpeed}
+                    background={orbitalBackground}
+                  />
+                </Suspense>
+              ) : (
+                <OrbitalVisualPlaceholder />
+              )}
             </div>
           </div>
 

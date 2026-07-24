@@ -1207,3 +1207,98 @@ a {
     padding: 12px;
   }
 }
+
+/* Deferred Orbital canvas: keeps the stage stable while its chunk loads. */
+.orbitalVisualPlaceholder {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  gap: 18px;
+  color: rgba(203, 225, 255, 0.72);
+  text-align: center;
+}
+
+.orbitalVisualPlaceholderGraphic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(128px, 28vw, 190px);
+  aspect-ratio: 1;
+  filter: drop-shadow(0 0 24px rgba(89, 194, 255, 0.18));
+}
+
+.orbitalVisualPlaceholderRing,
+.orbitalVisualPlaceholderCore {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.orbitalVisualPlaceholderRing {
+  width: 100%;
+  height: 46%;
+  border: 1px solid rgba(121, 199, 255, 0.3);
+  box-shadow: 0 0 12px rgba(89, 194, 255, 0.1);
+  animation: orbitalPlaceholderDrift 2.8s ease-in-out infinite alternate;
+}
+
+.orbitalVisualPlaceholderRing--one {
+  transform: rotate(0deg);
+}
+
+.orbitalVisualPlaceholderRing--two {
+  transform: rotate(60deg);
+  animation-delay: -0.8s;
+}
+
+.orbitalVisualPlaceholderRing--three {
+  transform: rotate(-60deg);
+  animation-delay: -1.6s;
+}
+
+.orbitalVisualPlaceholderCore {
+  width: 18%;
+  aspect-ratio: 1;
+  background: rgba(226, 244, 255, 0.72);
+  box-shadow:
+    0 0 14px rgba(226, 244, 255, 0.56),
+    0 0 34px rgba(89, 194, 255, 0.34);
+  animation: orbitalPlaceholderPulse 1.8s ease-in-out infinite;
+}
+
+.orbitalVisualPlaceholderText {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+@keyframes orbitalPlaceholderDrift {
+  from {
+    opacity: 0.38;
+  }
+
+  to {
+    opacity: 0.78;
+  }
+}
+
+@keyframes orbitalPlaceholderPulse {
+  0%,
+  100% {
+    opacity: 0.58;
+    transform: scale(0.92);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbitalVisualPlaceholderRing,
+  .orbitalVisualPlaceholderCore {
+    animation: none;
+  }
+}

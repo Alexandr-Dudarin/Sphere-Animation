@@ -3,9 +3,9 @@ import { Fragment as i, jsx as a, jsxs as o } from "react/jsx-runtime";
 import { Canvas as s, useFrame as c } from "@react-three/fiber";
 import * as l from "three";
 var u = {
-	root: "_root_139ln_1",
-	darkBackground: "_darkBackground_139ln_19",
-	stage: "_stage_139ln_41"
+	root: "_root_v13bp_1",
+	darkBackground: "_darkBackground_v13bp_19",
+	stage: "_stage_v13bp_41"
 }, d = {
 	size: 420,
 	mode: "thinking",
@@ -1663,9 +1663,9 @@ var Oe = [
 	value: e.preset,
 	label: e.selectLabel
 })), je = {
-	root: "_root_xhj91_1",
-	darkBackground: "_darkBackground_xhj91_19",
-	stage: "_stage_xhj91_41"
+	root: "_root_xp51f_1",
+	darkBackground: "_darkBackground_xp51f_19",
+	stage: "_stage_xp51f_41"
 }, J = {
 	coreKind: "atomic",
 	coreRgb: "214 245 255",
