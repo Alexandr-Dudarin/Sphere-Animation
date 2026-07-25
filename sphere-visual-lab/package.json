@@ -1,7 +1,32 @@
 {
   "name": "sphere-visual-lab",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Reusable animated WebGL visuals for React, Three.js, and React Three Fiber.",
+  "keywords": [
+    "react",
+    "three",
+    "threejs",
+    "react-three-fiber",
+    "webgl",
+    "3d",
+    "3d-animation",
+    "animated-background",
+    "visual-effects",
+    "sphere",
+    "orbital",
+    "react-component"
+  ],
+  "author": "Alexandr Dudarin",
+  "license": "MIT",
+  "homepage": "https://sphere-visual-lab.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alexandr-Dudarin/Sphere-Animation.git",
+    "directory": "sphere-visual-lab"
+  },
+  "bugs": {
+    "url": "https://github.com/Alexandr-Dudarin/Sphere-Animation/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -17,16 +42,41 @@
     "test:e2e:headed": "npm run build && playwright test --headed",
     "test:e2e:ui": "npm run build && playwright test --ui",
     "test:e2e:debug": "npm run build && playwright test --debug",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "consumer:smoke": "node ./scripts/run-consumer-smoke.mjs",
+    "pack:dry-run": "npm pack --dry-run",
+    "prepack": "npm run build:lib"
   },
-  "dependencies": {
+  "files": [
+    "dist-lib"
+  ],
+  "main": "./dist-lib/index.js",
+  "module": "./dist-lib/index.js",
+  "types": "./dist-lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist-lib/types/index.d.ts",
+      "import": "./dist-lib/index.js",
+      "default": "./dist-lib/index.js"
+    },
+    "./style.css": "./dist-lib/style.css"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "peerDependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.184.0"
+  },
+  "devDependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "three": "^0.184.0"
-  },
-  "devDependencies": {
+    "three": "^0.184.0",
     "@eslint/js": "^9.39.4",
     "@playwright/test": "^1.61.1",
     "@testing-library/dom": "^10.4.1",
@@ -47,21 +97,7 @@
     "vite": "^8.0.9",
     "vitest": "^4.1.10"
   },
-  "files": [
-    "dist-lib"
-  ],
-  "main": "./dist-lib/index.js",
-  "module": "./dist-lib/index.js",
-  "types": "./dist-lib/types/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist-lib/types/index.d.ts",
-      "import": "./dist-lib/index.js",
-      "default": "./dist-lib/index.js"
-    },
-    "./style.css": "./dist-lib/style.css"
-  },
-  "sideEffects": [
-    "**/*.css"
-  ]
+  "publishConfig": {
+    "access": "public"
+  }
 }

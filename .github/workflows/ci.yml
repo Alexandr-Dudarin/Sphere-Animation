@@ -102,4 +102,4 @@ jobs:
         run: npm ci
 
       - name: Test package in clean consumer project
-        run: node ./scripts/run-consumer-smoke.mjs
+        run: npm run consumer:smoke

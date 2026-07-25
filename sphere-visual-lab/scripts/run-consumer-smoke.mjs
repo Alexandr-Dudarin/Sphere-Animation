@@ -72,7 +72,7 @@ await mkdir(srcDir, { recursive: true });
 
 const packOutput = run(
   npmCommand,
-  ['pack', '--json', '--pack-destination', packageDir],
+  ['pack', '--json', '--ignore-scripts', '--pack-destination', packageDir],
   projectRoot,
   { capture: true },
 );
