@@ -1,10 +1,13 @@
 # Sphere Visual Lab
 
 [![CI](https://github.com/Alexandr-Dudarin/Sphere-Animation/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexandr-Dudarin/Sphere-Animation/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/sphere-visual-lab.svg)](https://www.npmjs.com/package/sphere-visual-lab)
 
-[Живое демо](https://sphere-visual-lab.vercel.app/) · [Репозиторий](https://github.com/Alexandr-Dudarin/Sphere-Animation)
+[Живое демо](https://sphere-visual-lab.vercel.app/) · [npm-пакет](https://www.npmjs.com/package/sphere-visual-lab) · [Репозиторий](https://github.com/Alexandr-Dudarin/Sphere-Animation)
 
 Переиспользуемая библиотека анимированных WebGL-визуалов для React, Three.js и React Three Fiber.
+
+Текущая опубликованная версия: **`sphere-visual-lab@0.1.0`**.
 
 В библиотеке две визуальные системы:
 
@@ -298,7 +301,8 @@ Library-сборка упаковывается через `npm pack`, уста�
 - прогрев Orbital-сцены и пауза WebGL-рендера вне viewport;
 - 47 unit- и component-тестов;
 - 10 E2E-сценариев Playwright;
-- CI после push и pull request.
+- CI после push и pull request;
+- версия `0.1.0` опубликована в npm.
 
 ## Локальный запуск репозитория
 
@@ -376,11 +380,11 @@ src/
 
 ## Ближайшие этапы
 
-1. Проверить содержимое архива через `npm pack --dry-run`.
-2. Повторно пройти CI, E2E и consumer smoke test.
-3. Опубликовать первую npm-версию `0.1.0`.
-4. Подготовить отдельную английскую версию документации.
-5. Позже усилить hover-анимации CSS-превью и добавить отдельный блок связи в демо.
+1. Проверить установку опубликованной версии в новом чистом React-проекте.
+2. Создать Git-тег и GitHub Release `v0.1.0`.
+3. Подготовить отдельную английскую версию документации.
+4. Позже усилить hover-анимации CSS-превью.
+5. Вернуться к отдельному блоку связи в демо и продолжить расширение каталога.
 
 ## Лицензия
 

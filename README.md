@@ -1,14 +1,51 @@
 # Sphere Visual Lab
 
 [![CI](https://github.com/Alexandr-Dudarin/Sphere-Animation/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexandr-Dudarin/Sphere-Animation/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/sphere-visual-lab.svg)](https://www.npmjs.com/package/sphere-visual-lab)
 
-[Живое демо](https://sphere-visual-lab.vercel.app/) · [Документация библиотеки](./sphere-visual-lab/README.md) · [MIT License](./LICENSE)
+[Живое демо](https://sphere-visual-lab.vercel.app/) · [npm-пакет](https://www.npmjs.com/package/sphere-visual-lab) · [Документация библиотеки](./sphere-visual-lab/README.md) · [MIT License](./LICENSE)
 
 ![Sphere Visual Lab — интерактивные WebGL-визуалы](./sphere-visual-lab/public/og-image.png)
 
 **Sphere Visual Lab** — переиспользуемая библиотека анимированных WebGL-визуалов для React, Three.js и React Three Fiber с отдельной интерактивной витриной.
 
 Проект создавался не как один декоративный эффект, а как основа для подключения на сайты и в интерфейсы разных проектов. Визуальные компоненты отделены от demo-слоя, имеют публичный TypeScript API, собственную library-сборку и проверяются после установки в чистое React/Vite-приложение.
+
+
+## Установка библиотеки
+
+Для существующего React 19-проекта:
+
+```bash
+npm install sphere-visual-lab three @react-three/fiber @react-three/drei
+```
+
+Подключите стили пакета один раз в точке входа приложения:
+
+```tsx
+import 'sphere-visual-lab/style.css';
+```
+
+Минимальный пример:
+
+```tsx
+import { SphereVisual } from 'sphere-visual-lab';
+import 'sphere-visual-lab/style.css';
+
+export function Example() {
+  return (
+    <SphereVisual
+      width="100%"
+      height="100%"
+      size={420}
+      preset="glass-petal"
+      background="transparent"
+    />
+  );
+}
+```
+
+Пакет опубликован в npm как [`sphere-visual-lab`](https://www.npmjs.com/package/sphere-visual-lab). Подробные примеры, props и список пресетов находятся в [документации библиотеки](./sphere-visual-lab/README.md).
 
 ## Визуальные системы
 
@@ -123,7 +160,7 @@ import 'sphere-visual-lab/style.css';
 - GitHub Actions CI после push и pull request;
 - живое демо на Vercel;
 - npm-метаданные и MIT License;
-- подготовленная версия пакета `0.1.0`.
+- версия `sphere-visual-lab@0.1.0` опубликована в npm.
 
 ## Стек
 
@@ -201,15 +238,15 @@ GitHub Actions автоматически запускает unit/component test
 
 **[`sphere-visual-lab/README.md`](./sphere-visual-lab/README.md)**
 
-Пакет подготовлен к первой публикации в npm под именем `sphere-visual-lab` и версией `0.1.0`.
+Пакет опубликован в npm под именем [`sphere-visual-lab`](https://www.npmjs.com/package/sphere-visual-lab). Текущая версия — `0.1.0`.
 
 ## Ближайшие этапы
 
-1. Завершить публикацию `sphere-visual-lab@0.1.0` в npm.
-2. Проверить установку уже опубликованной версии в новом чистом проекте.
-3. Создать Git-тег и GitHub Release `v0.1.0`.
-4. Подготовить отдельную английскую версию документации.
-5. Позже усилить hover-анимации CSS-превью и продолжить расширение каталога визуалов.
+1. Проверить установку опубликованной версии в новом чистом React-проекте.
+2. Создать Git-тег и GitHub Release `v0.1.0`.
+3. Подготовить отдельную английскую версию документации.
+4. Позже усилить hover-анимации CSS-превью.
+5. Продолжить расширение каталога визуалов и вернуться к блоку связи в демо.
 
 ## Лицензия
 
