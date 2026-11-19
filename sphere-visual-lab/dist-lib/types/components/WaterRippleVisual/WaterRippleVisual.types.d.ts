@@ -1,6 +1,6 @@
 export type WaterRippleQuality = 'low' | 'medium' | 'high';
 export type WaterRippleBackground = 'transparent' | 'dark';
-export type WaterRippleVariant = 'ripples' | 'droplet';
+export type WaterRippleVariant = 'ripples' | 'droplet' | 'rain' | 'interactive' | 'crown' | 'vortex' | 'waterfall';
 /** A procedural water surface; all animation runs locally without textures. */
 export interface WaterRippleVisualProps {
     size?: number;
@@ -9,8 +9,10 @@ export interface WaterRippleVisualProps {
     quality?: WaterRippleQuality;
     background?: WaterRippleBackground;
     color?: string;
-    /** Rings alone or a drop forming at a pouring lip, synchronized with each impact. */
+    /** Water effect. Defaults to a drop forming at a pouring lip. */
     variant?: WaterRippleVariant;
+    /** Rain density, vortex depth, or waterfall flow strength, 0.3–2. */
+    intensity?: number;
     /** Simulation speed, 0–3. Zero freezes the current wave. */
     speed?: number;
     /** Emissive strength, 0–2. */
@@ -26,7 +28,7 @@ export interface WaterRippleVisualProps {
     /** Viewing angle above the surface, 10–75 degrees. */
     tilt?: number;
     paused?: boolean;
-    /** Restart the central impulse, or formation at the lip in the droplet variant. */
+    /** Trigger a wave in interactive mode; restart the cycle in the other variants. */
     dropKey?: number;
     frameloop?: 'always' | 'demand' | 'never';
     className?: string;

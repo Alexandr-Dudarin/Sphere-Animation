@@ -7,6 +7,7 @@ import { rippleFragmentShader, rippleVertexShader } from './rippleShaders';
 import { getRippleDiameter, rippleDefaults } from './rippleConfig';
 import { fitDropletDiameter, getDropletStartTime } from './dropletSequence';
 import DropletSource from './DropletSource';
+import WaterCrown from './WaterCrown';
 
 type SceneProps = Required<Pick<WaterRippleVisualProps,
   'size' | 'quality' | 'color' | 'speed' | 'glowIntensity' | 'amplitude' |
@@ -15,8 +16,9 @@ type SceneProps = Required<Pick<WaterRippleVisualProps,
 const segments = { low: 64, medium: 112, high: 176 } as const;
 
 export default function WaterRippleScene(props: SceneProps) {
+  const hasDrop = props.variant === 'droplet' || props.variant === 'crown';
   const material = useRef<ShaderMaterial>(null);
-  const time = useRef(props.variant === 'droplet' ? getDropletStartTime(props.rippleInterval) : 3.5);
+  const time = useRef(hasDrop ? getDropletStartTime(props.rippleInterval) : 3.5);
   const previousDrop = useRef(props.dropKey);
   const previousVariant = useRef(props.variant);
   const skipDelta = useRef(true);
@@ -39,7 +41,7 @@ export default function WaterRippleScene(props: SceneProps) {
     if (!material.current) return;
     const current = material.current.uniforms;
     if (previousDrop.current !== props.dropKey || previousVariant.current !== props.variant) {
-      time.current = props.variant === 'droplet' ? getDropletStartTime(props.rippleInterval) : 0;
+      time.current = hasDrop ? getDropletStartTime(props.rippleInterval) : 0;
       previousDrop.current = props.dropKey;
       previousVariant.current = props.variant;
     }
@@ -52,7 +54,7 @@ export default function WaterRippleScene(props: SceneProps) {
     current.uColor.value.set(props.color);
     invalidate();
   }, [props.dropKey, props.rippleInterval, props.damping, props.amplitude,
-    props.lineWidth, props.variant, props.glowIntensity, props.color, invalidate]);
+    props.lineWidth, props.variant, props.glowIntensity, props.color, hasDrop, invalidate]);
 
   useEffect(() => {
     skipDelta.current = true;
@@ -70,8 +72,8 @@ export default function WaterRippleScene(props: SceneProps) {
   }, -1);
 
   // Pixel-based size is independent of the rectangular container's aspect ratio.
-  const baseDiameter = getRippleDiameter(props.size, dimensions.width, dimensions.height, props.tilt, props.variant === 'droplet');
-  const diameter = props.variant === 'droplet'
+  const baseDiameter = getRippleDiameter(props.size, dimensions.width, dimensions.height, props.tilt, hasDrop);
+  const diameter = hasDrop
     ? fitDropletDiameter(baseDiameter, dimensions.height, props.tilt)
     : baseDiameter;
   const scale = (diameter / dimensions.width) * viewport.width / 5.6;
@@ -83,8 +85,10 @@ export default function WaterRippleScene(props: SceneProps) {
           vertexShader={rippleVertexShader} fragmentShader={rippleFragmentShader}
           transparent depthWrite={false} side={DoubleSide} toneMapped={false} />
       </mesh>
-      {props.variant === 'droplet' && <DropletSource time={time} interval={props.rippleInterval}
+      {hasDrop && <DropletSource time={time} interval={props.rippleInterval}
         color={props.color} glow={props.glowIntensity} quality={props.quality} />}
+      {props.variant === 'crown' && <WaterCrown time={time} interval={props.rippleInterval}
+        color={props.color} glow={props.glowIntensity} lineWidth={props.lineWidth} />}
     </group>
   );
 }

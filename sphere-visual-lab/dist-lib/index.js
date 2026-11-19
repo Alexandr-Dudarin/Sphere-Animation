@@ -2,12 +2,12 @@ import { useEffect as e, useMemo as t, useRef as n, useState as r } from "react"
 import { Fragment as i, jsx as a, jsxs as o } from "react/jsx-runtime";
 import { Canvas as s, useFrame as c, useThree as l } from "@react-three/fiber";
 import * as u from "three";
-import { CatmullRomCurve3 as d, Color as f, DoubleSide as p, Vector3 as m } from "three";
-var h = {
+import { CatmullRomCurve3 as d, Color as f, DoubleSide as p, Object3D as m, Vector3 as h, Vector4 as g } from "three";
+var _ = {
 	root: "_root_18rec_1",
 	darkBackground: "_darkBackground_18rec_10",
 	stage: "_stage_18rec_21"
-}, g = {
+}, v = {
 	size: 420,
 	mode: "thinking",
 	preset: "glass-petal",
@@ -16,7 +16,7 @@ var h = {
 	glowIntensity: "high",
 	speed: 1.1,
 	background: "dark"
-}, _ = {
+}, y = {
 	"glass-petal": {
 		coreRgb: "22 46 132",
 		accentRgb: "88 194 255",
@@ -156,7 +156,7 @@ var h = {
 };
 //#endregion
 //#region src/components/SphereVisual/hooks/useReducedMotion.ts
-function v() {
+function b() {
 	let [t, n] = r(!1);
 	return e(() => {
 		let e = window.matchMedia("(prefers-reduced-motion: reduce)"), t = () => {
@@ -171,12 +171,12 @@ function v() {
 }
 //#endregion
 //#region src/components/SphereVisual/utils/lerp.ts
-function y(e, t, n) {
+function x(e, t, n) {
 	return e + (t - e) * n;
 }
 //#endregion
 //#region src/components/SphereVisual/utils/normalizePointer.ts
-function b(e, t, n) {
+function S(e, t, n) {
 	if (n.width === 0 || n.height === 0) return {
 		x: 0,
 		y: 0
@@ -189,21 +189,21 @@ function b(e, t, n) {
 }
 //#endregion
 //#region src/components/SphereVisual/hooks/usePointerTracking.ts
-var x = .12, S = .001, C = {
+var C = .12, w = .001, T = {
 	x: 0,
 	y: 0
 };
-function w(t) {
-	let i = n(null), a = n(C), o = n(C), s = n(null), [c, l] = r(C);
+function E(t) {
+	let i = n(null), a = n(T), o = n(T), s = n(null), [c, l] = r(T);
 	return e(() => {
 		let e = i.current;
 		if (!e || !t) {
-			a.current = C, o.current = C, l((e) => e.x === 0 && e.y === 0 ? e : C);
+			a.current = T, o.current = T, l((e) => e.x === 0 && e.y === 0 ? e : T);
 			return;
 		}
 		let n = !1, r = () => {
 			if (s.current = null, n) return;
-			let e = o.current, t = a.current, i = y(e.x, t.x, x), c = y(e.y, t.y, x), u = Math.abs(t.x - i) <= S && Math.abs(t.y - c) <= S, d = u ? {
+			let e = o.current, t = a.current, i = x(e.x, t.x, C), c = x(e.y, t.y, C), u = Math.abs(t.x - i) <= w && Math.abs(t.y - c) <= w, d = u ? {
 				x: t.x,
 				y: t.y
 			} : {
@@ -214,15 +214,15 @@ function w(t) {
 		}, c = () => {
 			if (n || s.current !== null) return;
 			let e = o.current, t = a.current;
-			Math.abs(t.x - e.x) <= S && Math.abs(t.y - e.y) <= S || (s.current = window.requestAnimationFrame(r));
+			Math.abs(t.x - e.x) <= w && Math.abs(t.y - e.y) <= w || (s.current = window.requestAnimationFrame(r));
 		}, u = (t) => {
-			let n = e.getBoundingClientRect(), r = b(t.clientX, t.clientY, n);
+			let n = e.getBoundingClientRect(), r = S(t.clientX, t.clientY, n);
 			a.current = {
 				x: r.x,
 				y: r.y
 			}, c();
 		}, d = () => {
-			a.current = C, c();
+			a.current = T, c();
 		};
 		return e.addEventListener("pointermove", u), e.addEventListener("pointerleave", d), () => {
 			n = !0, e.removeEventListener("pointermove", u), e.removeEventListener("pointerleave", d), s.current !== null && (window.cancelAnimationFrame(s.current), s.current = null);
@@ -233,7 +233,7 @@ function w(t) {
 		pointerY: c.y
 	};
 }
-var T = {
+var D = {
 	root: "_root_17mb1_1",
 	reducedMotion: "_reducedMotion_17mb1_38",
 	backMist: "_backMist_17mb1_48",
@@ -272,7 +272,7 @@ var T = {
 	modeIdle: "_modeIdle_17mb1_479",
 	modeThinking: "_modeThinking_17mb1_495",
 	modeSearching: "_modeSearching_17mb1_515"
-}, E = {
+}, O = {
 	idle: {
 		rotationDuration: 18,
 		pulseDuration: 7,
@@ -291,28 +291,28 @@ var T = {
 		orbitOpacity: .52,
 		haloStrength: 1.14
 	}
-}, D = {
+}, k = {
 	low: "16px",
 	medium: "12px",
 	high: "8px"
-}, O = {
+}, A = {
 	low: .76,
 	medium: .88,
 	high: 1
-}, k = {
+}, j = {
 	low: .72,
 	medium: .88,
 	high: 1
 };
-function A({ presetConfig: e, mode: t, quality: n, interactive: r, glowIntensity: i, speed: s, pointerX: c, pointerY: l, reducedMotion: u }) {
-	let d = E[t], f = Math.max(s, .15);
+function M({ presetConfig: e, mode: t, quality: n, interactive: r, glowIntensity: i, speed: s, pointerX: c, pointerY: l, reducedMotion: u }) {
+	let d = O[t], f = Math.max(s, .15);
 	return /* @__PURE__ */ o("div", {
 		className: [
-			T.root,
-			u ? T.reducedMotion : "",
-			t === "idle" ? T.modeIdle : "",
-			t === "thinking" ? T.modeThinking : "",
-			t === "searching" ? T.modeSearching : ""
+			D.root,
+			u ? D.reducedMotion : "",
+			t === "idle" ? D.modeIdle : "",
+			t === "thinking" ? D.modeThinking : "",
+			t === "searching" ? D.modeSearching : ""
 		].filter(Boolean).join(" "),
 		style: {
 			"--core-rgb": e.coreRgb,
@@ -326,9 +326,9 @@ function A({ presetConfig: e, mode: t, quality: n, interactive: r, glowIntensity
 			"--counter-duration": `${d.rotationDuration * 1.45 / f}s`,
 			"--micro-duration": `${d.rotationDuration * .72 / f}s`,
 			"--breath-duration": `${d.pulseDuration / f}s`,
-			"--detail-blur": D[n],
-			"--shell-opacity": O[n].toString(),
-			"--glow-alpha": Math.min(1, d.haloStrength * k[i]).toString(),
+			"--detail-blur": k[n],
+			"--shell-opacity": A[n].toString(),
+			"--glow-alpha": Math.min(1, d.haloStrength * j[i]).toString(),
 			"--flare-x": `${50 + c * 16}%`,
 			"--flare-y": `${22 + l * 13}%`,
 			"--violet-rgb": t === "searching" ? "156 122 255" : "132 111 255",
@@ -337,36 +337,36 @@ function A({ presetConfig: e, mode: t, quality: n, interactive: r, glowIntensity
 			"--amber-rgb": "255 196 112"
 		},
 		children: [
-			/* @__PURE__ */ a("div", { className: T.backMist }),
-			/* @__PURE__ */ a("div", { className: T.outerGlow }),
+			/* @__PURE__ */ a("div", { className: D.backMist }),
+			/* @__PURE__ */ a("div", { className: D.outerGlow }),
 			/* @__PURE__ */ o("div", {
-				className: T.vortexZone,
+				className: D.vortexZone,
 				children: [
-					/* @__PURE__ */ a("div", { className: T.swirlA }),
-					/* @__PURE__ */ a("div", { className: T.swirlB }),
-					/* @__PURE__ */ a("div", { className: T.swirlC }),
-					/* @__PURE__ */ a("div", { className: T.swirlD }),
-					/* @__PURE__ */ a("div", { className: T.chromaBand }),
-					/* @__PURE__ */ a("div", { className: T.tunnelGlow }),
-					/* @__PURE__ */ a("div", { className: T.texture }),
-					/* @__PURE__ */ a("div", { className: T.centerEye }),
-					/* @__PURE__ */ a("div", { className: T.centerCore })
+					/* @__PURE__ */ a("div", { className: D.swirlA }),
+					/* @__PURE__ */ a("div", { className: D.swirlB }),
+					/* @__PURE__ */ a("div", { className: D.swirlC }),
+					/* @__PURE__ */ a("div", { className: D.swirlD }),
+					/* @__PURE__ */ a("div", { className: D.chromaBand }),
+					/* @__PURE__ */ a("div", { className: D.tunnelGlow }),
+					/* @__PURE__ */ a("div", { className: D.texture }),
+					/* @__PURE__ */ a("div", { className: D.centerEye }),
+					/* @__PURE__ */ a("div", { className: D.centerCore })
 				]
 			}),
-			/* @__PURE__ */ a("div", { className: T.glassShell }),
-			/* @__PURE__ */ a("div", { className: T.shellInner }),
-			/* @__PURE__ */ a("div", { className: T.glassHalo }),
-			/* @__PURE__ */ a("div", { className: T.refraction }),
-			/* @__PURE__ */ a("div", { className: T.frontCaustic }),
-			/* @__PURE__ */ a("div", { className: T.specular }),
-			/* @__PURE__ */ a("div", { className: T.frontRim })
+			/* @__PURE__ */ a("div", { className: D.glassShell }),
+			/* @__PURE__ */ a("div", { className: D.shellInner }),
+			/* @__PURE__ */ a("div", { className: D.glassHalo }),
+			/* @__PURE__ */ a("div", { className: D.refraction }),
+			/* @__PURE__ */ a("div", { className: D.frontCaustic }),
+			/* @__PURE__ */ a("div", { className: D.specular }),
+			/* @__PURE__ */ a("div", { className: D.frontRim })
 		]
 	});
 }
 //#endregion
 //#region src/components/SphereVisual/renderers/three/InnerScatterField.tsx
-var j = 440;
-function M(e = "medium") {
+var N = 440;
+function P(e = "medium") {
 	if (typeof e == "number") return u.MathUtils.clamp(e, .5, 2);
 	switch (e) {
 		case "low": return .82;
@@ -374,7 +374,7 @@ function M(e = "medium") {
 		default: return 1;
 	}
 }
-function N() {
+function F() {
 	let e = document.createElement("canvas");
 	e.width = 64, e.height = 64;
 	let t = e.getContext("2d");
@@ -384,13 +384,13 @@ function N() {
 	let r = new u.CanvasTexture(e);
 	return r.needsUpdate = !0, r;
 }
-function P(e, t, n, r) {
+function I(e, t, n, r) {
 	let i = t * 3, a = r * n.speed, o = (1 - n.radius) ** 1.25, s = n.angle + a + n.radius * 5.6 + o * n.twist * 1.9 + Math.sin(a * .8 + n.phase) * .12, c = .92 + .05 * Math.sin(r * .75 + n.phase) + .025 * Math.cos(r * 1.1 + n.phase * .85), l = n.radius * c, u = o * .12, d = .012 * n.drift * Math.sin(s * 1.7 + n.phase) + .008 * n.drift * Math.cos(s * 2.1 - n.phase), f = Math.cos(s) * l * .84 + Math.cos(s * 2 + n.phase) * d - Math.cos(s) * u * .32, p = Math.sin(s) * l * .8 + Math.sin(s * 1.6 + n.phase) * d - Math.sin(s) * u * .26, m = n.depth * .06 + Math.sin(s * 1.18 + n.phase) * .013 + Math.cos(r * .62 + n.phase) * .006;
 	e[i] = f, e[i + 1] = p, e[i + 2] = m;
 }
-function ee({ speed: r = 1, reducedMotion: i = !1, glowIntensity: o = "medium", colors: s, scatterStrength: l }) {
-	let d = n(null), f = M(o), p = u.MathUtils.clamp(l, .45, 1.7), m = Math.max(220, Math.round(j * (.7 + p * .35))), { geometry: h, material: g, spriteTexture: _, positions: v, seeds: y } = t(() => {
-		let e = N(), t = new Float32Array(m * 3), n = new Float32Array(m * 3), r = [];
+function L({ speed: r = 1, reducedMotion: i = !1, glowIntensity: o = "medium", colors: s, scatterStrength: l }) {
+	let d = n(null), f = P(o), p = u.MathUtils.clamp(l, .45, 1.7), m = Math.max(220, Math.round(N * (.7 + p * .35))), { geometry: h, material: g, spriteTexture: _, positions: v, seeds: y } = t(() => {
+		let e = F(), t = new Float32Array(m * 3), n = new Float32Array(m * 3), r = [];
 		for (let e = 0; e < m; e += 1) {
 			let i = .045 + Math.random() ** 1.65 * .76, a = {
 				radius: i,
@@ -401,7 +401,7 @@ function ee({ speed: r = 1, reducedMotion: i = !1, glowIntensity: o = "medium", 
 				depth: u.MathUtils.randFloatSpread(1),
 				twist: u.MathUtils.randFloat(.85, 1.35)
 			};
-			r.push(a), P(t, e, a, 0);
+			r.push(a), I(t, e, a, 0);
 			let o = s.halo.clone().lerp(s.mint, .35 + i * .2), c = s.violet.clone().lerp(s.pink, .35 + (1 - i) * .4), l = o.lerp(c, .22 + (1 - i) * .42).lerp(s.white, (1 - i) * .08), d = e * 3;
 			n[d] = l.r, n[d + 1] = l.g, n[d + 2] = l.b;
 		}
@@ -437,7 +437,7 @@ function ee({ speed: r = 1, reducedMotion: i = !1, glowIntensity: o = "medium", 
 		_
 	]), c((e) => {
 		let t = i ? .22 : 1, n = e.clock.getElapsedTime() * r * t;
-		for (let e = 0; e < y.length; e += 1) P(v, e, y[e], n);
+		for (let e = 0; e < y.length; e += 1) I(v, e, y[e], n);
 		h.attributes.position.needsUpdate = !0, d.current && (d.current.rotation.z = Math.sin(n * .26) * .045, d.current.rotation.x = Math.cos(n * .22) * .018, d.current.rotation.y = Math.sin(n * .16) * .026);
 	}), /* @__PURE__ */ a("group", {
 		ref: d,
@@ -458,51 +458,51 @@ function ee({ speed: r = 1, reducedMotion: i = !1, glowIntensity: o = "medium", 
 }
 //#endregion
 //#region src/components/SphereVisual/renderers/three/PetalField.tsx
-var F = new u.Vector3(0, 0, 1);
-function te(e) {
+var R = new u.Vector3(0, 0, 1);
+function z(e) {
 	switch (e) {
 		case "low": return .82;
 		case "high": return 1.22;
 		default: return 1;
 	}
 }
-function I(e, t, n, r, i = 0, a = 0) {
-	let o = new u.Vector3(0, 0, i), s = new u.Vector3(0, e, i + a), c = new u.CubicBezierCurve3(o, new u.Vector3(t * 1.02, e * .18, i + a * .15), new u.Vector3(t * .92, e * .78, i + a * .8), s), l = new u.CubicBezierCurve3(s, new u.Vector3(-t * .92, e * .78, i + a * .8), new u.Vector3(-t * 1.02, e * .18, i + a * .15), o), d = [...c.getPoints(42), ...l.getPoints(42).slice(1)].map((e) => e.clone().applyAxisAngle(F, n)), f = new u.CatmullRomCurve3(d, !1, "catmullrom", .45);
+function B(e, t, n, r, i = 0, a = 0) {
+	let o = new u.Vector3(0, 0, i), s = new u.Vector3(0, e, i + a), c = new u.CubicBezierCurve3(o, new u.Vector3(t * 1.02, e * .18, i + a * .15), new u.Vector3(t * .92, e * .78, i + a * .8), s), l = new u.CubicBezierCurve3(s, new u.Vector3(-t * .92, e * .78, i + a * .8), new u.Vector3(-t * 1.02, e * .18, i + a * .15), o), d = [...c.getPoints(42), ...l.getPoints(42).slice(1)].map((e) => e.clone().applyAxisAngle(R, n)), f = new u.CatmullRomCurve3(d, !1, "catmullrom", .45);
 	return new u.TubeGeometry(f, 120, r, 12, !1);
 }
-function L(e, t, n, r, i, a, o, s, c = 0, l = 0) {
+function ee(e, t, n, r, i, a, o, s, c = 0, l = 0) {
 	return Array.from({ length: e }, (u, d) => {
 		let f = d / e * Math.PI * 2 + r;
 		return {
-			wash: I(t, n, f, s, c, l),
-			glow: I(t, n, f, o, c, l),
-			mid: I(t, n, f, a, c, l),
-			core: I(t, n, f, i, c, l)
+			wash: B(t, n, f, s, c, l),
+			glow: B(t, n, f, o, c, l),
+			mid: B(t, n, f, a, c, l),
+			core: B(t, n, f, i, c, l)
 		};
 	});
 }
-function R(e, t, n, r, i) {
+function V(e, t, n, r, i) {
 	return e.clone().lerp(t, r).lerp(n, i);
 }
-function ne(e, t, n) {
+function H(e, t, n) {
 	let r = e / t, i = (Math.sin(r * Math.PI * 2) + 1) * .5, a = (Math.sin(r * Math.PI * 2 + 2.1) + 1) * .5;
 	return {
-		wash: R(n.halo, n.mint, n.violet, .18 + i * .18, .08 + a * .12),
-		glow: R(n.violet, n.pink, n.mint, .18 + i * .28, .08 + a * .16),
-		mid: R(n.mint, n.halo, n.violet, .28 + i * .18, .08 + a * .1),
-		core: R(n.white, n.mint, n.violet, .2 + i * .16, .04 + a * .06)
+		wash: V(n.halo, n.mint, n.violet, .18 + i * .18, .08 + a * .12),
+		glow: V(n.violet, n.pink, n.mint, .18 + i * .28, .08 + a * .16),
+		mid: V(n.mint, n.halo, n.violet, .28 + i * .18, .08 + a * .1),
+		core: V(n.white, n.mint, n.violet, .2 + i * .16, .04 + a * .06)
 	};
 }
-function re(e, t, n) {
+function te(e, t, n) {
 	let r = e / t, i = (Math.sin(r * Math.PI * 2 + .7) + 1) * .5, a = (Math.sin(r * Math.PI * 2 + 3) + 1) * .5;
 	return {
-		wash: R(n.halo, n.violet, n.mint, .12 + i * .16, .06 + a * .08),
-		glow: R(n.violet, n.pink, n.halo, .24 + i * .2, .1 + a * .08),
-		mid: R(n.violet, n.pink, n.mint, .22 + i * .16, .06 + a * .12),
-		core: R(n.white, n.violet, n.mint, .14 + i * .12, .04 + a * .08)
+		wash: V(n.halo, n.violet, n.mint, .12 + i * .16, .06 + a * .08),
+		glow: V(n.violet, n.pink, n.halo, .24 + i * .2, .1 + a * .08),
+		mid: V(n.violet, n.pink, n.mint, .22 + i * .16, .06 + a * .12),
+		core: V(n.white, n.violet, n.mint, .14 + i * .12, .04 + a * .08)
 	};
 }
-function z(e, t, n) {
+function ne(e, t, n) {
 	let r = e / t, i = (Math.sin(r * Math.PI * 2 + 1.4) + 1) * .5;
 	return {
 		wash: n.halo.clone().lerp(n.violet, .12 + i * .08),
@@ -511,8 +511,8 @@ function z(e, t, n) {
 		core: n.white.clone().lerp(n.mint, .12 + i * .08)
 	};
 }
-function ie({ speed: e, reducedMotion: r, glowIntensity: i, colors: s }) {
-	let l = n(null), d = n(null), f = n(null), p = n(null), m = n(null), h = te(i), g = t(() => L(8, .9, .19, 0, .0054, .0134, .025, .043, .008, .024), []), _ = t(() => L(8, .64, .132, Math.PI / 8, .0044, .0108, .0195, .032, .016, .013), []), v = t(() => L(8, .36, .07, 0, .003, .0068, .011, .017, .022, .006), []), y = t(() => s.white.clone().lerp(s.mint, .28), [s]), b = t(() => s.white.clone().lerp(s.pink, .1), [s]), x = t(() => s.halo.clone().lerp(s.mint, .22), [s]);
+function re({ speed: e, reducedMotion: r, glowIntensity: i, colors: s }) {
+	let l = n(null), d = n(null), f = n(null), p = n(null), m = n(null), h = z(i), g = t(() => ee(8, .9, .19, 0, .0054, .0134, .025, .043, .008, .024), []), _ = t(() => ee(8, .64, .132, Math.PI / 8, .0044, .0108, .0195, .032, .016, .013), []), v = t(() => ee(8, .36, .07, 0, .003, .0068, .011, .017, .022, .006), []), y = t(() => s.white.clone().lerp(s.mint, .28), [s]), b = t(() => s.white.clone().lerp(s.pink, .1), [s]), x = t(() => s.halo.clone().lerp(s.mint, .22), [s]);
 	return c((t) => {
 		let n = t.clock.getElapsedTime(), i = r ? .35 : 1, a = Math.max(e, .15), o = Math.sin(n * .92 * i), s = Math.sin(n * .98 * i + .12), c = Math.sin(n * 1.08 * i + .68), u = Math.sin(n * 1.22 * i + 1.28);
 		if (l.current) {
@@ -531,7 +531,7 @@ function ie({ speed: e, reducedMotion: r, glowIntensity: i, colors: s }) {
 			/* @__PURE__ */ a("group", {
 				ref: d,
 				children: g.map((e, t) => {
-					let n = ne(t, g.length, s);
+					let n = H(t, g.length, s);
 					return /* @__PURE__ */ o("group", { children: [
 						/* @__PURE__ */ a("mesh", {
 							geometry: e.wash,
@@ -587,7 +587,7 @@ function ie({ speed: e, reducedMotion: r, glowIntensity: i, colors: s }) {
 			/* @__PURE__ */ a("group", {
 				ref: f,
 				children: _.map((e, t) => {
-					let n = re(t, _.length, s);
+					let n = te(t, _.length, s);
 					return /* @__PURE__ */ o("group", { children: [
 						/* @__PURE__ */ a("mesh", {
 							geometry: e.wash,
@@ -643,7 +643,7 @@ function ie({ speed: e, reducedMotion: r, glowIntensity: i, colors: s }) {
 			/* @__PURE__ */ a("group", {
 				ref: p,
 				children: v.map((e, t) => {
-					let n = z(t, v.length, s);
+					let n = ne(t, v.length, s);
 					return /* @__PURE__ */ o("group", { children: [
 						/* @__PURE__ */ a("mesh", {
 							geometry: e.wash,
@@ -762,23 +762,23 @@ function ie({ speed: e, reducedMotion: r, glowIntensity: i, colors: s }) {
 }
 //#endregion
 //#region src/components/SphereVisual/renderers/three/PetalPulseField.tsx
-var ae = new u.Vector3(0, 0, 1);
-function oe(e) {
+var ie = new u.Vector3(0, 0, 1);
+function ae(e) {
 	switch (e) {
 		case "low": return .82;
 		case "high": return 1.18;
 		default: return 1;
 	}
 }
-function se(e, t, n, r, i = 0, a = 0) {
-	let o = new u.Vector3(0, 0, i), s = new u.Vector3(0, e, i + a), c = new u.CubicBezierCurve3(o, new u.Vector3(t * 1.02, e * .18, i + a * .15), new u.Vector3(t * .92, e * .78, i + a * .8), s), l = new u.CubicBezierCurve3(s, new u.Vector3(-t * .92, e * .78, i + a * .8), new u.Vector3(-t * 1.02, e * .18, i + a * .15), o), d = [...c.getPoints(42), ...l.getPoints(42).slice(1)].map((e) => e.clone().applyAxisAngle(ae, n)), f = new u.CatmullRomCurve3(d, !1, "catmullrom", .45);
+function oe(e, t, n, r, i = 0, a = 0) {
+	let o = new u.Vector3(0, 0, i), s = new u.Vector3(0, e, i + a), c = new u.CubicBezierCurve3(o, new u.Vector3(t * 1.02, e * .18, i + a * .15), new u.Vector3(t * .92, e * .78, i + a * .8), s), l = new u.CubicBezierCurve3(s, new u.Vector3(-t * .92, e * .78, i + a * .8), new u.Vector3(-t * 1.02, e * .18, i + a * .15), o), d = [...c.getPoints(42), ...l.getPoints(42).slice(1)].map((e) => e.clone().applyAxisAngle(ie, n)), f = new u.CatmullRomCurve3(d, !1, "catmullrom", .45);
 	return new u.TubeGeometry(f, 160, r, 12, !1);
 }
-function ce(e, t, n, r, i, a = 0, o = 0) {
-	return Array.from({ length: e }, (s, c) => ({ pulse: se(t, n, c / e * Math.PI * 2 + r, i, a, o) }));
+function se(e, t, n, r, i, a = 0, o = 0) {
+	return Array.from({ length: e }, (s, c) => ({ pulse: oe(t, n, c / e * Math.PI * 2 + r, i, a, o) }));
 }
-var le = "\n  varying vec2 vUv;\n\n  void main() {\n    vUv = uv;\n    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n  }\n", ue = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uSpeed;\n  uniform float uOffset;\n  uniform vec3 uBaseColor;\n  uniform vec3 uHotColor;\n\n  varying vec2 vUv;\n\n  float loopDistance(float a, float b) {\n    float d = abs(a - b);\n    return min(d, 1.0 - d);\n  }\n\n  void main() {\n    float along = fract(vUv.x - uTime * uSpeed + uOffset);\n\n    float head = exp(-pow(loopDistance(along, 0.18) / 0.042, 2.0));\n    float tail = exp(-pow(loopDistance(along, 0.26) / 0.12, 2.0)) * 0.56;\n    float pulse = clamp(head + tail, 0.0, 1.0);\n\n    float body = 0.12 + 0.06 * sin((vUv.x + uOffset) * 24.0 - uTime * 1.15);\n    float shimmer = 0.92 + 0.08 * sin((vUv.x + uOffset) * 34.0 - uTime * 1.35);\n\n    vec3 color = mix(uBaseColor, uHotColor, pulse);\n    float alpha = uOpacity * (body + pulse * 1.22) * shimmer;\n\n    gl_FragColor = vec4(color, alpha);\n  }\n";
-function de({ geometry: e, baseColor: r, hotColor: i, opacity: o, speed: s, reducedMotion: l, glowFactor: d, offset: f, speedFactor: p, pulseFactor: m }) {
+var ce = "\n  varying vec2 vUv;\n\n  void main() {\n    vUv = uv;\n    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n  }\n", le = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uSpeed;\n  uniform float uOffset;\n  uniform vec3 uBaseColor;\n  uniform vec3 uHotColor;\n\n  varying vec2 vUv;\n\n  float loopDistance(float a, float b) {\n    float d = abs(a - b);\n    return min(d, 1.0 - d);\n  }\n\n  void main() {\n    float along = fract(vUv.x - uTime * uSpeed + uOffset);\n\n    float head = exp(-pow(loopDistance(along, 0.18) / 0.042, 2.0));\n    float tail = exp(-pow(loopDistance(along, 0.26) / 0.12, 2.0)) * 0.56;\n    float pulse = clamp(head + tail, 0.0, 1.0);\n\n    float body = 0.12 + 0.06 * sin((vUv.x + uOffset) * 24.0 - uTime * 1.15);\n    float shimmer = 0.92 + 0.08 * sin((vUv.x + uOffset) * 34.0 - uTime * 1.35);\n\n    vec3 color = mix(uBaseColor, uHotColor, pulse);\n    float alpha = uOpacity * (body + pulse * 1.22) * shimmer;\n\n    gl_FragColor = vec4(color, alpha);\n  }\n";
+function ue({ geometry: e, baseColor: r, hotColor: i, opacity: o, speed: s, reducedMotion: l, glowFactor: d, offset: f, speedFactor: p, pulseFactor: m }) {
 	let h = n(null), g = t(() => ({
 		uTime: { value: 0 },
 		uOpacity: { value: o * d * m },
@@ -804,8 +804,8 @@ function de({ geometry: e, baseColor: r, hotColor: i, opacity: o, speed: s, redu
 		children: /* @__PURE__ */ a("shaderMaterial", {
 			ref: h,
 			uniforms: g,
-			vertexShader: le,
-			fragmentShader: ue,
+			vertexShader: ce,
+			fragmentShader: le,
 			transparent: !0,
 			depthWrite: !1,
 			toneMapped: !1,
@@ -813,8 +813,8 @@ function de({ geometry: e, baseColor: r, hotColor: i, opacity: o, speed: s, redu
 		})
 	});
 }
-function fe({ speed: e, reducedMotion: r, glowIntensity: i, colors: s, pulseStrength: l }) {
-	let d = n(null), f = n(null), p = oe(i), m = u.MathUtils.clamp(l, .45, 1.7), h = t(() => ce(10, .76, .17, 0, .0038, .012, .022), []), g = t(() => ce(10, .58, .12, Math.PI / 10, .0032, .018, .012), []);
+function de({ speed: e, reducedMotion: r, glowIntensity: i, colors: s, pulseStrength: l }) {
+	let d = n(null), f = n(null), p = ae(i), m = u.MathUtils.clamp(l, .45, 1.7), h = t(() => se(10, .76, .17, 0, .0038, .012, .022), []), g = t(() => se(10, .58, .12, Math.PI / 10, .0032, .018, .012), []);
 	return c((t) => {
 		let n = t.clock.getElapsedTime(), i = r ? .42 : 1, a = Math.max(e, .15);
 		if (d.current) {
@@ -831,7 +831,7 @@ function fe({ speed: e, reducedMotion: r, glowIntensity: i, colors: s, pulseStre
 		renderOrder: 24,
 		children: [/* @__PURE__ */ a("group", {
 			ref: d,
-			children: h.map((t, n) => n % 2 == 0 ? /* @__PURE__ */ a(de, {
+			children: h.map((t, n) => n % 2 == 0 ? /* @__PURE__ */ a(ue, {
 				geometry: t.pulse,
 				baseColor: s.mint.clone().lerp(s.halo, .3),
 				hotColor: s.white.clone().lerp(s.mint, .14),
@@ -845,7 +845,7 @@ function fe({ speed: e, reducedMotion: r, glowIntensity: i, colors: s, pulseStre
 			}, `outer-pulse-${n}`) : null)
 		}), /* @__PURE__ */ a("group", {
 			ref: f,
-			children: g.map((t, n) => n % 3 == 0 ? /* @__PURE__ */ a(de, {
+			children: g.map((t, n) => n % 3 == 0 ? /* @__PURE__ */ a(ue, {
 				geometry: t.pulse,
 				baseColor: s.violet.clone().lerp(s.pink, .24),
 				hotColor: s.white.clone().lerp(s.violet, .12),
@@ -862,49 +862,49 @@ function fe({ speed: e, reducedMotion: r, glowIntensity: i, colors: s, pulseStre
 }
 //#endregion
 //#region src/components/SphereVisual/renderers/three/PetalEchoField.tsx
-var pe = new u.Vector3(0, 0, 1);
-function me(e) {
+var fe = new u.Vector3(0, 0, 1);
+function pe(e) {
 	switch (e) {
 		case "low": return .82;
 		case "high": return 1.2;
 		default: return 1;
 	}
 }
-function B(e, t, n, r, i = 0, a = 0) {
-	let o = new u.Vector3(0, 0, i), s = new u.Vector3(0, e, i + a), c = new u.CubicBezierCurve3(o, new u.Vector3(t * 1.03, e * .18, i + a * .15), new u.Vector3(t * .94, e * .78, i + a * .82), s), l = new u.CubicBezierCurve3(s, new u.Vector3(-t * .94, e * .78, i + a * .82), new u.Vector3(-t * 1.03, e * .18, i + a * .15), o), d = [...c.getPoints(42), ...l.getPoints(42).slice(1)].map((e) => e.clone().applyAxisAngle(pe, n)), f = new u.CatmullRomCurve3(d, !1, "catmullrom", .45);
+function U(e, t, n, r, i = 0, a = 0) {
+	let o = new u.Vector3(0, 0, i), s = new u.Vector3(0, e, i + a), c = new u.CubicBezierCurve3(o, new u.Vector3(t * 1.03, e * .18, i + a * .15), new u.Vector3(t * .94, e * .78, i + a * .82), s), l = new u.CubicBezierCurve3(s, new u.Vector3(-t * .94, e * .78, i + a * .82), new u.Vector3(-t * 1.03, e * .18, i + a * .15), o), d = [...c.getPoints(42), ...l.getPoints(42).slice(1)].map((e) => e.clone().applyAxisAngle(fe, n)), f = new u.CatmullRomCurve3(d, !1, "catmullrom", .45);
 	return new u.TubeGeometry(f, 120, r, 12, !1);
 }
-function he(e, t, n, r, i, a, o, s = 0, c = 0) {
+function me(e, t, n, r, i, a, o, s = 0, c = 0) {
 	return Array.from({ length: e }, (l, u) => {
 		let d = u / e * Math.PI * 2 + r;
 		return {
-			haze: B(t, n, d, o, s, c),
-			bloom: B(t, n, d, a, s, c),
-			ghost: B(t, n, d, i, s, c)
+			haze: U(t, n, d, o, s, c),
+			bloom: U(t, n, d, a, s, c),
+			ghost: U(t, n, d, i, s, c)
 		};
 	});
 }
-function V(e, t, n, r, i) {
+function W(e, t, n, r, i) {
 	return e.clone().lerp(t, r).lerp(n, i);
 }
-function ge(e, t, n) {
+function he(e, t, n) {
 	let r = e / t, i = (Math.sin(r * Math.PI * 2 + .3) + 1) * .5, a = (Math.sin(r * Math.PI * 2 + 2.4) + 1) * .5;
 	return {
-		haze: V(n.halo, n.violet, n.mint, .1 + i * .1, .04 + a * .06),
-		bloom: V(n.violet, n.pink, n.mint, .18 + i * .16, .06 + a * .08),
-		ghost: V(n.halo, n.white, n.violet, .14 + i * .1, .05 + a * .06)
+		haze: W(n.halo, n.violet, n.mint, .1 + i * .1, .04 + a * .06),
+		bloom: W(n.violet, n.pink, n.mint, .18 + i * .16, .06 + a * .08),
+		ghost: W(n.halo, n.white, n.violet, .14 + i * .1, .05 + a * .06)
 	};
 }
-function H(e, t, n) {
+function ge(e, t, n) {
 	let r = e / t, i = (Math.sin(r * Math.PI * 2 + 1.2) + 1) * .5, a = (Math.sin(r * Math.PI * 2 + 3.1) + 1) * .5;
 	return {
-		haze: V(n.halo, n.violet, n.mint, .08 + i * .08, .04 + a * .05),
-		bloom: V(n.violet, n.pink, n.halo, .15 + i * .13, .05 + a * .06),
-		ghost: V(n.halo, n.white, n.mint, .1 + i * .08, .04 + a * .05)
+		haze: W(n.halo, n.violet, n.mint, .08 + i * .08, .04 + a * .05),
+		bloom: W(n.violet, n.pink, n.halo, .15 + i * .13, .05 + a * .06),
+		ghost: W(n.halo, n.white, n.mint, .1 + i * .08, .04 + a * .05)
 	};
 }
 function _e({ speed: e, reducedMotion: r, glowIntensity: i, colors: s, echoStrength: l }) {
-	let d = n(null), f = n(null), p = n(null), m = me(i), h = u.MathUtils.clamp(l, .45, 1.7), g = t(() => he(8, .95, .205, 0, .0115, .024, .043, -.012, .02), []), _ = t(() => he(8, .82, .17, Math.PI / 8, .0095, .019, .034, -.008, .014), []);
+	let d = n(null), f = n(null), p = n(null), m = pe(i), h = u.MathUtils.clamp(l, .45, 1.7), g = t(() => me(8, .95, .205, 0, .0115, .024, .043, -.012, .02), []), _ = t(() => me(8, .82, .17, Math.PI / 8, .0095, .019, .034, -.008, .014), []);
 	return c((t) => {
 		let n = t.clock.getElapsedTime(), i = r ? .35 : 1, a = Math.max(e, .15);
 		if (d.current) {
@@ -918,7 +918,7 @@ function _e({ speed: e, reducedMotion: r, glowIntensity: i, colors: s, echoStren
 		children: [/* @__PURE__ */ a("group", {
 			ref: f,
 			children: g.map((e, t) => {
-				let n = ge(t, g.length, s);
+				let n = he(t, g.length, s);
 				return /* @__PURE__ */ o("group", { children: [
 					/* @__PURE__ */ a("mesh", {
 						geometry: e.haze,
@@ -961,7 +961,7 @@ function _e({ speed: e, reducedMotion: r, glowIntensity: i, colors: s, echoStren
 		}), /* @__PURE__ */ a("group", {
 			ref: p,
 			children: _.map((e, t) => {
-				let n = H(t, _.length, s);
+				let n = ge(t, _.length, s);
 				return /* @__PURE__ */ o("group", { children: [
 					/* @__PURE__ */ a("mesh", {
 						geometry: e.haze,
@@ -1428,13 +1428,13 @@ function Fe(e) {
 				colors: y,
 				echoStrength: r.echoStrength
 			}),
-			/* @__PURE__ */ a(ie, {
+			/* @__PURE__ */ a(re, {
 				speed: p,
 				reducedMotion: g,
 				glowIntensity: f,
 				colors: y
 			}),
-			/* @__PURE__ */ a(fe, {
+			/* @__PURE__ */ a(de, {
 				speed: p,
 				reducedMotion: g,
 				glowIntensity: f,
@@ -1448,7 +1448,7 @@ function Fe(e) {
 				colors: y,
 				centerStrength: r.centerStrength
 			}),
-			/* @__PURE__ */ a(ee, {
+			/* @__PURE__ */ a(L, {
 				speed: p,
 				reducedMotion: g,
 				interactive: d,
@@ -1520,19 +1520,19 @@ function Re(e) {
 //#endregion
 //#region src/components/SphereVisual/SphereVisual.tsx
 var ze = 440;
-function Be({ size: e = g.size, width: t, height: n, mode: r = g.mode, preset: i = g.preset, quality: o = g.quality, interactive: s = g.interactive, glowIntensity: c = g.glowIntensity, speed: l = g.speed, background: u = g.background, renderer: d = "three", frameloop: f = "always", className: p }) {
-	let m = v(), y = s && !m, { containerRef: b, pointerX: x, pointerY: S } = w(y), C = t ?? e, T = n ?? e, E = _[i], D = [
-		h.root,
-		u === "dark" ? h.darkBackground : "",
+function Be({ size: e = v.size, width: t, height: n, mode: r = v.mode, preset: i = v.preset, quality: o = v.quality, interactive: s = v.interactive, glowIntensity: c = v.glowIntensity, speed: l = v.speed, background: u = v.background, renderer: d = "three", frameloop: f = "always", className: p }) {
+	let m = b(), h = s && !m, { containerRef: g, pointerX: x, pointerY: S } = E(h), C = t ?? e, w = n ?? e, T = y[i], D = [
+		_.root,
+		u === "dark" ? _.darkBackground : "",
 		p ?? ""
 	].filter(Boolean).join(" "), O = {
 		width: C,
-		height: T
+		height: w
 	}, k = {
-		presetConfig: E,
+		presetConfig: T,
 		mode: r,
 		quality: o,
-		interactive: y,
+		interactive: h,
 		glowIntensity: c,
 		speed: l,
 		pointerX: x,
@@ -1545,13 +1545,13 @@ function Be({ size: e = g.size, width: t, height: n, mode: r = g.mode, preset: i
 		className: D,
 		style: O,
 		children: /* @__PURE__ */ a("div", {
-			ref: b,
-			className: h.stage,
-			children: d === "css" ? /* @__PURE__ */ a(A, {
-				presetConfig: E,
+			ref: g,
+			className: _.stage,
+			children: d === "css" ? /* @__PURE__ */ a(M, {
+				presetConfig: T,
 				mode: r,
 				quality: o,
-				interactive: y,
+				interactive: h,
 				glowIntensity: c,
 				speed: l,
 				pointerX: x,
@@ -1563,7 +1563,7 @@ function Be({ size: e = g.size, width: t, height: n, mode: r = g.mode, preset: i
 }
 //#endregion
 //#region src/components/WaterRippleVisual/rippleConfig.ts
-var U = {
+var G = {
 	speed: .7,
 	glowIntensity: 1.3,
 	amplitude: .008,
@@ -1579,11 +1579,11 @@ function Ue(e, t, n, r, i) {
 }
 //#endregion
 //#region src/components/WaterRippleVisual/rippleTiming.ts
-function W(e, t, n, r) {
+function K(e, t, n, r) {
 	return Number.isFinite(e) ? Math.min(r, Math.max(n, e)) : t;
 }
 function We(e, t, n) {
-	return e + W(t, 0, 0, .05) * W(n, U.speed, 0, 3);
+	return e + K(t, 0, 0, .05) * K(n, G.speed, 0, 3);
 }
 //#endregion
 //#region src/components/WaterRippleVisual/rippleShaders.ts
@@ -1642,13 +1642,13 @@ var Ge = "\n  uniform float uTime;\n  uniform float uInterval;\n  uniform float 
     gl_FragColor = vec4(color, alpha);
     #include <colorspace_fragment>
   }
-`, G = 1.83, Je = 2.43, K = .66, Ye = .09, Xe = .32, Ze = .18;
+`, q = 1.83, Je = 2.43, J = .66, Ye = .09, Xe = .32, Ze = .18;
 function Qe(e) {
-	return -W(e, U.rippleInterval, 3, 10) - K + Ye;
+	return -K(e, G.rippleInterval, 3, 10) - J + Ye;
 }
-Qe(U.rippleInterval);
-var q = .112, $e = 1.5, et = .12, tt = G - et - q * $e, nt = .1, rt = 2 * (tt - q - nt * K) / (K * K), it = (e) => e * e * (3 - 2 * e), J = (e) => Math.max(0, Math.min(1, e));
-function Y(e, t, n, r = 1) {
+Qe(G.rippleInterval);
+var Y = .112, $e = 1.5, et = .12, tt = q - et - Y * $e, nt = .1, rt = 2 * (tt - Y - nt * J) / (J * J), it = (e) => e * e * (3 - 2 * e), X = (e) => Math.max(0, Math.min(1, e));
+function Z(e, t, n, r = 1) {
 	return {
 		visible: r > 0,
 		position: [
@@ -1668,22 +1668,22 @@ function Y(e, t, n, r = 1) {
 	};
 }
 function at(e, t, n = t) {
-	let r = J(e / .12), i = n * Math.max(.03, 1 - r);
-	return Y(i, t * (1 + .5 * r), i, 1 - r);
+	let r = X(e / .12), i = n * Math.max(.03, 1 - r);
+	return Z(i, t * (1 + .5 * r), i, 1 - r);
 }
 function ot(e, t) {
-	let n = W(t, U.rippleInterval, 3, 10), r = (e % n + n) % n, i = e < 0 ? e : r < .55 ? r : r - n, a = ((e + K) % n + n) % n, o = J((a - Ye) / (n - Ye)), s = it(o), c = q * Math.cbrt(.035 + .965 * o), l = c * (.72 + .78 * s), u = et * s, d = Y(G - u - l, c, l, it(J(a / Ye)));
+	let n = K(t, G.rippleInterval, 3, 10), r = (e % n + n) % n, i = e < 0 ? e : r < .55 ? r : r - n, a = ((e + J) % n + n) % n, o = X((a - Ye) / (n - Ye)), s = it(o), c = Y * Math.cbrt(.035 + .965 * o), l = c * (.72 + .78 * s), u = et * s, d = Z(q - u - l, c, l, it(X(a / Ye)));
 	d.taper = .28 * s;
-	let f = it(J((o - .72) / .28)), p = Y(G - u / 2, .027 * (1 - f) + .003, Math.max(.004, u / 2 + .008));
+	let f = it(X((o - .72) / .28)), p = Z(q - u / 2, .027 * (1 - f) + .003, Math.max(.004, u / 2 + .008));
 	if (a < .09) {
 		let e = a / Ye;
-		p = Y(G - et * (1 - e) / 2, .003 + e * .027, (et / 2 + .008) * (1 - e) + .008 * e);
+		p = Z(q - et * (1 - e) / 2, .003 + e * .027, (et / 2 + .008) * (1 - e) + .008 * e);
 	}
-	let m = Y(0, q, q, 0), h = "forming";
+	let m = Z(0, Y, Y, 0), h = "forming";
 	if (i >= -.66 && i < 0) {
-		let e = i + K, t = e / K, n = 1 - it(J(t / .22)), r = .09 * Math.sin(e * 26) * Math.exp(-e * 3) * Math.sin(t * Math.PI), a = 1 + ($e - 1) * n + r, o = q / Math.sqrt(a / $e);
-		m = Y(tt - nt * e - rt * e * e / 2, o, q * a), m.taper = Ze + (.28 - Ze) * n, m.tip = Xe * it(J(e / .1)) * (1 - .15 * t), m.tilt = .055 * Math.sin(e * 18) * Math.sin(t * Math.PI), h = "falling";
-	} else i >= 0 && i < .12 && (m = at(i, q * Math.sqrt($e), q), m.taper = Ze * (1 - i / .12), m.tip = Xe * .85 * (1 - i / .12), h = "impact");
+		let e = i + J, t = e / J, n = 1 - it(X(t / .22)), r = .09 * Math.sin(e * 26) * Math.exp(-e * 3) * Math.sin(t * Math.PI), a = 1 + ($e - 1) * n + r, o = Y / Math.sqrt(a / $e);
+		m = Z(tt - nt * e - rt * e * e / 2, o, Y * a), m.taper = Ze + (.28 - Ze) * n, m.tip = Xe * it(X(e / .1)) * (1 - .15 * t), m.tilt = .055 * Math.sin(e * 18) * Math.sin(t * Math.PI), h = "falling";
+	} else i >= 0 && i < .12 && (m = at(i, Y * Math.sqrt($e), Y), m.taper = Ze * (1 - i / .12), m.tip = Xe * .85 * (1 - i / .12), h = "impact");
 	let g = [{
 		delay: .09,
 		radius: .027,
@@ -1693,10 +1693,10 @@ function ot(e, t) {
 		radius: .019,
 		sign: 1
 	}].map(({ delay: e, radius: t, sign: n }) => {
-		let r = i + K - e, a = G - .085, o = Math.sqrt(2 * (a - t) / rt);
-		if (r < 0 || r > o + .12) return Y(a, t, t, 0);
+		let r = i + J - e, a = q - .085, o = Math.sqrt(2 * (a - t) / rt);
+		if (r < 0 || r > o + .12) return Z(a, t, t, 0);
 		if (r >= o) return at(r - o, t);
-		let s = r / o, c = 1 + .08 * Math.sin(r * 24) * Math.sin(Math.PI * s), l = Y(a - rt * r * r / 2, t / Math.sqrt(c), t * c, it(J(r / .045)));
+		let s = r / o, c = 1 + .08 * Math.sin(r * 24) * Math.sin(Math.PI * s), l = Z(a - rt * r * r / 2, t / Math.sqrt(c), t * c, it(X(r / .045)));
 		return l.position[0] = n * .04 * Math.sin(Math.PI * s), l;
 	});
 	return {
@@ -1746,7 +1746,7 @@ function ft() {
 		[
 			0,
 			0,
-			G
+			q
 		]
 	];
 	return [
@@ -1785,10 +1785,10 @@ function ft() {
 			[
 				0,
 				0,
-				G
+				q
 			]
 		]
-	].map((e) => new d(e.map(([e, t, n]) => new m(e, t, n)), !1, "centripetal"));
+	].map((e) => new d(e.map(([e, t, n]) => new h(e, t, n)), !1, "centripetal"));
 }
 //#endregion
 //#region src/components/WaterRippleVisual/DropletSource.tsx
@@ -1868,26 +1868,70 @@ function pt({ time: r, interval: i, color: s, glow: u, quality: d }) {
 	}, `liquid-${t}`))] });
 }
 //#endregion
+//#region src/components/WaterRippleVisual/waterCollectionShaders.ts
+var mt = "\nvarying vec2 vPoint;\nvarying vec2 vUv;\nvoid main() {\n  vPoint = position.xy;\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}", ht = "\nuniform float uTime, uDamping, uLineWidth, uGlow;\nuniform vec3 uColor;\nuniform vec4 uImpacts[24];\nvarying vec2 vPoint;\nvoid main() {\n  float core = 0.0;\n  float halo = 0.0;\n  float field = 0.0;\n  for (int i = 0; i < 24; i++) {\n    float age = uTime - uImpacts[i].z;\n    float r = length(vPoint - uImpacts[i].xy);\n    float trail = age * 0.84 - r;\n    float envelope = smoothstep(0.0, 0.14, trail) * (1.0 - smoothstep(0.65, 1.35, trail));\n    envelope *= step(0.0, age) * exp(-r * uDamping * 0.65 - max(age, 0.0) * 0.12) * uImpacts[i].w;\n    float wave = sin(trail * 15.0);\n    float distanceToCrest = acos(clamp(wave, -1.0, 1.0)) / 15.0;\n    float aa = max(fwidth(r), 0.001);\n    float line = 1.0 - smoothstep(uLineWidth * 0.28, uLineWidth * 0.28 + aa, distanceToCrest);\n    core += line * envelope;\n    halo += exp(-pow(distanceToCrest / (uLineWidth * 1.7 + aa), 2.0)) * envelope;\n    field += wave * envelope;\n  }\n  float edge = 1.0 - smoothstep(2.2, 2.78, length(vPoint));\n  float light = (core * 0.95 + halo * 0.23) * edge;\n  // Intersections brighten or soften with the signed wave field.\n  light *= 0.86 + 0.14 * clamp(field + 0.5, 0.0, 1.5);\n  gl_FragColor = vec4(mix(uColor, vec3(0.68, 0.94, 1.0), min(core * 0.38, 0.6)) * uGlow,\n    clamp(light * uGlow, 0.0, 0.95));\n  #include <colorspace_fragment>\n}", gt = "\nvarying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);\n}", _t = "\nuniform vec3 uColor;\nuniform float uGlow;\nvarying vec2 vUv;\nvoid main() {\n  float x = abs(vUv.x - 0.5);\n  float tail = pow(1.0 - vUv.y, 1.2) * smoothstep(0.0, 0.12, vUv.y);\n  float core = exp(-x * x * 100.0);\n  gl_FragColor = vec4(mix(uColor, vec3(0.6, 0.94, 1.0), core * 0.6) * uGlow,\n    (core + exp(-x * x * 18.0) * 0.22) * tail * 0.8);\n  #include <colorspace_fragment>\n}", vt = "\nuniform float uIntensity;\nvarying vec2 vPoint;\nvoid main() {\n  vPoint = position.xy;\n  vec3 p = position;\n  p.z = -0.65 * uIntensity * exp(-dot(p.xy, p.xy) * 1.9);\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);\n}", yt = "\nuniform float uTime, uGlow, uLineWidth, uIntensity;\nuniform vec3 uColor;\nvarying vec2 vPoint;\nvoid main() {\n  float r = length(vPoint);\n  float angle = atan(vPoint.y, vPoint.x);\n  // Integer angular winding keeps the atan seam continuous.\n  float phase = r * 16.0 - angle * 3.0 + uTime * 2.1;\n  float d = abs(sin(phase * 0.5));\n  float aa = max(fwidth(d), 0.007);\n  float width = uLineWidth * 2.0;\n  float core = 1.0 - smoothstep(width, width + aa, d);\n  float halo = exp(-pow(d / (width * 3.0 + aa), 2.0));\n  float edge = smoothstep(0.09, 0.26, r) * (1.0 - smoothstep(1.7, 2.65, r));\n  float flow = 0.55 + 0.45 * pow(0.5 + 0.5 * sin(r * 7.0 + uTime * 3.2), 3.0);\n  float alpha = (core * 0.83 + halo * 0.19) * edge * flow;\n  gl_FragColor = vec4(mix(uColor, vec3(0.58, 0.9, 1.0), core * 0.45) * uGlow, alpha * min(uGlow, 1.6));\n  #include <colorspace_fragment>\n}", bt = "\nuniform float uTime, uIntensity;\nvarying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  float descent = 1.0 - uv.y;\n  float x = (uv.x - 0.5) * 1.8;\n  x += sin(descent * 8.0 - uTime * 1.5 + uv.x * 4.0) * descent * 0.025;\n  float y = sin(uv.x * 15.0 + descent * 11.0 - uTime * 2.0) * 0.025 * descent;\n  y -= sin(descent * 3.14159) * 0.13;\n  vec3 p = vec3(x, y, uv.y * 2.05);\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);\n}", xt = "\nuniform float uTime, uGlow, uLineWidth, uIntensity;\nuniform vec3 uColor;\nvarying vec2 vUv;\nvoid main() {\n  float descent = 1.0 - vUv.y;\n  float strand = vUv.x * 26.0 + sin(descent * 5.0 - uTime + vUv.x * 17.0) * descent * 0.12;\n  float d = abs(fract(strand) - 0.5);\n  float aa = max(fwidth(strand), 0.012);\n  float core = 1.0 - smoothstep(uLineWidth * 1.1, uLineWidth * 1.1 + aa, d);\n  float halo = exp(-pow(d / (0.09 + uLineWidth), 2.0));\n  float seed = sin(floor(strand) * 53.7) * 7.0;\n  // Equal time intervals travel farther near the foot of the waterfall.\n  float phase = sqrt(descent + 0.03) * 18.0 - uTime * 5.5;\n  float flow = 0.3 + 0.7 * pow(0.5 + 0.5 * sin(phase + seed), 3.0);\n  float edge = smoothstep(0.0, 0.065, vUv.x) * (1.0 - smoothstep(0.935, 1.0, vUv.x));\n  float foot = smoothstep(0.0, 0.045, vUv.y);\n  float alpha = (core * 0.72 + halo * 0.14 + 0.018) * flow * edge * foot * (0.5 + uIntensity * 0.5);\n  gl_FragColor = vec4(mix(uColor, vec3(0.63, 0.94, 1.0), core * flow * 0.48) * uGlow, min(alpha * uGlow, 0.9));\n  #include <colorspace_fragment>\n}", St = "\nuniform float uAge;\nvarying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  float p = clamp(uAge / 0.88, 0.0, 1.0);\n  float angle = uv.x * 6.2831853;\n  float height = sin(p * 3.1415926) * (1.0 - p * 0.65) * 0.65;\n  float lobes = 0.78 + 0.22 * cos(angle * 9.0);\n  float radius = 0.10 + p * 0.55 + uv.y * uv.y * height * 0.25;\n  vec3 point = vec3(cos(angle) * radius, sin(angle) * radius, uv.y * height * lobes + 0.008);\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(point, 1.0);\n}", Ct = "\nuniform float uAge, uGlow, uLineWidth;\nuniform vec3 uColor;\nvarying vec2 vUv;\nvoid main() {\n  float aa = max(fwidth(vUv.y), 0.005);\n  float rim = smoothstep(1.0 - uLineWidth * 2.0 - aa, 1.0 - uLineWidth, vUv.y);\n  float base = 1.0 - smoothstep(0.01, 0.04 + aa, vUv.y);\n  float ribs = pow(0.5 + 0.5 * cos(vUv.x * 6.2831853 * 9.0), 22.0) * 0.13;\n  float fade = smoothstep(0.0, 0.045, uAge) * (1.0 - smoothstep(0.5, 0.88, uAge));\n  float alpha = (rim * 0.9 + base * 0.25 + ribs + 0.022) * fade;\n  gl_FragColor = vec4(mix(uColor, vec3(0.65, 0.94, 1.0), rim * 0.5) * uGlow, alpha);\n  #include <colorspace_fragment>\n}";
+//#endregion
+//#region src/components/WaterRippleVisual/WaterCrown.tsx
+function wt({ time: r, interval: i, color: s, glow: u, lineWidth: d }) {
+	let m = n(null), h = n(null), g = l((e) => e.invalidate), _ = t(() => ({
+		uAge: { value: 0 },
+		uColor: { value: new f("#168dff") },
+		uGlow: { value: 1.3 },
+		uLineWidth: { value: .02 }
+	}), []);
+	return e(() => {
+		h.current && (h.current.uniforms.uColor.value.set(s), h.current.uniforms.uGlow.value = u, h.current.uniforms.uLineWidth.value = d), g();
+	}, [
+		s,
+		u,
+		d,
+		g
+	]), c(() => {
+		let e = r.current < 0 ? -1 : r.current % i;
+		m.current && (m.current.visible = e >= 0 && e < .88), h.current && (h.current.uniforms.uAge.value = e);
+	}), /* @__PURE__ */ o("mesh", {
+		ref: m,
+		visible: !1,
+		frustumCulled: !1,
+		renderOrder: 3,
+		children: [/* @__PURE__ */ a("planeGeometry", { args: [
+			1,
+			1,
+			144,
+			12
+		] }), /* @__PURE__ */ a("shaderMaterial", {
+			ref: h,
+			uniforms: _,
+			vertexShader: St,
+			fragmentShader: Ct,
+			transparent: !0,
+			depthWrite: !1,
+			side: p,
+			toneMapped: !1
+		})]
+	});
+}
+//#endregion
 //#region src/components/WaterRippleVisual/WaterRippleScene.tsx
-var mt = {
+var Tt = {
 	low: 64,
 	medium: 112,
 	high: 176
 };
-function ht(r) {
-	let i = n(null), s = n(r.variant === "droplet" ? Qe(r.rippleInterval) : 3.5), u = n(r.dropKey), d = n(r.variant), m = n(!0), h = l((e) => e.invalidate), g = l((e) => e.frameloop), _ = l((e) => e.viewport), v = l((e) => e.size), y = t(() => ({
+function Et(r) {
+	let i = r.variant === "droplet" || r.variant === "crown", s = n(null), u = n(i ? Qe(r.rippleInterval) : 3.5), d = n(r.dropKey), m = n(r.variant), h = n(!0), g = l((e) => e.invalidate), _ = l((e) => e.frameloop), v = l((e) => e.viewport), y = l((e) => e.size), b = t(() => ({
 		uTime: { value: 3.5 },
 		uInterval: { value: 4.8 },
 		uDamping: { value: .55 },
-		uAmplitude: { value: U.amplitude },
-		uLineWidth: { value: U.lineWidth },
+		uAmplitude: { value: G.amplitude },
+		uLineWidth: { value: G.lineWidth },
 		uGlow: { value: 1.3 },
 		uColor: { value: new f("#168dff") }
 	}), []);
 	e(() => {
-		if (!i.current) return;
-		let e = i.current.uniforms;
-		(u.current !== r.dropKey || d.current !== r.variant) && (s.current = r.variant === "droplet" ? Qe(r.rippleInterval) : 0, u.current = r.dropKey, d.current = r.variant), e.uTime.value = s.current, e.uInterval.value = r.rippleInterval, e.uDamping.value = r.damping, e.uAmplitude.value = r.amplitude, e.uLineWidth.value = r.lineWidth, e.uGlow.value = r.glowIntensity, e.uColor.value.set(r.color), h();
+		if (!s.current) return;
+		let e = s.current.uniforms;
+		(d.current !== r.dropKey || m.current !== r.variant) && (u.current = i ? Qe(r.rippleInterval) : 0, d.current = r.dropKey, m.current = r.variant), e.uTime.value = u.current, e.uInterval.value = r.rippleInterval, e.uDamping.value = r.damping, e.uAmplitude.value = r.amplitude, e.uLineWidth.value = r.lineWidth, e.uGlow.value = r.glowIntensity, e.uColor.value.set(r.color), g();
 	}, [
 		r.dropKey,
 		r.rippleInterval,
@@ -1897,73 +1941,317 @@ function ht(r) {
 		r.variant,
 		r.glowIntensity,
 		r.color,
-		h
+		i,
+		g
 	]), e(() => {
-		m.current = !0;
+		h.current = !0;
 	}, [
-		g,
+		_,
 		r.paused,
 		r.speed
 	]), c((e, t) => {
-		i.current && (!r.paused && g === "always" && !m.current && (s.current = We(s.current, t, r.speed), i.current.uniforms.uTime.value = s.current), g === "always" && (m.current = !1));
+		s.current && (!r.paused && _ === "always" && !h.current && (u.current = We(u.current, t, r.speed), s.current.uniforms.uTime.value = u.current), _ === "always" && (h.current = !1));
 	}, -1);
-	let b = Ue(r.size, v.width, v.height, r.tilt, r.variant === "droplet"), x = (r.variant === "droplet" ? st(b, v.height, r.tilt) : b) / v.width * _.width / 5.6;
+	let x = Ue(r.size, y.width, y.height, r.tilt, i), S = (i ? st(x, y.height, r.tilt) : x) / y.width * v.width / 5.6;
 	return /* @__PURE__ */ o("group", {
 		rotation: [
 			-Math.PI / 2 + r.tilt * Math.PI / 180,
 			0,
 			0
 		],
-		scale: x,
-		children: [/* @__PURE__ */ o("mesh", { children: [/* @__PURE__ */ a("planeGeometry", { args: [
-			5.6,
-			5.6,
-			mt[r.quality],
-			mt[r.quality]
-		] }), /* @__PURE__ */ a("shaderMaterial", {
-			ref: i,
-			uniforms: y,
-			vertexShader: Ke,
-			fragmentShader: qe,
-			transparent: !0,
-			depthWrite: !1,
-			side: p,
-			toneMapped: !1
-		})] }), r.variant === "droplet" && /* @__PURE__ */ a(pt, {
-			time: s,
-			interval: r.rippleInterval,
-			color: r.color,
-			glow: r.glowIntensity,
-			quality: r.quality
-		})]
+		scale: S,
+		children: [
+			/* @__PURE__ */ o("mesh", { children: [/* @__PURE__ */ a("planeGeometry", { args: [
+				5.6,
+				5.6,
+				Tt[r.quality],
+				Tt[r.quality]
+			] }), /* @__PURE__ */ a("shaderMaterial", {
+				ref: s,
+				uniforms: b,
+				vertexShader: Ke,
+				fragmentShader: qe,
+				transparent: !0,
+				depthWrite: !1,
+				side: p,
+				toneMapped: !1
+			})] }),
+			i && /* @__PURE__ */ a(pt, {
+				time: u,
+				interval: r.rippleInterval,
+				color: r.color,
+				glow: r.glowIntensity,
+				quality: r.quality
+			}),
+			r.variant === "crown" && /* @__PURE__ */ a(wt, {
+				time: u,
+				interval: r.rippleInterval,
+				color: r.color,
+				glow: r.glowIntensity,
+				lineWidth: r.lineWidth
+			})
+		]
 	});
 }
-var gt = {
-	root: "_root_mtegs_1",
-	dark: "_dark_mtegs_9",
-	fallback: "_fallback_mtegs_11"
-}, _t = {
+var Dt = 5.5, Ot = .62;
+function kt() {
+	return {
+		next: 0,
+		index: 0,
+		impacts: []
+	};
+}
+function At(e, t) {
+	let n = Math.sin(e * 127.1 + t * 311.7) * 43758.5453;
+	return n - Math.floor(n);
+}
+function jt(e, t) {
+	return e.filter((e) => t - e.time <= Dt).slice(-24);
+}
+function Mt(e, t, n, r = !1) {
+	let i = (r ? 3.4 : 2.1) * Math.min(2, Math.max(.3, n));
+	for (let n = 0; e.next <= t + .62 && n < 24; n++) {
+		let t = e.index++, n = At(t, 1) * Math.PI * 2, a = Math.sqrt(At(t, 2)) * 1.7;
+		e.impacts.push({
+			x: r ? (At(t, 3) - .5) * 1.7 : Math.cos(n) * a,
+			y: r ? (At(t, 4) - .5) * .12 : Math.sin(n) * a,
+			time: e.next,
+			strength: r ? .38 : .55 + At(t, 5) * .4
+		}), e.next += (.82 + At(t, 6) * .36) / i;
+	}
+	return e.impacts = jt(e.impacts, t), e.impacts;
+}
+function Nt(e, t) {
+	let n = (e - t + Ot) / Ot;
+	return n >= -1e-10 && n < 1 ? 1.65 * (1 - Math.max(0, n) ** 2) : null;
+}
+function Pt(e, t) {
+	return !e || t.time - e.time >= .085 && Math.hypot(t.x - e.x, t.y - e.y) >= .12;
+}
+//#endregion
+//#region src/components/WaterRippleVisual/WaterCollectionScene.tsx
+function Ft(e, t, n) {
+	for (let r of e) {
+		if (!r) continue;
+		r.uniforms.uTime.value = t;
+		let e = r.uniforms.uImpacts.value;
+		for (let t = 0; t < 24; t++) {
+			let r = n[t];
+			e[t].set(r?.x ?? 0, r?.y ?? 0, r?.time ?? 0, r?.strength ?? 0);
+		}
+	}
+}
+function It(r) {
+	let s = n(r.variant === "interactive" ? .5 : 1.6), u = n(kt()), _ = n(r.variant === "interactive" ? [{
+		x: 0,
+		y: 0,
+		time: 0,
+		strength: 1
+	}] : []), v = n(r.dropKey), y = n(!0), b = n(null), x = n(null), S = n([]), C = t(() => new m(), []), { viewport: w, size: T, invalidate: E, frameloop: D } = l(), O = r.variant === "waterfall", k = r.variant === "rain", A = r.variant === "vortex", j = r.variant === "interactive", M = t(() => new d([
+		new h(-.93, .03, 2.05),
+		new h(-.48, 0, 2.07),
+		new h(0, 0, 2.05),
+		new h(.48, 0, 2.07),
+		new h(.93, .03, 2.05)
+	]), []), N = t(() => Array.from({ length: 3 }, () => ({
+		uTime: { value: 0 },
+		uColor: { value: new f("#168dff") },
+		uGlow: { value: 1.3 },
+		uDamping: { value: .55 },
+		uLineWidth: { value: .02 },
+		uIntensity: { value: 1 },
+		uImpacts: { value: Array.from({ length: 24 }, () => new g(0, 0, 0, 0)) }
+	})), []);
+	e(() => {
+		v.current !== r.dropKey && (v.current = r.dropKey, j ? _.current = jt([..._.current, {
+			x: 0,
+			y: 0,
+			time: s.current,
+			strength: 1
+		}], s.current) : (s.current = 0, u.current = kt()));
+		for (let e of S.current) {
+			if (!e) continue;
+			let t = e.uniforms;
+			t.uColor.value.set(r.color), t.uGlow.value = r.glowIntensity, t.uLineWidth.value = r.lineWidth, t.uDamping.value = r.damping, t.uIntensity.value = r.intensity;
+		}
+		E();
+	}, [
+		r.dropKey,
+		r.color,
+		r.glowIntensity,
+		r.lineWidth,
+		r.damping,
+		r.intensity,
+		j,
+		E
+	]), e(() => {
+		y.current = !0;
+	}, [
+		D,
+		r.paused,
+		r.speed
+	]), c((e, t) => {
+		!r.paused && D === "always" && !y.current && (s.current = We(s.current, t, r.speed)), D === "always" && (y.current = !1);
+		let n = s.current, i = [];
+		if ((k || O) && (i = Mt(u.current, n, r.intensity, O)), j && (_.current = jt(_.current, n), i = _.current), Ft(S.current, n, i), x.current) {
+			let e = 0;
+			for (let t of i) {
+				let i = Nt(n, t.time);
+				if (i === null) continue;
+				let a = .12 + .12 * (1 - i / 1.65);
+				C.position.set(t.x, t.y, i + a / 2), C.rotation.set(Math.PI / 2, 0, 0), C.scale.set(.038 * r.lineWidth / .02, a, 1), C.updateMatrix(), x.current.setMatrixAt(e++, C.matrix);
+			}
+			x.current.count = e, x.current.instanceMatrix.needsUpdate = !0;
+		}
+	}, -1);
+	function P(e, t) {
+		if (!j || r.paused || !b.current) return;
+		let n = b.current.worldToLocal(e.point.clone());
+		if (Math.hypot(n.x, n.y) > 2.3) return;
+		let i = {
+			x: n.x,
+			y: n.y,
+			time: s.current,
+			strength: t ? 1 : .7
+		}, a = _.current.at(-1);
+		(t || Pt(a, i)) && (_.current = jt([..._.current, i], s.current), E());
+	}
+	let F = r.tilt * Math.PI / 180, I = Math.max(2.8 * Math.sin(F), A ? .65 * r.intensity * Math.cos(F) : 0), L = Math.max(2.8 * Math.sin(F), O ? 2.12 * Math.cos(F) : k ? 1.85 * Math.cos(F) + 1.7 * Math.sin(F) : 0), R = Math.min(r.size, T.width * .94, T.height * .82 * 5.6 / Math.max(L + I, .1)) / T.width * w.width / 5.6, z = r.quality === "low" ? 48 : r.quality === "high" ? 144 : 96;
+	return /* @__PURE__ */ o("group", {
+		rotation: [
+			-Math.PI / 2 + F,
+			0,
+			0
+		],
+		scale: R,
+		position: [
+			0,
+			-(L - I) * R * .5,
+			0
+		],
+		children: [
+			/* @__PURE__ */ o("mesh", {
+				ref: b,
+				frustumCulled: !1,
+				onPointerMove: j ? (e) => P(e, !1) : void 0,
+				onPointerDown: j ? (e) => P(e, !0) : void 0,
+				children: [/* @__PURE__ */ a("planeGeometry", { args: [
+					5.6,
+					5.6,
+					A ? z : 1,
+					A ? z : 1
+				] }), /* @__PURE__ */ a("shaderMaterial", {
+					ref: (e) => {
+						S.current[0] = e;
+					},
+					uniforms: N[0],
+					vertexShader: A ? vt : mt,
+					fragmentShader: A ? yt : ht,
+					transparent: !0,
+					depthWrite: !1,
+					side: p,
+					toneMapped: !1
+				})]
+			}),
+			k && /* @__PURE__ */ o("instancedMesh", {
+				ref: x,
+				args: [
+					void 0,
+					void 0,
+					24
+				],
+				frustumCulled: !1,
+				children: [/* @__PURE__ */ a("planeGeometry", { args: [1, 1] }), /* @__PURE__ */ a("shaderMaterial", {
+					ref: (e) => {
+						S.current[1] = e;
+					},
+					uniforms: N[1],
+					vertexShader: gt,
+					fragmentShader: _t,
+					transparent: !0,
+					depthWrite: !1,
+					side: p,
+					toneMapped: !1
+				})]
+			}),
+			O && /* @__PURE__ */ o(i, { children: [/* @__PURE__ */ o("mesh", {
+				frustumCulled: !1,
+				children: [/* @__PURE__ */ a("planeGeometry", { args: [
+					1,
+					1,
+					z,
+					z
+				] }), /* @__PURE__ */ a("shaderMaterial", {
+					ref: (e) => {
+						S.current[2] = e;
+					},
+					uniforms: N[2],
+					vertexShader: bt,
+					fragmentShader: xt,
+					transparent: !0,
+					depthWrite: !1,
+					side: p,
+					toneMapped: !1
+				})]
+			}), /* @__PURE__ */ o("mesh", { children: [/* @__PURE__ */ a("tubeGeometry", { args: [
+				M,
+				48,
+				r.lineWidth * .28,
+				6,
+				!1
+			] }), /* @__PURE__ */ a("meshBasicMaterial", {
+				color: r.color,
+				transparent: !0,
+				opacity: Math.min(r.glowIntensity * .6, 1),
+				depthWrite: !1,
+				toneMapped: !1
+			})] })] })
+		]
+	});
+}
+var Lt = {
+	root: "_root_v3i38_1",
+	dark: "_dark_v3i38_9",
+	fallback: "_fallback_v3i38_13"
+}, Rt = {
 	low: 1,
 	medium: 1.5,
 	high: 2
 };
-function vt({ size: e = 520, width: t, height: n, quality: r = "medium", background: i = "dark", color: o = "#168dff", speed: c = U.speed, glowIntensity: l = 1.3, amplitude: u = U.amplitude, lineWidth: d = U.lineWidth, variant: f = "ripples", damping: p = .55, rippleInterval: m = 4.8, tilt: h = 22, paused: g = !1, dropKey: _ = 0, frameloop: y = "always", className: b = "" }) {
-	let x = v(), S = W(e, 520, 1, 4096), C = W(c, U.speed, 0, 3), w = g || x || C === 0, T = w && y === "always" ? "demand" : y;
+function zt({ size: e = 520, width: t, height: n, quality: i = "medium", background: o = "dark", color: c = "#168dff", speed: l = G.speed, glowIntensity: u = 1.3, amplitude: d = G.amplitude, lineWidth: f = G.lineWidth, variant: p = "droplet", intensity: m = 1, damping: h = .55, rippleInterval: g = 4.8, tilt: _ = 22, paused: v = !1, dropKey: y = 0, frameloop: x = "always", className: S = "" }) {
+	let C = b(), [w, T] = r(0), E = K(e, 520, 1, 4096), D = K(l, G.speed, 0, 3), O = v || C || D === 0, k = O && x === "always" ? "demand" : x, A = p === "interactive", j = p === "ripples" || p === "droplet" || p === "crown", M = {
+		size: E,
+		quality: i,
+		color: c,
+		variant: p,
+		speed: D,
+		glowIntensity: K(u, 1.3, 0, 2),
+		lineWidth: K(f, G.lineWidth, .004, .05),
+		damping: K(h, .55, .2, 2),
+		tilt: K(_, 22, 10, 75),
+		paused: O,
+		dropKey: y + (A ? w : 0)
+	};
 	return /* @__PURE__ */ a("div", {
-		className: `${gt.root} ${i === "dark" ? gt.dark : ""} ${b}`,
+		className: `${Lt.root} ${o === "dark" ? Lt.dark : ""} ${S}`,
 		style: {
-			width: t ?? S,
-			height: n ?? S
+			width: t ?? E,
+			height: n ?? E
 		},
-		role: "img",
-		"aria-label": "Расходящаяся рябь на поверхности воды",
+		role: A ? "button" : "img",
+		tabIndex: A ? 0 : void 0,
+		"aria-disabled": A ? O : void 0,
+		"aria-label": A ? "Коснитесь воды или нажмите Enter для новой волны" : "Анимированная водная сцена",
+		onKeyDown: A ? (e) => {
+			(e.key === "Enter" || e.key === " ") && !O && (e.preventDefault(), T((e) => e + 1));
+		} : void 0,
 		"data-water-ripple": "",
-		"data-frameloop": T,
-		"data-water-variant": f,
+		"data-frameloop": k,
+		"data-water-variant": p,
 		children: /* @__PURE__ */ a(s, {
 			orthographic: !0,
-			frameloop: T,
-			dpr: [1, _t[r]],
+			frameloop: k,
+			dpr: [1, Rt[i]],
 			camera: {
 				position: [
 					0,
@@ -1981,35 +2269,29 @@ function vt({ size: e = 520, width: t, height: n, quality: r = "medium", backgro
 			},
 			onCreated: ({ gl: e }) => e.setClearColor(0, 0),
 			fallback: /* @__PURE__ */ a("div", {
-				className: gt.fallback,
+				className: Lt.fallback,
 				children: "Для ряби требуется поддержка WebGL."
 			}),
 			style: {
 				width: "100%",
 				height: "100%",
-				pointerEvents: "none"
+				pointerEvents: A ? "auto" : "none",
+				touchAction: "pan-y"
 			},
-			children: /* @__PURE__ */ a(ht, {
-				size: S,
-				quality: r,
-				color: o,
-				variant: f,
-				speed: C,
-				glowIntensity: W(l, 1.3, 0, 2),
-				amplitude: W(u, U.amplitude, 0, .15),
-				lineWidth: W(d, U.lineWidth, .004, .05),
-				damping: W(p, .55, .2, 2),
-				rippleInterval: W(m, 4.8, 3, 10),
-				tilt: W(h, 22, 10, 75),
-				paused: w,
-				dropKey: _
-			})
+			children: j ? /* @__PURE__ */ a(Et, {
+				...M,
+				amplitude: K(d, G.amplitude, 0, .15),
+				rippleInterval: K(g, 4.8, 3, 10)
+			}) : /* @__PURE__ */ a(It, {
+				...M,
+				intensity: K(m, 1, .3, 2)
+			}, p)
 		})
 	});
 }
 //#endregion
 //#region src/components/SphereVisual/catalog/sphereCatalog.ts
-var yt = [
+var Bt = [
 	{
 		preset: "glass-petal",
 		mode: "thinking",
@@ -2106,14 +2388,14 @@ var yt = [
 			accent: "#bd69ff"
 		}
 	}
-], bt = yt.map((e) => e.preset), xt = yt.map((e) => ({
+], Vt = Bt.map((e) => e.preset), Ht = Bt.map((e) => ({
 	value: e.preset,
 	label: e.selectLabel
-})), St = {
+})), Ut = {
 	root: "_root_uku4o_1",
 	darkBackground: "_darkBackground_uku4o_10",
 	stage: "_stage_uku4o_21"
-}, X = {
+}, Q = {
 	coreKind: "atomic",
 	coreRgb: "214 245 255",
 	glowRgb: "114 220 255",
@@ -2227,11 +2509,11 @@ var yt = [
 			}
 		}
 	]
-}, Ct = {
-	"atomic-orb": X,
+}, Wt = {
+	"atomic-orb": Q,
 	"atomic-orb-no-electrons": {
-		...X,
-		families: X.families.map((e) => ({
+		...Q,
+		families: Q.families.map((e) => ({
 			...e,
 			nodes: {
 				...e.nodes,
@@ -2240,8 +2522,8 @@ var yt = [
 		}))
 	},
 	"atomic-orb-more-electrons": {
-		...X,
-		families: X.families.map((e, t) => {
+		...Q,
+		families: Q.families.map((e, t) => {
 			let n = [
 				4,
 				6,
@@ -2267,14 +2549,14 @@ var yt = [
 		})
 	},
 	"atomic-orb-white": {
-		...X,
+		...Q,
 		coreRgb: "236 248 255",
 		glowRgb: "205 232 255",
 		accentRgb: "182 208 255",
 		hotRgb: "255 255 255",
 		haloOpacity: .045,
 		coreGlowOpacity: .22,
-		families: X.families.map((e) => ({
+		families: Q.families.map((e) => ({
 			...e,
 			heroOpacity: Math.min(e.heroOpacity + .04, .78),
 			heroAccentMix: Math.max(e.heroAccentMix - .04, .04),
@@ -2282,21 +2564,21 @@ var yt = [
 		}))
 	},
 	"atomic-orb-violet": {
-		...X,
+		...Q,
 		coreRgb: "228 220 255",
 		glowRgb: "171 126 255",
 		accentRgb: "118 102 255",
 		hotRgb: "255 244 255",
 		haloOpacity: .045,
 		coreGlowOpacity: .22,
-		families: X.families.map((e) => ({
+		families: Q.families.map((e) => ({
 			...e,
 			heroAccentMix: Math.min(e.heroAccentMix + .08, .32),
 			echoAccentMix: Math.min(e.echoAccentMix + .06, .22),
 			hotColorMix: Math.min(e.hotColorMix + .04, .14)
 		}))
 	}
-}, Z = {
+}, Gt = {
 	coreKind: "gyro",
 	coreRgb: "145 218 230",
 	glowRgb: "58 204 232",
@@ -2386,25 +2668,25 @@ var yt = [
 		]
 	}
 };
-function wt(e) {
+function Kt(e) {
 	return { ...e };
 }
-function Tt(e = {}) {
-	let t = Z.gyro, n = e.gyro?.rings ?? t.rings;
+function qt(e = {}) {
+	let t = Gt.gyro, n = e.gyro?.rings ?? t.rings;
 	return {
-		...Z,
+		...Gt,
 		...e,
 		families: [],
 		gyro: {
 			...t,
 			...e.gyro,
-			rings: n.map(wt)
+			rings: n.map(Kt)
 		}
 	};
 }
-var Et = {
-	"gyro-core": Z,
-	"gyro-core-precision": Tt({
+var Jt = {
+	"gyro-core": Gt,
+	"gyro-core-precision": qt({
 		coreRgb: "236 250 255",
 		glowRgb: "153 226 255",
 		accentRgb: "116 145 167",
@@ -2419,7 +2701,7 @@ var Et = {
 			coreRotationSpeed: .072,
 			coreShellOpacity: .028,
 			coreGlowOpacity: .115,
-			rings: Z.gyro.rings.map((e, t) => ({
+			rings: Gt.gyro.rings.map((e, t) => ({
 				...e,
 				thickness: [
 					.038,
@@ -2449,7 +2731,7 @@ var Et = {
 			}))
 		}
 	}),
-	"gyro-core-reactor": Tt({
+	"gyro-core-reactor": qt({
 		coreRgb: "232 224 255",
 		glowRgb: "103 225 255",
 		accentRgb: "118 76 178",
@@ -2464,7 +2746,7 @@ var Et = {
 			coreRotationSpeed: .138,
 			coreShellOpacity: .034,
 			coreGlowOpacity: .205,
-			rings: Z.gyro.rings.map((e, t) => ({
+			rings: Gt.gyro.rings.map((e, t) => ({
 				...e,
 				thickness: [
 					.049,
@@ -2494,7 +2776,7 @@ var Et = {
 			}))
 		}
 	}),
-	"gyro-core-amber": Tt({
+	"gyro-core-amber": qt({
 		coreRgb: "255 224 170",
 		glowRgb: "244 160 68",
 		accentRgb: "116 72 42",
@@ -2509,7 +2791,7 @@ var Et = {
 			coreRotationSpeed: .068,
 			coreShellOpacity: .024,
 			coreGlowOpacity: .13,
-			rings: Z.gyro.rings.map((e, t) => ({
+			rings: Gt.gyro.rings.map((e, t) => ({
 				...e,
 				thickness: [
 					.05,
@@ -2539,7 +2821,7 @@ var Et = {
 			}))
 		}
 	})
-}, Dt = {
+}, Yt = {
 	coreKind: "portal",
 	coreRgb: "224 251 255",
 	glowRgb: "78 225 255",
@@ -2620,10 +2902,10 @@ var Et = {
 		]
 	}
 };
-function Ot(e = {}) {
-	let t = Dt.portal, n = e.portal?.rings ?? t.rings;
+function Xt(e = {}) {
+	let t = Yt.portal, n = e.portal?.rings ?? t.rings;
 	return {
-		...Dt,
+		...Yt,
 		...e,
 		families: [],
 		portal: {
@@ -2633,7 +2915,7 @@ function Ot(e = {}) {
 		}
 	};
 }
-var kt = Ot({
+var Zt = Xt({
 	coreRgb: "244 234 255",
 	glowRgb: "185 105 255",
 	accentRgb: "69 79 232",
@@ -2646,7 +2928,7 @@ var kt = Ot({
 		membraneTurbulence: .76,
 		membranePulse: .045,
 		frameRotationSpeed: .024,
-		rings: Dt.portal.rings.map((e, t) => ({
+		rings: Yt.portal.rings.map((e, t) => ({
 			...e,
 			spinSpeed: [
 				.12,
@@ -2670,7 +2952,7 @@ var kt = Ot({
 			][t] ?? e.hotMix
 		}))
 	}
-}), At = Ot({
+}), Qt = Xt({
 	coreRgb: "255 231 180",
 	glowRgb: "255 146 52",
 	accentRgb: "142 48 32",
@@ -2685,7 +2967,7 @@ var kt = Ot({
 		membraneDepth: .19,
 		frameTiltY: -.11,
 		frameRotationSpeed: .012,
-		rings: Dt.portal.rings.map((e, t) => ({
+		rings: Yt.portal.rings.map((e, t) => ({
 			...e,
 			thickness: [
 				.082,
@@ -2719,11 +3001,11 @@ var kt = Ot({
 			][t] ?? e.hotMix
 		}))
 	}
-}), jt = {
-	"portal-gate": Ot(),
-	"portal-gate-violet": kt,
-	"portal-gate-ember": At
-}, Mt = {
+}), $t = {
+	"portal-gate": Xt(),
+	"portal-gate-violet": Zt,
+	"portal-gate-ember": Qt
+}, en = {
 	coreKind: "planet",
 	ringStyle: "planetary",
 	planetDust: {
@@ -2810,26 +3092,26 @@ var kt = Ot({
 		}
 	}]
 };
-function Nt(e) {
+function tn(e) {
 	return {
 		...e,
 		echoes: e.echoes.map((e) => ({ ...e })),
 		nodes: { ...e.nodes }
 	};
 }
-function Pt(e = {}) {
-	let t = e.families ?? Mt.families;
+function nn(e = {}) {
+	let t = e.families ?? en.families;
 	return {
-		...Mt,
+		...en,
 		...e,
 		planetDust: {
-			...Mt.planetDust,
+			...en.planetDust,
 			...e.planetDust
 		},
-		families: t.map(Nt)
+		families: t.map(tn)
 	};
 }
-var Ft = Pt({
+var rn = nn({
 	coreRgb: "222 181 126",
 	glowRgb: "242 196 126",
 	accentRgb: "126 78 44",
@@ -2841,7 +3123,7 @@ var Ft = Pt({
 		tintRgb: "255 218 166",
 		motion: .76
 	},
-	families: Mt.families.map((e, t) => ({
+	families: en.families.map((e, t) => ({
 		...e,
 		flowSpeed: t === 0 ? .085 : .068,
 		shimmerSpeed: t === 0 ? .31 : .26,
@@ -2849,7 +3131,7 @@ var Ft = Pt({
 		heroAccentMix: t === 0 ? .14 : .18,
 		hotColorMix: t === 0 ? .08 : .07
 	}))
-}), It = Pt({
+}), an = nn({
 	coreRgb: "198 232 246",
 	glowRgb: "132 211 255",
 	accentRgb: "108 141 198",
@@ -2868,7 +3150,7 @@ var Ft = Pt({
 		motion: .7,
 		tintRgb: "229 248 255"
 	},
-	families: Mt.families.map((e, t) => ({
+	families: en.families.map((e, t) => ({
 		...e,
 		radiusScale: t === 0 ? 1.24 : .96,
 		ellipseX: 1.56,
@@ -2883,7 +3165,7 @@ var Ft = Pt({
 		heroAccentMix: t === 0 ? .04 : .08,
 		hotColorMix: t === 0 ? .09 : .08
 	}))
-}), Lt = Pt({
+}), on = nn({
 	coreRgb: "118 76 52",
 	glowRgb: "235 143 69",
 	accentRgb: "84 42 30",
@@ -2902,7 +3184,7 @@ var Ft = Pt({
 		motion: .55,
 		tintRgb: "255 176 86"
 	},
-	families: Mt.families.map((e, t) => ({
+	families: en.families.map((e, t) => ({
 		...e,
 		radiusScale: t === 0 ? 1.08 : .86,
 		ellipseX: 1.42,
@@ -2917,14 +3199,14 @@ var Ft = Pt({
 		heroAccentMix: t === 0 ? .2 : .24,
 		hotColorMix: t === 0 ? .14 : .12
 	}))
-}), Rt = {
-	"ring-planet": Pt(),
-	"ring-planet-stardust": Pt({ planetDust: { enabled: !0 } }),
-	"ring-planet-sand": Ft,
-	"ring-planet-sand-stardust": Pt({
-		...Ft,
+}), sn = {
+	"ring-planet": nn(),
+	"ring-planet-stardust": nn({ planetDust: { enabled: !0 } }),
+	"ring-planet-sand": rn,
+	"ring-planet-sand-stardust": nn({
+		...rn,
 		planetDust: {
-			...Ft.planetDust,
+			...rn.planetDust,
 			enabled: !0,
 			density: .84,
 			size: .94,
@@ -2932,26 +3214,26 @@ var Ft = Pt({
 			motion: .74,
 			tintRgb: "255 218 166"
 		},
-		families: Ft.families
+		families: rn.families
 	}),
-	"ring-planet-ice": It,
-	"ring-planet-eclipse": Lt
-}, zt = {
-	...Ct,
-	...Rt,
-	...Et,
-	...jt
+	"ring-planet-ice": an,
+	"ring-planet-eclipse": on
+}, cn = {
+	...Wt,
+	...sn,
+	...Jt,
+	...$t
 };
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/GyroRing.tsx
-function Bt(e) {
+function ln(e) {
 	switch (e) {
 		case "low": return 28;
 		case "high": return 80;
 		default: return 54;
 	}
 }
-function Vt({ radius: e, width: t, depth: n, arc: r, curveSegments: i, bevelScale: a = 1 }) {
+function un({ radius: e, width: t, depth: n, arc: r, curveSegments: i, bevelScale: a = 1 }) {
 	let o = e + t / 2, s = Math.max(e - t / 2, .02), c = new u.Shape();
 	c.moveTo(o, 0), c.absarc(0, 0, o, 0, r, !1), c.lineTo(Math.cos(r) * s, Math.sin(r) * s), c.absarc(0, 0, s, r, 0, !0), c.closePath();
 	let l = Math.min(t * .085, n * .28) * a, d = new u.ExtrudeGeometry(c, {
@@ -2965,8 +3247,8 @@ function Vt({ radius: e, width: t, depth: n, arc: r, curveSegments: i, bevelScal
 	});
 	return d.translate(0, 0, -n / 2), d.computeVertexNormals(), d;
 }
-function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: f }) {
-	let p = n(null), m = n(null), h = n(null), g = Math.max(3, Math.round(r.segments)), _ = Math.PI * 2 / g, v = _ * u.MathUtils.clamp(1 - r.gapRatio, .72, .996), y = Math.max(_ - v, .001), b = Bt(s), x = Math.max(r.thickness * 2.42, .058), S = Math.max(r.thickness * .78, .019), C = Math.max(x * r.railThicknessScale, .013), w = Math.max(S * .095, .0028), T = t(() => Vt({
+function dn({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: f }) {
+	let p = n(null), m = n(null), h = n(null), g = Math.max(3, Math.round(r.segments)), _ = Math.PI * 2 / g, v = _ * u.MathUtils.clamp(1 - r.gapRatio, .72, .996), y = Math.max(_ - v, .001), b = ln(s), x = Math.max(r.thickness * 2.42, .058), S = Math.max(r.thickness * .78, .019), C = Math.max(x * r.railThicknessScale, .013), w = Math.max(S * .095, .0028), T = t(() => un({
 		radius: r.radius,
 		width: x,
 		depth: S,
@@ -2978,7 +3260,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 		S,
 		v,
 		b
-	]), E = t(() => Vt({
+	]), E = t(() => un({
 		radius: Math.max(r.radius - r.railInset, .05),
 		width: C,
 		depth: w,
@@ -2992,7 +3274,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 		w,
 		v,
 		b
-	]), D = t(() => Vt({
+	]), D = t(() => un({
 		radius: r.radius + x * .32,
 		width: Math.max(C * .32, .004),
 		depth: w,
@@ -3027,13 +3309,13 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 		i.glow,
 		i.hot,
 		f
-	]), ee = t(() => i.hot.clone().lerp(i.glow, .42), [i.hot, i.glow]);
+	]), F = t(() => i.hot.clone().lerp(i.glow, .42), [i.hot, i.glow]);
 	c((e) => {
 		if (!p.current || !m.current || !h.current) return;
 		let t = e.clock.getElapsedTime(), n = Math.max(l, .2), i = r.spatialPhase + t * r.spatialSpeed * r.spatialDirection * n;
 		r.spatialMotion === "planar-orbit" ? (p.current.rotation.set(0, 0, i), m.current.rotation.set(r.tiltX, r.tiltY, r.tiltZ)) : r.spatialMotion === "axial-reveal-horizontal" ? (p.current.rotation.set(0, 0, 0), m.current.rotation.set(r.tiltX + i, r.tiltY, r.tiltZ)) : (p.current.rotation.set(0, 0, 0), m.current.rotation.set(r.tiltX, r.tiltY + i, r.tiltZ)), h.current.rotation.z = r.phase + t * r.spinSpeed * r.direction * n;
 	});
-	let F = S / 2 + w * .72, te = -F, I = u.MathUtils.clamp(r.radius * y * 1.05, x * .16, x * .5);
+	let I = S / 2 + w * .72, L = -I, R = u.MathUtils.clamp(r.radius * y * 1.05, x * .16, x * .5);
 	return /* @__PURE__ */ a("group", {
 		ref: p,
 		children: /* @__PURE__ */ a("group", {
@@ -3081,7 +3363,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 								position: [
 									0,
 									0,
-									F
+									I
 								],
 								renderOrder: 14 + f * 5,
 								children: /* @__PURE__ */ a("meshBasicMaterial", {
@@ -3099,7 +3381,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 								position: [
 									0,
 									0,
-									te
+									L
 								],
 								rotation: [
 									0,
@@ -3122,7 +3404,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 								position: [
 									0,
 									0,
-									F * .98
+									I * .98
 								],
 								renderOrder: 15 + f * 5,
 								children: /* @__PURE__ */ a("meshBasicMaterial", {
@@ -3152,7 +3434,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 							renderOrder: 18 + f * 5,
 							children: [/* @__PURE__ */ a("boxGeometry", { args: [
 								x * 1.08,
-								I,
+								R,
 								S * 1.22
 							] }), /* @__PURE__ */ a("meshPhysicalMaterial", {
 								color: N,
@@ -3175,7 +3457,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 							renderOrder: 20 + f * 5,
 							children: [/* @__PURE__ */ a("boxGeometry", { args: [
 								x * .55,
-								Math.max(I * .38, x * .035),
+								Math.max(R * .38, x * .035),
 								S * .08
 							] }), /* @__PURE__ */ a("meshBasicMaterial", {
 								color: P,
@@ -3213,7 +3495,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 									x * .075,
 									S * .09
 								] }), /* @__PURE__ */ a("meshBasicMaterial", {
-									color: ee,
+									color: F,
 									transparent: !0,
 									opacity: u.MathUtils.clamp(.58 * d, 0, .78),
 									blending: u.AdditiveBlending,
@@ -3231,7 +3513,7 @@ function Ht({ config: r, colors: i, quality: s, speed: l, glowFactor: d, index: 
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/GyroCore.tsx
-function Ut() {
+function fn() {
 	if (typeof document > "u") return null;
 	let e = document.createElement("canvas");
 	e.width = 256, e.height = 256;
@@ -3242,22 +3524,22 @@ function Ut() {
 	let r = new u.CanvasTexture(e);
 	return r.needsUpdate = !0, r.minFilter = u.LinearFilter, r.magFilter = u.LinearFilter, r;
 }
-function Wt(e) {
+function pn(e) {
 	switch (e) {
 		case "low": return 32;
 		case "high": return 64;
 		default: return 48;
 	}
 }
-function Gt(e) {
+function mn(e) {
 	switch (e) {
 		case "low": return 1;
 		case "high": return 2;
 		default: return 1;
 	}
 }
-function Kt({ coreSize: r, config: i, colors: s, quality: l, speed: d, glowFactor: f }) {
-	let p = n(null), m = n(null), h = n(null), g = t(() => Ut(), []), _ = Wt(l), v = Gt(l), y = t(() => s.accent.clone().lerp(s.glow, .16).multiplyScalar(1.12), [s.accent, s.glow]), b = t(() => s.accent.clone().lerp(s.glow, .5).multiplyScalar(.82), [s.accent, s.glow]), x = t(() => s.core.clone().lerp(s.hot, .18), [s.core, s.hot]), S = t(() => s.hot.clone().lerp(s.glow, .16), [s.hot, s.glow]);
+function hn({ coreSize: r, config: i, colors: s, quality: l, speed: d, glowFactor: f }) {
+	let p = n(null), m = n(null), h = n(null), g = t(() => fn(), []), _ = pn(l), v = mn(l), y = t(() => s.accent.clone().lerp(s.glow, .16).multiplyScalar(1.12), [s.accent, s.glow]), b = t(() => s.accent.clone().lerp(s.glow, .5).multiplyScalar(.82), [s.accent, s.glow]), x = t(() => s.core.clone().lerp(s.hot, .18), [s.core, s.hot]), S = t(() => s.hot.clone().lerp(s.glow, .16), [s.hot, s.glow]);
 	e(() => () => {
 		g?.dispose();
 	}, [g]), c((e) => {
@@ -3304,7 +3586,7 @@ function Kt({ coreSize: r, config: i, colors: s, quality: l, speed: d, glowFacto
 			distance: 3.8,
 			decay: 2
 		}),
-		i.rings.map((e, t) => /* @__PURE__ */ a(Ht, {
+		i.rings.map((e, t) => /* @__PURE__ */ a(dn, {
 			config: e,
 			colors: {
 				metal: y,
@@ -3486,20 +3768,20 @@ function Kt({ coreSize: r, config: i, colors: s, quality: l, speed: d, glowFacto
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/orbitGeometry.ts
-function qt(e, { radius: t, wobble: n, seed: r, ellipseX: i, ellipseY: a }) {
+function gn(e, { radius: t, wobble: n, seed: r, ellipseX: i, ellipseY: a }) {
 	let o = Math.sin(e * 2 + r * .67) * n * .008, s = Math.cos(e * 4 - r * .41) * n * .0025, c = t * (1 + o + s), l = Math.cos(e) * c * i, d = Math.sin(e) * c * a, f = Math.sin(e * 2 + r * .31) * t * n * .008 + Math.cos(e * 3 - r * .19) * t * n * .002;
 	return new u.Vector3(l, d, f);
 }
-function Jt(e) {
+function _n(e) {
 	let t = [];
 	for (let n = 0; n < 220; n += 1) {
 		let r = n / 220 * Math.PI * 2;
-		t.push(qt(r, e));
+		t.push(gn(r, e));
 	}
 	return new u.CatmullRomCurve3(t, !0, "catmullrom", .2);
 }
-function Yt(e, t, n, r, i, a) {
-	let o = Jt({
+function vn(e, t, n, r, i, a) {
+	let o = _n({
 		radius: e,
 		wobble: n,
 		seed: r,
@@ -3510,7 +3792,7 @@ function Yt(e, t, n, r, i, a) {
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/OrbitalNode.tsx
-function Xt() {
+function yn() {
 	if (typeof document > "u") return null;
 	let e = document.createElement("canvas");
 	e.width = 256, e.height = 256;
@@ -3521,15 +3803,15 @@ function Xt() {
 	let r = new u.CanvasTexture(e);
 	return r.needsUpdate = !0, r.minFilter = u.LinearFilter, r.magFilter = u.LinearFilter, r;
 }
-function Zt({ radius: r, wobble: i, seed: s, ellipseX: l, ellipseY: d, size: f, glowSize: p, speed: m, offset: h, pulseOffset: g, color: _, glowColor: v, opacity: y }) {
-	let b = n(null), x = n(null), S = n(null), C = n(null), w = t(() => Xt(), []);
+function bn({ radius: r, wobble: i, seed: s, ellipseX: l, ellipseY: d, size: f, glowSize: p, speed: m, offset: h, pulseOffset: g, color: _, glowColor: v, opacity: y }) {
+	let b = n(null), x = n(null), S = n(null), C = n(null), w = t(() => yn(), []);
 	e(() => () => {
 		w?.dispose();
 	}, [w]);
 	let T = t(() => v.clone().lerp(_, .12), [v, _]), E = t(() => v.clone().lerp(_, .38), [v, _]), D = t(() => _.clone().lerp(new u.Color(1, 1, 1), .28), [_]);
 	return c((e) => {
 		if (!b.current) return;
-		let t = e.clock.getElapsedTime(), n = qt((t * m + h) % 1 * Math.PI * 2, {
+		let t = e.clock.getElapsedTime(), n = gn((t * m + h) % 1 * Math.PI * 2, {
 			radius: r,
 			wobble: i,
 			seed: s,
@@ -3595,8 +3877,8 @@ function Zt({ radius: r, wobble: i, seed: s, ellipseX: l, ellipseY: d, size: f, 
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/OrbitRibbon.tsx
-var Qt = "\n  varying vec2 vUv;\n  varying float vViewZ;\n  varying float vCenterViewZ;\n\n  void main() {\n    vUv = uv;\n\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vec4 centerMvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);\n\n    vViewZ = mvPosition.z;\n    vCenterViewZ = centerMvPosition.z;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", $t = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uFlowSpeed;\n  uniform float uShimmerSpeed;\n  uniform float uOffset;\n  uniform float uDepthSide;\n  uniform float uRingStyle;\n  uniform vec3 uBaseColor;\n  uniform vec3 uHotColor;\n\n  varying vec2 vUv;\n  varying float vViewZ;\n  varying float vCenterViewZ;\n\n  float loopDistance(float a, float b) {\n    float d = abs(a - b);\n    return min(d, 1.0 - d);\n  }\n\n  void main() {\n    // uDepthSide:\n    //  0.0  -> full ring\n    //  1.0  -> front half only\n    // -1.0  -> back half only\n\n    if (uDepthSide > 0.5) {\n      // Front: ближе к камере, чем центр планеты\n      if (vViewZ < vCenterViewZ) {\n        discard;\n      }\n    } else if (uDepthSide < -0.5) {\n      // Back: дальше от камеры, чем центр планеты\n      if (vViewZ >= vCenterViewZ) {\n        discard;\n      }\n    }\n\n    float along = fract(vUv.x - uTime * uFlowSpeed + uOffset);\n\n    /*\n     * Energy-style остаётся прежним:\n     * яркая бегущая голова, хвост, shimmer и additive glow.\n     * Именно этот путь продолжают использовать атомные пресеты.\n     */\n    float head = exp(-pow(loopDistance(along, 0.18) / 0.05, 2.0));\n    float tail = exp(-pow(loopDistance(along, 0.26) / 0.16, 2.0)) * 0.58;\n    float pulse = clamp(head + tail, 0.0, 1.0);\n\n    float energyBand = pow(\n      max(1.0 - abs(vUv.y - 0.5) * 2.0, 0.0),\n      0.58\n    );\n\n    float energyBody =\n      0.9 +\n      0.1 *\n        sin(\n          vUv.x * 18.0 -\n          uTime * uShimmerSpeed +\n          uOffset * 6.2831\n        );\n\n    float energyShimmer =\n      0.98 +\n      0.02 *\n        sin(\n          vUv.x * 32.0 -\n          uTime * (uShimmerSpeed + 0.22) +\n          uOffset * 4.0\n        );\n\n    vec3 energyColor = mix(\n      uBaseColor,\n      uHotColor,\n      pulse * 0.9\n    );\n\n    float energyAlpha =\n      uOpacity *\n      energyBand *\n      (0.86 + pulse * 0.76) *\n      energyBody *\n      energyShimmer;\n\n    /*\n     * Planetary-style:\n     * без белой бегущей головы и без ощущения электрического кабеля.\n     * Вместо неё — широкая спокойная полоса, тонкие слои и очень\n     * медленный неоднородный световой дрейф.\n     */\n    float crossSection = abs(vUv.y - 0.5) * 2.0;\n\n    float planetaryBand = pow(\n      max(1.0 - crossSection, 0.0),\n      0.3\n    );\n\n    float planetaryEdge =\n      1.0 - smoothstep(0.76, 1.0, crossSection);\n\n    float broadLayer =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.y * 18.0 +\n          vUv.x * 3.2 +\n          uOffset * 7.0\n        );\n\n    float fineLayer =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.y * 46.0 -\n          vUv.x * 5.4 +\n          uOffset * 11.0\n        );\n\n    float layerStructure =\n      broadLayer * 0.68 +\n      fineLayer * 0.32;\n\n    float slowDrift =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.x * 9.0 -\n          uTime * uFlowSpeed * 0.34 +\n          uOffset * 6.2831\n        );\n\n    float softVariation =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.x * 21.0 -\n          uTime * uShimmerSpeed * 0.12 +\n          vUv.y * 5.0 +\n          uOffset * 4.0\n        );\n\n    float planetaryHotMix =\n      0.035 +\n      slowDrift * 0.085 +\n      layerStructure * 0.025;\n\n    vec3 planetaryColor = mix(\n      uBaseColor * (0.9 + layerStructure * 0.12),\n      uHotColor,\n      planetaryHotMix\n    );\n\n    float planetaryAlpha =\n      uOpacity *\n      planetaryBand *\n      planetaryEdge *\n      (\n        0.76 +\n        layerStructure * 0.14 +\n        slowDrift * 0.07 +\n        softVariation * 0.03\n      );\n\n    vec3 color = mix(\n      energyColor,\n      planetaryColor,\n      uRingStyle\n    );\n\n    float alpha = mix(\n      energyAlpha,\n      planetaryAlpha,\n      uRingStyle\n    );\n\n    gl_FragColor = vec4(color, alpha);\n  }\n";
-function en(e, t, n, r, i, a, o, s, c) {
+var xn = "\n  varying vec2 vUv;\n  varying float vViewZ;\n  varying float vCenterViewZ;\n\n  void main() {\n    vUv = uv;\n\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vec4 centerMvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);\n\n    vViewZ = mvPosition.z;\n    vCenterViewZ = centerMvPosition.z;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", Sn = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uFlowSpeed;\n  uniform float uShimmerSpeed;\n  uniform float uOffset;\n  uniform float uDepthSide;\n  uniform float uRingStyle;\n  uniform vec3 uBaseColor;\n  uniform vec3 uHotColor;\n\n  varying vec2 vUv;\n  varying float vViewZ;\n  varying float vCenterViewZ;\n\n  float loopDistance(float a, float b) {\n    float d = abs(a - b);\n    return min(d, 1.0 - d);\n  }\n\n  void main() {\n    // uDepthSide:\n    //  0.0  -> full ring\n    //  1.0  -> front half only\n    // -1.0  -> back half only\n\n    if (uDepthSide > 0.5) {\n      // Front: ближе к камере, чем центр планеты\n      if (vViewZ < vCenterViewZ) {\n        discard;\n      }\n    } else if (uDepthSide < -0.5) {\n      // Back: дальше от камеры, чем центр планеты\n      if (vViewZ >= vCenterViewZ) {\n        discard;\n      }\n    }\n\n    float along = fract(vUv.x - uTime * uFlowSpeed + uOffset);\n\n    /*\n     * Energy-style остаётся прежним:\n     * яркая бегущая голова, хвост, shimmer и additive glow.\n     * Именно этот путь продолжают использовать атомные пресеты.\n     */\n    float head = exp(-pow(loopDistance(along, 0.18) / 0.05, 2.0));\n    float tail = exp(-pow(loopDistance(along, 0.26) / 0.16, 2.0)) * 0.58;\n    float pulse = clamp(head + tail, 0.0, 1.0);\n\n    float energyBand = pow(\n      max(1.0 - abs(vUv.y - 0.5) * 2.0, 0.0),\n      0.58\n    );\n\n    float energyBody =\n      0.9 +\n      0.1 *\n        sin(\n          vUv.x * 18.0 -\n          uTime * uShimmerSpeed +\n          uOffset * 6.2831\n        );\n\n    float energyShimmer =\n      0.98 +\n      0.02 *\n        sin(\n          vUv.x * 32.0 -\n          uTime * (uShimmerSpeed + 0.22) +\n          uOffset * 4.0\n        );\n\n    vec3 energyColor = mix(\n      uBaseColor,\n      uHotColor,\n      pulse * 0.9\n    );\n\n    float energyAlpha =\n      uOpacity *\n      energyBand *\n      (0.86 + pulse * 0.76) *\n      energyBody *\n      energyShimmer;\n\n    /*\n     * Planetary-style:\n     * без белой бегущей головы и без ощущения электрического кабеля.\n     * Вместо неё — широкая спокойная полоса, тонкие слои и очень\n     * медленный неоднородный световой дрейф.\n     */\n    float crossSection = abs(vUv.y - 0.5) * 2.0;\n\n    float planetaryBand = pow(\n      max(1.0 - crossSection, 0.0),\n      0.3\n    );\n\n    float planetaryEdge =\n      1.0 - smoothstep(0.76, 1.0, crossSection);\n\n    float broadLayer =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.y * 18.0 +\n          vUv.x * 3.2 +\n          uOffset * 7.0\n        );\n\n    float fineLayer =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.y * 46.0 -\n          vUv.x * 5.4 +\n          uOffset * 11.0\n        );\n\n    float layerStructure =\n      broadLayer * 0.68 +\n      fineLayer * 0.32;\n\n    float slowDrift =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.x * 9.0 -\n          uTime * uFlowSpeed * 0.34 +\n          uOffset * 6.2831\n        );\n\n    float softVariation =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.x * 21.0 -\n          uTime * uShimmerSpeed * 0.12 +\n          vUv.y * 5.0 +\n          uOffset * 4.0\n        );\n\n    float planetaryHotMix =\n      0.035 +\n      slowDrift * 0.085 +\n      layerStructure * 0.025;\n\n    vec3 planetaryColor = mix(\n      uBaseColor * (0.9 + layerStructure * 0.12),\n      uHotColor,\n      planetaryHotMix\n    );\n\n    float planetaryAlpha =\n      uOpacity *\n      planetaryBand *\n      planetaryEdge *\n      (\n        0.76 +\n        layerStructure * 0.14 +\n        slowDrift * 0.07 +\n        softVariation * 0.03\n      );\n\n    vec3 color = mix(\n      energyColor,\n      planetaryColor,\n      uRingStyle\n    );\n\n    float alpha = mix(\n      energyAlpha,\n      planetaryAlpha,\n      uRingStyle\n    );\n\n    gl_FragColor = vec4(color, alpha);\n  }\n";
+function Cn(e, t, n, r, i, a, o, s, c) {
 	return {
 		uTime: { value: 0 },
 		uOpacity: { value: e * t },
@@ -3609,11 +3891,11 @@ function en(e, t, n, r, i, a, o, s, c) {
 		uHotColor: { value: o.clone() }
 	};
 }
-function tn(e, t, n, r) {
+function wn(e, t, n, r) {
 	let i = new u.ShaderMaterial({
 		uniforms: e,
-		vertexShader: Qt,
-		fragmentShader: $t,
+		vertexShader: xn,
+		fragmentShader: Sn,
 		transparent: !0,
 		depthWrite: !1,
 		depthTest: n,
@@ -3622,15 +3904,15 @@ function tn(e, t, n, r) {
 	});
 	return i.name = r, i.toneMapped = !1, i;
 }
-function nn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY: f, tiltZ: p, wobble: m, seed: h, baseColor: g, hotColor: _, opacity: v, flowSpeed: y, shimmerSpeed: b, offset: x, speed: S, glowFactor: C, ringStyle: w = "energy", splitDepthLayers: T = !1, nodes: E = [] }) {
-	let D = n(null), O = t(() => Yt(r, s, m, h, l, u), [
+function Tn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY: f, tiltZ: p, wobble: m, seed: h, baseColor: g, hotColor: _, opacity: v, flowSpeed: y, shimmerSpeed: b, offset: x, speed: S, glowFactor: C, ringStyle: w = "energy", splitDepthLayers: T = !1, nodes: E = [] }) {
+	let D = n(null), O = t(() => vn(r, s, m, h, l, u), [
 		r,
 		s,
 		m,
 		h,
 		l,
 		u
-	]), k = t(() => en(v, C, y, b, x, g, _, 0, w), [
+	]), k = t(() => Cn(v, C, y, b, x, g, _, 0, w), [
 		v,
 		C,
 		y,
@@ -3639,7 +3921,7 @@ function nn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 		g,
 		_,
 		w
-	]), A = t(() => en(v, C, y, b, x, g, _, 1, w), [
+	]), A = t(() => Cn(v, C, y, b, x, g, _, 1, w), [
 		v,
 		C,
 		y,
@@ -3648,7 +3930,7 @@ function nn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 		g,
 		_,
 		w
-	]), j = t(() => en(v, C, y, b, x, g, _, -1, w), [
+	]), j = t(() => Cn(v, C, y, b, x, g, _, -1, w), [
 		v,
 		C,
 		y,
@@ -3657,21 +3939,21 @@ function nn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 		g,
 		_,
 		w
-	]), M = t(() => tn(k, w, !0, "OrbitalRibbonFullMaterial"), [
+	]), M = t(() => wn(k, w, !0, "OrbitalRibbonFullMaterial"), [
 		k,
 		w,
-		Qt,
-		$t
-	]), N = t(() => tn(A, w, !1, "OrbitalRibbonFrontMaterial"), [
+		xn,
+		Sn
+	]), N = t(() => wn(A, w, !1, "OrbitalRibbonFrontMaterial"), [
 		A,
 		w,
-		Qt,
-		$t
-	]), P = t(() => tn(j, w, !0, "OrbitalRibbonBackMaterial"), [
+		xn,
+		Sn
+	]), P = t(() => wn(j, w, !0, "OrbitalRibbonBackMaterial"), [
 		j,
 		w,
-		Qt,
-		$t
+		xn,
+		Sn
 	]);
 	return e(() => () => {
 		O.dispose();
@@ -3707,7 +3989,7 @@ function nn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 				object: M,
 				attach: "material"
 			}, M.uuid)
-		}), E.map((e, t) => /* @__PURE__ */ a(Zt, {
+		}), E.map((e, t) => /* @__PURE__ */ a(bn, {
 			radius: r,
 			wobble: m,
 			seed: h,
@@ -3726,8 +4008,8 @@ function nn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/PlanetCore.tsx
-var rn = "\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n  varying vec3 vObjectPosition;\n\n  void main() {\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n\n    vViewNormal = normalize(normalMatrix * normal);\n    vViewPosition = -mvPosition.xyz;\n    vObjectPosition = position;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", an = "\n  uniform vec3 uCoreColor;\n  uniform vec3 uGlowColor;\n  uniform vec3 uAccentColor;\n  uniform vec3 uHotColor;\n  uniform float uGlowFactor;\n\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n  varying vec3 vObjectPosition;\n\n  float hash31(vec3 p) {\n    p = fract(p * 0.1031);\n    p += dot(p, p.yzx + 33.33);\n    return fract((p.x + p.y) * p.z);\n  }\n\n  float noise3(vec3 p) {\n    vec3 i = floor(p);\n    vec3 f = fract(p);\n\n    f = f * f * (3.0 - 2.0 * f);\n\n    float n000 = hash31(i + vec3(0.0, 0.0, 0.0));\n    float n100 = hash31(i + vec3(1.0, 0.0, 0.0));\n    float n010 = hash31(i + vec3(0.0, 1.0, 0.0));\n    float n110 = hash31(i + vec3(1.0, 1.0, 0.0));\n    float n001 = hash31(i + vec3(0.0, 0.0, 1.0));\n    float n101 = hash31(i + vec3(1.0, 0.0, 1.0));\n    float n011 = hash31(i + vec3(0.0, 1.0, 1.0));\n    float n111 = hash31(i + vec3(1.0, 1.0, 1.0));\n\n    float nx00 = mix(n000, n100, f.x);\n    float nx10 = mix(n010, n110, f.x);\n    float nx01 = mix(n001, n101, f.x);\n    float nx11 = mix(n011, n111, f.x);\n\n    float nxy0 = mix(nx00, nx10, f.y);\n    float nxy1 = mix(nx01, nx11, f.y);\n\n    return mix(nxy0, nxy1, f.z);\n  }\n\n  float fbm(vec3 p) {\n    float value = 0.0;\n    float amplitude = 0.5;\n\n    for (int i = 0; i < 5; i++) {\n      value += noise3(p) * amplitude;\n      p = p * 2.03 + vec3(1.7, 2.9, 4.1);\n      amplitude *= 0.5;\n    }\n\n    return value;\n  }\n\n  void main() {\n    vec3 normal = normalize(vViewNormal);\n    vec3 viewDirection = normalize(vViewPosition);\n\n    vec3 lightDirection = normalize(vec3(-0.64, 0.5, 0.62));\n    vec3 fillDirection = normalize(vec3(0.52, -0.2, 0.74));\n\n    float diffuse = dot(normal, lightDirection);\n    float softLight = smoothstep(-0.52, 0.88, diffuse);\n    float daylight = smoothstep(-0.24, 0.72, diffuse);\n    float terminator = smoothstep(-0.42, 0.26, diffuse);\n    float fillLight = max(dot(normal, fillDirection), 0.0);\n\n    vec3 spherePosition = normalize(vObjectPosition);\n\n    vec3 warp = vec3(\n      fbm(spherePosition * 1.8 + vec3(0.2, 1.1, -0.7)),\n      fbm(spherePosition * 2.05 + vec3(-1.3, 0.35, 0.9)),\n      fbm(spherePosition * 1.72 + vec3(0.75, -0.8, 1.45))\n    ) - 0.5;\n\n    vec3 warpedPosition = normalize(spherePosition + warp * 0.28);\n\n    float broadNoise = fbm(\n      warpedPosition * 2.25 + vec3(0.35, 1.2, -0.8)\n    );\n    float mediumNoise = fbm(\n      warpedPosition * 5.2 + vec3(-1.4, 0.6, 1.1)\n    );\n    float detailNoise = fbm(\n      warpedPosition * 12.2 + vec3(2.2, -1.1, 0.45)\n    );\n\n    float latitudeBand =\n      0.5 +\n      0.5 *\n        sin(\n          warpedPosition.y * 16.5 +\n          broadNoise * 5.6 +\n          warpedPosition.x * 1.2\n        );\n\n    float secondaryBand =\n      0.5 +\n      0.5 *\n        sin(\n          warpedPosition.y * 34.0 -\n          mediumNoise * 4.4 +\n          warpedPosition.z * 1.7\n        );\n\n    float cloudField =\n      broadNoise * 0.58 +\n      mediumNoise * 0.28 +\n      detailNoise * 0.14 +\n      latitudeBand * 0.1;\n\n    float cloudMask = smoothstep(0.46, 0.73, cloudField);\n    float cloudVeil = smoothstep(0.34, 0.78, cloudField);\n\n    float darkerPatch = smoothstep(\n      0.5,\n      0.8,\n      (1.0 - broadNoise) * 0.5 +\n        mediumNoise * 0.34 +\n        detailNoise * 0.16\n    );\n\n    float stormDistance = distance(\n      spherePosition,\n      normalize(vec3(-0.42, 0.18, 0.88))\n    );\n\n    float storm =\n      exp(-stormDistance * stormDistance * 28.0) *\n      (0.72 + detailNoise * 0.28);\n\n    vec3 deepSurface = mix(\n      uAccentColor * 0.3,\n      uCoreColor * 0.68,\n      0.24 + broadNoise * 0.64\n    );\n\n    vec3 middleSurface = mix(\n      deepSurface,\n      uGlowColor * 0.62 + uCoreColor * 0.24,\n      mediumNoise * 0.42\n    );\n\n    vec3 bandColor = mix(\n      uAccentColor * 0.52,\n      uGlowColor * 0.68,\n      latitudeBand\n    );\n\n    vec3 cloudColor = mix(\n      uGlowColor,\n      uHotColor,\n      0.24 + detailNoise * 0.1\n    );\n\n    vec3 surfaceColor = middleSurface;\n\n    surfaceColor = mix(\n      surfaceColor,\n      bandColor,\n      latitudeBand * 0.085 + secondaryBand * 0.04\n    );\n\n    surfaceColor = mix(\n      surfaceColor,\n      cloudColor,\n      cloudMask * 0.38 + cloudVeil * 0.075\n    );\n\n    surfaceColor += cloudColor * storm * 0.18;\n\n    surfaceColor = mix(\n      surfaceColor,\n      uAccentColor * 0.34,\n      darkerPatch * 0.13\n    );\n\n    vec3 shadowColor = mix(\n      uAccentColor * 0.3,\n      uCoreColor * 0.5,\n      0.28 + broadNoise * 0.46\n    );\n\n    shadowColor = mix(\n      shadowColor,\n      surfaceColor * 0.64,\n      0.4 + mediumNoise * 0.12\n    );\n\n    vec3 illuminatedSurface =\n      surfaceColor * (0.82 + softLight * 0.34);\n\n    vec3 litSurface = mix(\n      shadowColor,\n      illuminatedSurface,\n      terminator\n    );\n\n    litSurface +=\n      uCoreColor *\n      fillLight *\n      (1.0 - daylight) *\n      0.11;\n\n    vec3 halfVector = normalize(lightDirection + viewDirection);\n\n    float specular =\n      pow(max(dot(normal, halfVector), 0.0), 52.0) *\n      smoothstep(-0.04, 0.7, diffuse);\n\n    float rim = pow(\n      1.0 - max(dot(normal, viewDirection), 0.0),\n      3.1\n    );\n\n    float litRimMask =\n      0.1 + 0.9 * smoothstep(-0.34, 0.64, diffuse);\n\n    vec3 rimColor = mix(\n      uAccentColor,\n      uGlowColor,\n      0.78\n    );\n\n    vec3 finalColor =\n      litSurface +\n      uHotColor * specular * 0.16 +\n      rimColor *\n        rim *\n        0.22 *\n        uGlowFactor *\n        litRimMask;\n\n    gl_FragColor = vec4(finalColor, 1.0);\n  }\n", on = "\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n\n  void main() {\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n\n    vViewNormal = normalize(normalMatrix * normal);\n    vViewPosition = -mvPosition.xyz;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", sn = "\n  uniform vec3 uGlowColor;\n  uniform vec3 uAccentColor;\n  uniform float uGlowFactor;\n\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n\n  void main() {\n    vec3 normal = normalize(vViewNormal);\n    vec3 viewDirection = normalize(vViewPosition);\n    vec3 lightDirection = normalize(vec3(-0.64, 0.5, 0.62));\n\n    float diffuse = dot(normal, lightDirection);\n    float litSide = smoothstep(-0.32, 0.66, diffuse);\n\n    float rim = pow(\n      1.0 - max(dot(normal, viewDirection), 0.0),\n      3.05\n    );\n\n    vec3 atmosphereColor = mix(\n      uAccentColor,\n      uGlowColor,\n      0.5 + litSide * 0.38\n    );\n\n    float alpha =\n      rim *\n      (0.016 + litSide * 0.105) *\n      uGlowFactor;\n\n    gl_FragColor = vec4(\n      atmosphereColor * rim * (0.42 + litSide * 0.62),\n      alpha\n    );\n  }\n";
-function cn({ coreSize: r, colors: i, speed: s, glowFactor: l }) {
+var En = "\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n  varying vec3 vObjectPosition;\n\n  void main() {\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n\n    vViewNormal = normalize(normalMatrix * normal);\n    vViewPosition = -mvPosition.xyz;\n    vObjectPosition = position;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", Dn = "\n  uniform vec3 uCoreColor;\n  uniform vec3 uGlowColor;\n  uniform vec3 uAccentColor;\n  uniform vec3 uHotColor;\n  uniform float uGlowFactor;\n\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n  varying vec3 vObjectPosition;\n\n  float hash31(vec3 p) {\n    p = fract(p * 0.1031);\n    p += dot(p, p.yzx + 33.33);\n    return fract((p.x + p.y) * p.z);\n  }\n\n  float noise3(vec3 p) {\n    vec3 i = floor(p);\n    vec3 f = fract(p);\n\n    f = f * f * (3.0 - 2.0 * f);\n\n    float n000 = hash31(i + vec3(0.0, 0.0, 0.0));\n    float n100 = hash31(i + vec3(1.0, 0.0, 0.0));\n    float n010 = hash31(i + vec3(0.0, 1.0, 0.0));\n    float n110 = hash31(i + vec3(1.0, 1.0, 0.0));\n    float n001 = hash31(i + vec3(0.0, 0.0, 1.0));\n    float n101 = hash31(i + vec3(1.0, 0.0, 1.0));\n    float n011 = hash31(i + vec3(0.0, 1.0, 1.0));\n    float n111 = hash31(i + vec3(1.0, 1.0, 1.0));\n\n    float nx00 = mix(n000, n100, f.x);\n    float nx10 = mix(n010, n110, f.x);\n    float nx01 = mix(n001, n101, f.x);\n    float nx11 = mix(n011, n111, f.x);\n\n    float nxy0 = mix(nx00, nx10, f.y);\n    float nxy1 = mix(nx01, nx11, f.y);\n\n    return mix(nxy0, nxy1, f.z);\n  }\n\n  float fbm(vec3 p) {\n    float value = 0.0;\n    float amplitude = 0.5;\n\n    for (int i = 0; i < 5; i++) {\n      value += noise3(p) * amplitude;\n      p = p * 2.03 + vec3(1.7, 2.9, 4.1);\n      amplitude *= 0.5;\n    }\n\n    return value;\n  }\n\n  void main() {\n    vec3 normal = normalize(vViewNormal);\n    vec3 viewDirection = normalize(vViewPosition);\n\n    vec3 lightDirection = normalize(vec3(-0.64, 0.5, 0.62));\n    vec3 fillDirection = normalize(vec3(0.52, -0.2, 0.74));\n\n    float diffuse = dot(normal, lightDirection);\n    float softLight = smoothstep(-0.52, 0.88, diffuse);\n    float daylight = smoothstep(-0.24, 0.72, diffuse);\n    float terminator = smoothstep(-0.42, 0.26, diffuse);\n    float fillLight = max(dot(normal, fillDirection), 0.0);\n\n    vec3 spherePosition = normalize(vObjectPosition);\n\n    vec3 warp = vec3(\n      fbm(spherePosition * 1.8 + vec3(0.2, 1.1, -0.7)),\n      fbm(spherePosition * 2.05 + vec3(-1.3, 0.35, 0.9)),\n      fbm(spherePosition * 1.72 + vec3(0.75, -0.8, 1.45))\n    ) - 0.5;\n\n    vec3 warpedPosition = normalize(spherePosition + warp * 0.28);\n\n    float broadNoise = fbm(\n      warpedPosition * 2.25 + vec3(0.35, 1.2, -0.8)\n    );\n    float mediumNoise = fbm(\n      warpedPosition * 5.2 + vec3(-1.4, 0.6, 1.1)\n    );\n    float detailNoise = fbm(\n      warpedPosition * 12.2 + vec3(2.2, -1.1, 0.45)\n    );\n\n    float latitudeBand =\n      0.5 +\n      0.5 *\n        sin(\n          warpedPosition.y * 16.5 +\n          broadNoise * 5.6 +\n          warpedPosition.x * 1.2\n        );\n\n    float secondaryBand =\n      0.5 +\n      0.5 *\n        sin(\n          warpedPosition.y * 34.0 -\n          mediumNoise * 4.4 +\n          warpedPosition.z * 1.7\n        );\n\n    float cloudField =\n      broadNoise * 0.58 +\n      mediumNoise * 0.28 +\n      detailNoise * 0.14 +\n      latitudeBand * 0.1;\n\n    float cloudMask = smoothstep(0.46, 0.73, cloudField);\n    float cloudVeil = smoothstep(0.34, 0.78, cloudField);\n\n    float darkerPatch = smoothstep(\n      0.5,\n      0.8,\n      (1.0 - broadNoise) * 0.5 +\n        mediumNoise * 0.34 +\n        detailNoise * 0.16\n    );\n\n    float stormDistance = distance(\n      spherePosition,\n      normalize(vec3(-0.42, 0.18, 0.88))\n    );\n\n    float storm =\n      exp(-stormDistance * stormDistance * 28.0) *\n      (0.72 + detailNoise * 0.28);\n\n    vec3 deepSurface = mix(\n      uAccentColor * 0.3,\n      uCoreColor * 0.68,\n      0.24 + broadNoise * 0.64\n    );\n\n    vec3 middleSurface = mix(\n      deepSurface,\n      uGlowColor * 0.62 + uCoreColor * 0.24,\n      mediumNoise * 0.42\n    );\n\n    vec3 bandColor = mix(\n      uAccentColor * 0.52,\n      uGlowColor * 0.68,\n      latitudeBand\n    );\n\n    vec3 cloudColor = mix(\n      uGlowColor,\n      uHotColor,\n      0.24 + detailNoise * 0.1\n    );\n\n    vec3 surfaceColor = middleSurface;\n\n    surfaceColor = mix(\n      surfaceColor,\n      bandColor,\n      latitudeBand * 0.085 + secondaryBand * 0.04\n    );\n\n    surfaceColor = mix(\n      surfaceColor,\n      cloudColor,\n      cloudMask * 0.38 + cloudVeil * 0.075\n    );\n\n    surfaceColor += cloudColor * storm * 0.18;\n\n    surfaceColor = mix(\n      surfaceColor,\n      uAccentColor * 0.34,\n      darkerPatch * 0.13\n    );\n\n    vec3 shadowColor = mix(\n      uAccentColor * 0.3,\n      uCoreColor * 0.5,\n      0.28 + broadNoise * 0.46\n    );\n\n    shadowColor = mix(\n      shadowColor,\n      surfaceColor * 0.64,\n      0.4 + mediumNoise * 0.12\n    );\n\n    vec3 illuminatedSurface =\n      surfaceColor * (0.82 + softLight * 0.34);\n\n    vec3 litSurface = mix(\n      shadowColor,\n      illuminatedSurface,\n      terminator\n    );\n\n    litSurface +=\n      uCoreColor *\n      fillLight *\n      (1.0 - daylight) *\n      0.11;\n\n    vec3 halfVector = normalize(lightDirection + viewDirection);\n\n    float specular =\n      pow(max(dot(normal, halfVector), 0.0), 52.0) *\n      smoothstep(-0.04, 0.7, diffuse);\n\n    float rim = pow(\n      1.0 - max(dot(normal, viewDirection), 0.0),\n      3.1\n    );\n\n    float litRimMask =\n      0.1 + 0.9 * smoothstep(-0.34, 0.64, diffuse);\n\n    vec3 rimColor = mix(\n      uAccentColor,\n      uGlowColor,\n      0.78\n    );\n\n    vec3 finalColor =\n      litSurface +\n      uHotColor * specular * 0.16 +\n      rimColor *\n        rim *\n        0.22 *\n        uGlowFactor *\n        litRimMask;\n\n    gl_FragColor = vec4(finalColor, 1.0);\n  }\n", On = "\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n\n  void main() {\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n\n    vViewNormal = normalize(normalMatrix * normal);\n    vViewPosition = -mvPosition.xyz;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", kn = "\n  uniform vec3 uGlowColor;\n  uniform vec3 uAccentColor;\n  uniform float uGlowFactor;\n\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n\n  void main() {\n    vec3 normal = normalize(vViewNormal);\n    vec3 viewDirection = normalize(vViewPosition);\n    vec3 lightDirection = normalize(vec3(-0.64, 0.5, 0.62));\n\n    float diffuse = dot(normal, lightDirection);\n    float litSide = smoothstep(-0.32, 0.66, diffuse);\n\n    float rim = pow(\n      1.0 - max(dot(normal, viewDirection), 0.0),\n      3.05\n    );\n\n    vec3 atmosphereColor = mix(\n      uAccentColor,\n      uGlowColor,\n      0.5 + litSide * 0.38\n    );\n\n    float alpha =\n      rim *\n      (0.016 + litSide * 0.105) *\n      uGlowFactor;\n\n    gl_FragColor = vec4(\n      atmosphereColor * rim * (0.42 + litSide * 0.62),\n      alpha\n    );\n  }\n";
+function An({ coreSize: r, colors: i, speed: s, glowFactor: l }) {
 	let d = n(null), f = t(() => ({
 		uCoreColor: { value: i.core.clone() },
 		uGlowColor: { value: i.glow.clone() },
@@ -3741,8 +4023,8 @@ function cn({ coreSize: r, colors: i, speed: s, glowFactor: l }) {
 	}), [i, l]), m = t(() => {
 		let e = new u.ShaderMaterial({
 			uniforms: f,
-			vertexShader: rn,
-			fragmentShader: an,
+			vertexShader: En,
+			fragmentShader: Dn,
 			depthWrite: !0,
 			depthTest: !0,
 			side: u.FrontSide
@@ -3750,13 +4032,13 @@ function cn({ coreSize: r, colors: i, speed: s, glowFactor: l }) {
 		return e.name = "RingPlanetSurfaceMaterial", e.toneMapped = !1, e;
 	}, [
 		f,
-		rn,
-		an
+		En,
+		Dn
 	]), h = t(() => {
 		let e = new u.ShaderMaterial({
 			uniforms: p,
-			vertexShader: on,
-			fragmentShader: sn,
+			vertexShader: On,
+			fragmentShader: kn,
 			transparent: !0,
 			depthWrite: !1,
 			depthTest: !0,
@@ -3766,8 +4048,8 @@ function cn({ coreSize: r, colors: i, speed: s, glowFactor: l }) {
 		return e.name = "RingPlanetAtmosphereMaterial", e.toneMapped = !1, e;
 	}, [
 		p,
-		on,
-		sn
+		On,
+		kn
 	]);
 	return e(() => () => {
 		m.dispose();
@@ -3805,7 +4087,7 @@ function cn({ coreSize: r, colors: i, speed: s, glowFactor: l }) {
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/PlanetRingDust.tsx
-var ln = [
+var jn = [
 	{
 		name: "fine",
 		count: 96,
@@ -3840,7 +4122,7 @@ var ln = [
 		clusterChance: .72
 	}
 ];
-function un(e) {
+function Mn(e) {
 	let t = Math.floor(Math.abs(e) * 1e5) || 1;
 	return () => {
 		t += 1831565813;
@@ -3848,14 +4130,14 @@ function un(e) {
 		return e = Math.imul(e ^ e >>> 15, e | 1), e ^= e + Math.imul(e ^ e >>> 7, e | 61), ((e ^ e >>> 14) >>> 0) / 4294967296;
 	};
 }
-function dn(e, t, n) {
+function Nn(e, t, n) {
 	return t + (n - t) * e();
 }
-function fn(e) {
+function Pn(e) {
 	let [t = 255, n = 255, r = 255] = e.trim().split(/\s+/).map(Number);
 	return new u.Color(u.MathUtils.clamp(t / 255, 0, 1), u.MathUtils.clamp(n / 255, 0, 1), u.MathUtils.clamp(r / 255, 0, 1));
 }
-function pn(e) {
+function Fn(e) {
 	let t = [
 		.13,
 		.35,
@@ -3876,9 +4158,9 @@ function pn(e) {
 		o = e;
 		break;
 	}
-	return u.MathUtils.clamp(t[o] + dn(e, -n[o], n[o]), .025, .975);
+	return u.MathUtils.clamp(t[o] + Nn(e, -n[o], n[o]), .025, .975);
 }
-function mn() {
+function In() {
 	if (typeof document > "u") return null;
 	let e = document.createElement("canvas");
 	e.width = 64, e.height = 64;
@@ -3889,11 +4171,11 @@ function mn() {
 	let r = new u.CanvasTexture(e);
 	return r.needsUpdate = !0, r.minFilter = u.LinearFilter, r.magFilter = u.LinearFilter, r;
 }
-function hn(e, t, n, r, i, a, o, s, c) {
+function Ln(e, t, n, r, i, a, o, s, c) {
 	let l = t.angle + n * t.orbitSpeed + Math.sin(n * .18 + t.phase) * .012, d = u.MathUtils.clamp(t.radialProgress + Math.sin(n * .28 + t.phase) * t.radialPulse, .015, .985), f = r + (d - .5) * i, p = Math.sin(l * 3 + c * .73 + d * Math.PI) * s * .4, m = Math.sin(n * .22 + t.phase) * i * .02;
 	e.set(Math.cos(l) * f * a, Math.sin(l) * f * o, p + t.depth + m);
 }
-function gn(e) {
+function Rn(e) {
 	let t = new Float32Array(e * 3), n = new Float32Array(e * 3), r = new u.BufferAttribute(t, 3), i = new u.BufferAttribute(n, 3);
 	r.setUsage(u.DynamicDrawUsage), i.setUsage(u.DynamicDrawUsage);
 	let a = new u.BufferGeometry();
@@ -3903,7 +4185,7 @@ function gn(e) {
 		colors: n
 	};
 }
-function _n(e, t, n, r, i) {
+function zn(e, t, n, r, i) {
 	return new u.PointsMaterial({
 		name: e,
 		map: t ?? void 0,
@@ -3920,8 +4202,8 @@ function _n(e, t, n, r, i) {
 		toneMapped: !1
 	});
 }
-function vn(e, t, n, r, i, a, o, s, c, l, d, f) {
-	let p = un(o + 41.73 + t * 17.19), m = Math.max(1, Math.round(e.count * Math.max(l, 0))), h = [], g = i.clone(), _ = new u.Color(.98, .995, 1), v = [
+function Bn(e, t, n, r, i, a, o, s, c, l, d, f) {
+	let p = Mn(o + 41.73 + t * 17.19), m = Math.max(1, Math.round(e.count * Math.max(l, 0))), h = [], g = i.clone(), _ = new u.Color(.98, .995, 1), v = [
 		.06,
 		.24,
 		.48,
@@ -3929,18 +4211,18 @@ function vn(e, t, n, r, i, a, o, s, c, l, d, f) {
 		.91
 	];
 	for (let t = 0; t < m; t += 1) {
-		let t = p() < e.clusterChance, n = v[Math.min(v.length - 1, Math.floor(p() * v.length))], i = t ? n + dn(p, -.038, .038) : p(), o = p(), s = r.clone().lerp(g, u.MathUtils.clamp(e.colorMix + o * .08, 0, 1)).lerp(_, u.MathUtils.clamp(e.whiteMix + o * .08, 0, 1));
+		let t = p() < e.clusterChance, n = v[Math.min(v.length - 1, Math.floor(p() * v.length))], i = t ? n + Nn(p, -.038, .038) : p(), o = p(), s = r.clone().lerp(g, u.MathUtils.clamp(e.colorMix + o * .08, 0, 1)).lerp(_, u.MathUtils.clamp(e.whiteMix + o * .08, 0, 1));
 		h.push({
 			angle: i * Math.PI * 2,
-			radialProgress: pn(p),
+			radialProgress: Fn(p),
 			phase: p() * Math.PI * 2,
-			orbitSpeed: dn(p, .003, .011) * (p() < .5 ? -1 : 1),
-			radialPulse: dn(p, .002, .008),
-			depth: dn(p, -a * .12, a * .12),
+			orbitSpeed: Nn(p, .003, .011) * (p() < .5 ? -1 : 1),
+			radialPulse: Nn(p, .002, .008),
+			depth: Nn(p, -a * .12, a * .12),
 			color: s
 		});
 	}
-	let y = gn(m), b = gn(m), x = u.MathUtils.clamp(e.opacity * s * c * f * 1.36, 0, .95), S = e.size * Math.max(d, 0), C = _n(`PlanetRingDust-${e.name}-front`, n, S, x, !1), w = _n(`PlanetRingDust-${e.name}-back`, n, S, x, !0);
+	let y = Rn(m), b = Rn(m), x = u.MathUtils.clamp(e.opacity * s * c * f * 1.36, 0, .95), S = e.size * Math.max(d, 0), C = zn(`PlanetRingDust-${e.name}-front`, n, S, x, !1), w = zn(`PlanetRingDust-${e.name}-back`, n, S, x, !0);
 	return {
 		frontGeometry: y.geometry,
 		backGeometry: b.geometry,
@@ -3955,17 +4237,17 @@ function vn(e, t, n, r, i, a, o, s, c, l, d, f) {
 		phase: o * .37 + t * 1.91
 	};
 }
-function yn(e, t, n, r, i) {
+function Vn(e, t, n, r, i) {
 	let a = n * 3;
 	e[a] = r.x, e[a + 1] = r.y, e[a + 2] = r.z, t[a] = i.r, t[a + 1] = i.g, t[a + 2] = i.b;
 }
-function bn(e, t) {
+function Hn(e, t) {
 	e.setDrawRange(0, t);
 	let n = e.getAttribute("position"), r = e.getAttribute("color");
 	n.needsUpdate = !0, r.needsUpdate = !0;
 }
-function xn({ radius: r, thickness: i, ellipseX: s, ellipseY: l, wobble: d, seed: f, baseColor: p, opacity: m, speed: h, glowFactor: g, density: _, size: v, brightness: y, motion: b, tintRgb: x, splitDepthLayers: S }) {
-	let C = n(null), w = Math.max(i * 8.4, r * .112), T = t(() => mn(), []), E = t(() => fn(x), [x]), D = t(() => ln.map((e, t) => vn(e, t, T, p, E, w, f, m, g, _, v, y)), [
+function Un({ radius: r, thickness: i, ellipseX: s, ellipseY: l, wobble: d, seed: f, baseColor: p, opacity: m, speed: h, glowFactor: g, density: _, size: v, brightness: y, motion: b, tintRgb: x, splitDepthLayers: S }) {
+	let C = n(null), w = Math.max(i * 8.4, r * .112), T = t(() => In(), []), E = t(() => Pn(x), [x]), D = t(() => jn.map((e, t) => Bn(e, t, T, p, E, w, f, m, g, _, v, y)), [
 		T,
 		p,
 		E,
@@ -3992,16 +4274,16 @@ function xn({ radius: r, thickness: i, ellipseX: s, ellipseY: l, wobble: d, seed
 			let o = D[i], c = 0, u = 0;
 			for (let t = 0; t < o.particles.length; t += 1) {
 				let n = o.particles[t];
-				hn(O, n, a, r, w, s, l, d, f), k.copy(O).applyMatrix4(C.current.matrixWorld), A.copy(k).applyMatrix4(e.camera.matrixWorldInverse), S && A.z - j.z >= 0 ? (yn(o.frontPositions, o.frontColors, c, O, n.color), c += 1) : (yn(o.backPositions, o.backColors, u, O, n.color), u += 1);
+				Ln(O, n, a, r, w, s, l, d, f), k.copy(O).applyMatrix4(C.current.matrixWorld), A.copy(k).applyMatrix4(e.camera.matrixWorldInverse), S && A.z - j.z >= 0 ? (Vn(o.frontPositions, o.frontColors, c, O, n.color), c += 1) : (Vn(o.backPositions, o.backColors, u, O, n.color), u += 1);
 			}
-			bn(o.frontGeometry, c), bn(o.backGeometry, u);
+			Hn(o.frontGeometry, c), Hn(o.backGeometry, u);
 			let p = .72 + .28 * (.5 + .5 * Math.sin(t * n * (.42 + i * .09) + o.phase)), m = o.baseOpacity * p;
 			o.frontMaterial.opacity = m, o.backMaterial.opacity = m;
 		}
 	}), /* @__PURE__ */ a("group", {
 		ref: C,
 		children: D.map((e, t) => {
-			let n = ln[t];
+			let n = jn[t];
 			return /* @__PURE__ */ o("group", { children: [/* @__PURE__ */ a("points", {
 				geometry: e.backGeometry,
 				material: e.backMaterial,
@@ -4018,8 +4300,8 @@ function xn({ radius: r, thickness: i, ellipseX: s, ellipseY: l, wobble: d, seed
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/PlanetRing.tsx
-var Sn = "\n  varying vec2 vUv;\n  varying float vViewZ;\n  varying float vCenterViewZ;\n\n  void main() {\n    vUv = uv;\n\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vec4 centerMvPosition =\n      modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);\n\n    vViewZ = mvPosition.z;\n    vCenterViewZ = centerMvPosition.z;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", Cn = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uFlowSpeed;\n  uniform float uShimmerSpeed;\n  uniform float uOffset;\n  uniform float uDepthSide;\n  uniform float uDepthFeather;\n  uniform vec3 uBaseColor;\n\n  varying vec2 vUv;\n  varying float vViewZ;\n  varying float vCenterViewZ;\n\n  float softBand(\n    float coordinate,\n    float center,\n    float width\n  ) {\n    float distanceFromCenter =\n      abs(coordinate - center);\n\n    return 1.0 - smoothstep(\n      width * 0.48,\n      width,\n      distanceFromCenter\n    );\n  }\n\n  void main() {\n    /*\n     * Кольцо по-прежнему делится на переднюю и заднюю части,\n     * чтобы оно действительно проходило вокруг планеты.\n     *\n     * Но вместо жёсткого discard на одной точной границе\n     * используется мягкая переходная зона.\n     */\n    float depthDelta =\n      vViewZ - vCenterViewZ;\n\n    float frontBlend =\n      smoothstep(\n        -uDepthFeather,\n        uDepthFeather,\n        depthDelta\n      );\n\n    float backBlend =\n      1.0 - frontBlend;\n\n    float depthBlend = 1.0;\n\n    if (uDepthSide > 0.5) {\n      depthBlend = frontBlend;\n    } else if (uDepthSide < -0.5) {\n      depthBlend = backBlend;\n    }\n\n    if (depthBlend <= 0.001) {\n      discard;\n    }\n\n    float radial =\n      clamp(vUv.y, 0.0, 1.0);\n\n    float innerFeather =\n      smoothstep(\n        0.0,\n        0.075,\n        radial\n      );\n\n    float outerFeather =\n      1.0 -\n      smoothstep(\n        0.925,\n        1.0,\n        radial\n      );\n\n    float edgeMask =\n      innerFeather *\n      outerFeather;\n\n    /*\n     * Четыре широкие ледяные полосы.\n     */\n    float bandA =\n      softBand(\n        radial,\n        0.13,\n        0.15\n      );\n\n    float bandB =\n      softBand(\n        radial,\n        0.35,\n        0.2\n      );\n\n    float bandC =\n      softBand(\n        radial,\n        0.63,\n        0.22\n      );\n\n    float bandD =\n      softBand(\n        radial,\n        0.87,\n        0.14\n      );\n\n    float broadMass =\n      bandA * 0.74 +\n      bandB * 0.92 +\n      bandC * 1.0 +\n      bandD * 0.76;\n\n    /*\n     * Две тёмные щели между основными полосами.\n     */\n    float gapA =\n      softBand(\n        radial,\n        0.245,\n        0.055\n      );\n\n    float gapB =\n      softBand(\n        radial,\n        0.505,\n        0.07\n      );\n\n    float gapMask =\n      1.0 -\n      gapA * 0.74 -\n      gapB * 0.64;\n\n    float slowDrift =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.x * 12.5664 -\n          uTime *\n            uFlowSpeed *\n            0.13 +\n          uOffset * 6.2831\n        );\n\n    float secondaryDrift =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.x * 25.1327 -\n          uTime *\n            uShimmerSpeed *\n            0.045 +\n          radial * 4.6 +\n          uOffset * 9.0\n        );\n\n    float broadVariation =\n      0.5 +\n      0.5 *\n        sin(\n          radial * 17.0 +\n          vUv.x * 3.0 +\n          uOffset * 5.0\n        );\n\n    float fineDust =\n      0.5 +\n      0.5 *\n        sin(\n          radial * 74.0 -\n          vUv.x * 6.0 +\n          uOffset * 11.0\n        );\n\n    /*\n     * Небольшая общая дымка связывает полосы\n     * и убирает ощущение набора проводов.\n     */\n    float baseHaze =\n      edgeMask * 0.08;\n\n    float structure =\n      baseHaze +\n      broadMass *\n      gapMask *\n      (\n        0.78 +\n        broadVariation * 0.15 +\n        fineDust * 0.07\n      );\n\n    vec3 deepColor =\n      uBaseColor * 0.42;\n\n    vec3 middleColor =\n      uBaseColor * 0.76 +\n      vec3(\n        0.0,\n        0.018,\n        0.055\n      );\n\n    vec3 lightColor =\n      uBaseColor * 1.08 +\n      vec3(\n        0.015,\n        0.07,\n        0.13\n      );\n\n    vec3 color =\n      mix(\n        deepColor,\n        middleColor,\n        smoothstep(\n          0.16,\n          0.56,\n          structure\n        )\n      );\n\n    color =\n      mix(\n        color,\n        lightColor,\n        smoothstep(\n          0.55,\n          0.92,\n          structure\n        ) *\n        0.72\n      );\n\n    color *=\n      0.9 +\n      slowDrift * 0.075 +\n      secondaryDrift * 0.03;\n\n    /*\n     * Передняя и задняя части используют одинаковый цвет.\n     * Разница между ними теперь создаётся только глубиной,\n     * а не резким скачком яркости.\n     */\n    float alpha =\n      uOpacity *\n      edgeMask *\n      structure *\n      (\n        0.66 +\n        slowDrift * 0.1 +\n        secondaryDrift * 0.035\n      ) *\n      depthBlend;\n\n    gl_FragColor =\n      vec4(\n        color,\n        alpha\n      );\n  }\n";
-function wn(e, t, n, r, i, a) {
+var Wn = "\n  varying vec2 vUv;\n  varying float vViewZ;\n  varying float vCenterViewZ;\n\n  void main() {\n    vUv = uv;\n\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vec4 centerMvPosition =\n      modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);\n\n    vViewZ = mvPosition.z;\n    vCenterViewZ = centerMvPosition.z;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", Gn = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uFlowSpeed;\n  uniform float uShimmerSpeed;\n  uniform float uOffset;\n  uniform float uDepthSide;\n  uniform float uDepthFeather;\n  uniform vec3 uBaseColor;\n\n  varying vec2 vUv;\n  varying float vViewZ;\n  varying float vCenterViewZ;\n\n  float softBand(\n    float coordinate,\n    float center,\n    float width\n  ) {\n    float distanceFromCenter =\n      abs(coordinate - center);\n\n    return 1.0 - smoothstep(\n      width * 0.48,\n      width,\n      distanceFromCenter\n    );\n  }\n\n  void main() {\n    /*\n     * Кольцо по-прежнему делится на переднюю и заднюю части,\n     * чтобы оно действительно проходило вокруг планеты.\n     *\n     * Но вместо жёсткого discard на одной точной границе\n     * используется мягкая переходная зона.\n     */\n    float depthDelta =\n      vViewZ - vCenterViewZ;\n\n    float frontBlend =\n      smoothstep(\n        -uDepthFeather,\n        uDepthFeather,\n        depthDelta\n      );\n\n    float backBlend =\n      1.0 - frontBlend;\n\n    float depthBlend = 1.0;\n\n    if (uDepthSide > 0.5) {\n      depthBlend = frontBlend;\n    } else if (uDepthSide < -0.5) {\n      depthBlend = backBlend;\n    }\n\n    if (depthBlend <= 0.001) {\n      discard;\n    }\n\n    float radial =\n      clamp(vUv.y, 0.0, 1.0);\n\n    float innerFeather =\n      smoothstep(\n        0.0,\n        0.075,\n        radial\n      );\n\n    float outerFeather =\n      1.0 -\n      smoothstep(\n        0.925,\n        1.0,\n        radial\n      );\n\n    float edgeMask =\n      innerFeather *\n      outerFeather;\n\n    /*\n     * Четыре широкие ледяные полосы.\n     */\n    float bandA =\n      softBand(\n        radial,\n        0.13,\n        0.15\n      );\n\n    float bandB =\n      softBand(\n        radial,\n        0.35,\n        0.2\n      );\n\n    float bandC =\n      softBand(\n        radial,\n        0.63,\n        0.22\n      );\n\n    float bandD =\n      softBand(\n        radial,\n        0.87,\n        0.14\n      );\n\n    float broadMass =\n      bandA * 0.74 +\n      bandB * 0.92 +\n      bandC * 1.0 +\n      bandD * 0.76;\n\n    /*\n     * Две тёмные щели между основными полосами.\n     */\n    float gapA =\n      softBand(\n        radial,\n        0.245,\n        0.055\n      );\n\n    float gapB =\n      softBand(\n        radial,\n        0.505,\n        0.07\n      );\n\n    float gapMask =\n      1.0 -\n      gapA * 0.74 -\n      gapB * 0.64;\n\n    float slowDrift =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.x * 12.5664 -\n          uTime *\n            uFlowSpeed *\n            0.13 +\n          uOffset * 6.2831\n        );\n\n    float secondaryDrift =\n      0.5 +\n      0.5 *\n        sin(\n          vUv.x * 25.1327 -\n          uTime *\n            uShimmerSpeed *\n            0.045 +\n          radial * 4.6 +\n          uOffset * 9.0\n        );\n\n    float broadVariation =\n      0.5 +\n      0.5 *\n        sin(\n          radial * 17.0 +\n          vUv.x * 3.0 +\n          uOffset * 5.0\n        );\n\n    float fineDust =\n      0.5 +\n      0.5 *\n        sin(\n          radial * 74.0 -\n          vUv.x * 6.0 +\n          uOffset * 11.0\n        );\n\n    /*\n     * Небольшая общая дымка связывает полосы\n     * и убирает ощущение набора проводов.\n     */\n    float baseHaze =\n      edgeMask * 0.08;\n\n    float structure =\n      baseHaze +\n      broadMass *\n      gapMask *\n      (\n        0.78 +\n        broadVariation * 0.15 +\n        fineDust * 0.07\n      );\n\n    vec3 deepColor =\n      uBaseColor * 0.42;\n\n    vec3 middleColor =\n      uBaseColor * 0.76 +\n      vec3(\n        0.0,\n        0.018,\n        0.055\n      );\n\n    vec3 lightColor =\n      uBaseColor * 1.08 +\n      vec3(\n        0.015,\n        0.07,\n        0.13\n      );\n\n    vec3 color =\n      mix(\n        deepColor,\n        middleColor,\n        smoothstep(\n          0.16,\n          0.56,\n          structure\n        )\n      );\n\n    color =\n      mix(\n        color,\n        lightColor,\n        smoothstep(\n          0.55,\n          0.92,\n          structure\n        ) *\n        0.72\n      );\n\n    color *=\n      0.9 +\n      slowDrift * 0.075 +\n      secondaryDrift * 0.03;\n\n    /*\n     * Передняя и задняя части используют одинаковый цвет.\n     * Разница между ними теперь создаётся только глубиной,\n     * а не резким скачком яркости.\n     */\n    float alpha =\n      uOpacity *\n      edgeMask *\n      structure *\n      (\n        0.66 +\n        slowDrift * 0.1 +\n        secondaryDrift * 0.035\n      ) *\n      depthBlend;\n\n    gl_FragColor =\n      vec4(\n        color,\n        alpha\n      );\n  }\n";
+function Kn(e, t, n, r, i, a) {
 	let o = Math.max(t * 8.4, e * .112), s = [], c = [], l = [];
 	for (let t = 0; t <= 24; t += 1) {
 		let l = t / 24, u = e + (l - .5) * o;
@@ -4035,7 +4317,7 @@ function wn(e, t, n, r, i, a) {
 	let d = new u.BufferGeometry();
 	return d.setAttribute("position", new u.Float32BufferAttribute(s, 3)), d.setAttribute("uv", new u.Float32BufferAttribute(c, 2)), d.setIndex(l), d.computeVertexNormals(), d.computeBoundingSphere(), d;
 }
-function Tn(e, t, n, r, i, a, o, s) {
+function qn(e, t, n, r, i, a, o, s) {
 	return {
 		uTime: { value: 0 },
 		uOpacity: { value: e * t },
@@ -4047,11 +4329,11 @@ function Tn(e, t, n, r, i, a, o, s) {
 		uBaseColor: { value: a.clone() }
 	};
 }
-function En(e, t, n) {
+function Jn(e, t, n) {
 	let r = new u.ShaderMaterial({
 		uniforms: e,
-		vertexShader: Sn,
-		fragmentShader: Cn,
+		vertexShader: Wn,
+		fragmentShader: Gn,
 		transparent: !0,
 		depthWrite: !1,
 		depthTest: t,
@@ -4060,15 +4342,15 @@ function En(e, t, n) {
 	});
 	return r.name = n, r.toneMapped = !1, r;
 }
-function Dn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY: f, tiltZ: p, wobble: m, seed: h, baseColor: g, opacity: _, flowSpeed: v, shimmerSpeed: y, offset: b, speed: x, glowFactor: S, splitDepthLayers: C = !0, dust: w }) {
-	let T = n(null), E = t(() => wn(r, s, l, u, m, h), [
+function Yn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY: f, tiltZ: p, wobble: m, seed: h, baseColor: g, opacity: _, flowSpeed: v, shimmerSpeed: y, offset: b, speed: x, glowFactor: S, splitDepthLayers: C = !0, dust: w }) {
+	let T = n(null), E = t(() => Kn(r, s, l, u, m, h), [
 		r,
 		s,
 		l,
 		u,
 		m,
 		h
-	]), D = t(() => Math.max(s * 1.6, r * .035), [s, r]), O = t(() => Tn(_, S, v, y, b, g, 0, D), [
+	]), D = t(() => Math.max(s * 1.6, r * .035), [s, r]), O = t(() => qn(_, S, v, y, b, g, 0, D), [
 		_,
 		S,
 		v,
@@ -4076,7 +4358,7 @@ function Dn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 		b,
 		g,
 		D
-	]), k = t(() => Tn(_, S, v, y, b, g, 1, D), [
+	]), k = t(() => qn(_, S, v, y, b, g, 1, D), [
 		_,
 		S,
 		v,
@@ -4084,7 +4366,7 @@ function Dn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 		b,
 		g,
 		D
-	]), A = t(() => Tn(_, S, v, y, b, g, -1, D), [
+	]), A = t(() => qn(_, S, v, y, b, g, -1, D), [
 		_,
 		S,
 		v,
@@ -4092,18 +4374,18 @@ function Dn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 		b,
 		g,
 		D
-	]), j = t(() => En(O, !0, "PlanetRingFullMaterial"), [
+	]), j = t(() => Jn(O, !0, "PlanetRingFullMaterial"), [
 		O,
-		Sn,
-		Cn
-	]), M = t(() => En(k, !1, "PlanetRingFrontMaterial"), [
+		Wn,
+		Gn
+	]), M = t(() => Jn(k, !1, "PlanetRingFrontMaterial"), [
 		k,
-		Sn,
-		Cn
-	]), N = t(() => En(A, !0, "PlanetRingBackMaterial"), [
+		Wn,
+		Gn
+	]), N = t(() => Jn(A, !0, "PlanetRingBackMaterial"), [
 		A,
-		Sn,
-		Cn
+		Wn,
+		Gn
 	]);
 	return e(() => () => {
 		E.dispose();
@@ -4141,7 +4423,7 @@ function Dn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 				object: j,
 				attach: "material"
 			}, j.uuid)
-		}), w?.enabled ? /* @__PURE__ */ a(xn, {
+		}), w?.enabled ? /* @__PURE__ */ a(Un, {
 			radius: r,
 			thickness: s,
 			ellipseX: l,
@@ -4163,15 +4445,15 @@ function Dn({ radius: r, thickness: s, ellipseX: l, ellipseY: u, tiltX: d, tiltY
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/PortalMembrane.tsx
-var On = "\n  varying vec2 vUv;\n  varying vec3 vViewPosition;\n\n  void main() {\n    vUv = uv;\n\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vViewPosition = mvPosition.xyz;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", kn = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uFlowSpeed;\n  uniform float uTurbulence;\n  uniform float uPulse;\n  uniform float uLayer;\n  uniform float uPhase;\n  uniform float uDirection;\n  uniform vec3 uCoreColor;\n  uniform vec3 uGlowColor;\n  uniform vec3 uAccentColor;\n  uniform vec3 uHotColor;\n\n  varying vec2 vUv;\n  varying vec3 vViewPosition;\n\n  float hash21(vec2 pointValue) {\n    pointValue = fract(pointValue * vec2(123.34, 345.45));\n    pointValue += dot(pointValue, pointValue + 34.345);\n    return fract(pointValue.x * pointValue.y);\n  }\n\n  float noise21(vec2 pointValue) {\n    vec2 integerPart = floor(pointValue);\n    vec2 fractionalPart = fract(pointValue);\n    fractionalPart =\n      fractionalPart *\n      fractionalPart *\n      (3.0 - 2.0 * fractionalPart);\n\n    float a = hash21(integerPart);\n    float b = hash21(integerPart + vec2(1.0, 0.0));\n    float c = hash21(integerPart + vec2(0.0, 1.0));\n    float d = hash21(integerPart + vec2(1.0, 1.0));\n\n    return mix(\n      mix(a, b, fractionalPart.x),\n      mix(c, d, fractionalPart.x),\n      fractionalPart.y\n    );\n  }\n\n  float fbm(vec2 pointValue) {\n    float value = 0.0;\n    float amplitude = 0.5;\n\n    for (int index = 0; index < 6; index++) {\n      value += noise21(pointValue) * amplitude;\n      pointValue =\n        pointValue * 2.03 +\n        vec2(17.1, 11.7);\n      amplitude *= 0.5;\n    }\n\n    return value;\n  }\n\n  float softBand(float value, float center, float width) {\n    return exp(-pow((value - center) / width, 2.0));\n  }\n\n  void main() {\n    vec2 pointValue = (vUv - 0.5) * 2.0;\n    float radiusValue = length(pointValue);\n\n    if (radiusValue > 1.0) {\n      discard;\n    }\n\n    float safeRadius = max(radiusValue, 0.045);\n    float angleValue = atan(pointValue.y, pointValue.x);\n\n    float timeValue =\n      uTime *\n      uFlowSpeed *\n      uDirection +\n      uPhase;\n\n    /*\n     * Пространственная закрутка отделена от времени. Раньше время\n     * умножалось на radial acceleration, из-за чего с каждой секундой\n     * вихрь становился всё плотнее и начинал давать муар и дрожание.\n     */\n    float inwardAcceleration =\n      1.0 +\n      pow(1.0 - radiusValue, 1.55) * 2.85;\n\n    float radialTwist =\n      pow(1.0 - radiusValue, 1.38) *\n      (2.7 + uLayer * 0.58);\n\n    float flowRotation =\n      timeValue *\n      (0.86 + uLayer * 0.24);\n\n    float boundedPull =\n      sin(\n        timeValue * 0.62 +\n        radiusValue * 5.4 +\n        uPhase\n      ) *\n      (1.0 - radiusValue) *\n      0.065;\n\n    float advectedAngle =\n      angleValue +\n      radialTwist +\n      flowRotation +\n      boundedPull;\n\n    vec2 rotatedPoint =\n      vec2(\n        cos(advectedAngle),\n        sin(advectedAngle)\n      ) * radiusValue;\n\n    vec2 broadPoint =\n      rotatedPoint *\n      (1.72 + uTurbulence * 1.08);\n\n    /*\n     * ВАЖНО: любые гармоники от atan-угла должны иметь целое\n     * количество повторов за полный оборот. Дробные множители\n     * создают разрыв на границе -PI / PI, который визуально\n     * превращается в движущийся конус от центра к краю.\n     */\n    broadPoint += vec2(\n      cos(\n        advectedAngle * 2.0 -\n        timeValue * 0.42\n      ),\n      sin(\n        advectedAngle * 3.0 +\n        timeValue * 0.34\n      )\n    ) * (0.11 + uTurbulence * 0.085);\n\n    /*\n     * Основной рисунок строится на крупных массах. Detail и micro\n     * сохранены, но больше не формируют мелкую песочную поверхность.\n     */\n    float broadNoise = fbm(\n      broadPoint +\n      timeValue * vec2(0.085, -0.058)\n    );\n\n    float detailNoise = fbm(\n      broadPoint * 1.82 -\n      timeValue * vec2(0.14, 0.085)\n    );\n\n    float microNoise = fbm(\n      broadPoint * 3.15 +\n      timeValue * vec2(-0.19, 0.13)\n    );\n\n    float spiralCoordinate =\n      advectedAngle * 4.0 -\n      log(safeRadius + 0.07) * 10.9 +\n      broadNoise * 4.25 +\n      detailNoise * 1.08;\n\n    float spiralWave =\n      0.5 +\n      0.5 * sin(spiralCoordinate);\n\n    float spiralWaveTwo =\n      0.5 +\n      0.5 * sin(\n        advectedAngle * 6.0 -\n        log(safeRadius + 0.09) * 14.6 +\n        timeValue *\n          (1.16 + uLayer * 0.16) +\n        radialTwist * 1.28 +\n        detailNoise * 2.85\n      );\n\n    float primaryFilament =\n      smoothstep(0.42, 0.89, spiralWave) *\n      (0.58 + spiralWaveTwo * 0.42);\n\n    float sharpFilament =\n      pow(\n        smoothstep(0.55, 0.93, spiralWaveTwo),\n        1.28\n      ) *\n      (0.78 + microNoise * 0.22);\n\n    /*\n     * Две широкие волны идут от внешнего края к горизонту. Их частота\n     * ниже прежней, поэтому движение читается как втягивание, а не шум.\n     */\n    float suctionPhase = fract(\n      radiusValue * 6.45 +\n      timeValue *\n        (1.42 + uLayer * 0.31) +\n      sin(\n        angleValue * 3.0 +\n        uPhase\n      ) * 0.085 +\n      broadNoise * 0.31\n    );\n\n    float suctionBand =\n      softBand(suctionPhase, 0.84, 0.118) *\n      smoothstep(0.12, 0.96, radiusValue);\n\n    float fastSuctionPhase = fract(\n      radiusValue * 10.4 +\n      timeValue *\n        (2.16 + uLayer * 0.44) +\n      sin(\n        advectedAngle * 4.0 -\n        uPhase\n      ) * 0.07 +\n      detailNoise * 0.22\n    );\n\n    float fastSuctionBand =\n      softBand(\n        fastSuctionPhase,\n        0.88,\n        0.082\n      ) *\n      smoothstep(0.17, 0.94, radiusValue);\n\n    float inwardStreaks =\n      (\n        suctionBand * 0.78 +\n        fastSuctionBand * 0.5\n      ) *\n      (\n        0.42 +\n        primaryFilament * 0.46 +\n        sharpFilament * 0.22\n      ) *\n      (\n        0.74 +\n        (1.0 - radiusValue) * 1.08\n      );\n\n    float angularStreaks =\n      pow(\n        0.5 +\n        0.5 * sin(\n          advectedAngle * 14.0 +\n          detailNoise * 2.55 -\n          timeValue * 1.82\n        ),\n        2.65\n      ) *\n      inwardStreaks;\n\n    float softCloud =\n      broadNoise * 0.78 +\n      detailNoise * 0.205 +\n      microNoise * 0.015;\n\n    float centerVoid =\n      smoothstep(0.07, 0.255, radiusValue);\n\n    float horizonRadius =\n      0.222 +\n      (broadNoise - 0.5) * 0.015 +\n      sin(\n        timeValue * 2.0 +\n        angleValue * 4.0\n      ) * 0.004;\n\n    float eventHorizon =\n      1.0 -\n      smoothstep(\n        0.014,\n        0.059,\n        abs(radiusValue - horizonRadius)\n      );\n\n    float innerHalo =\n      softBand(radiusValue, 0.36, 0.205);\n\n    float sinkGlow =\n      softBand(radiusValue, 0.292, 0.122) *\n      (\n        0.66 +\n        primaryFilament * 0.34\n      );\n\n    float outerRim =\n      1.0 -\n      smoothstep(\n        0.014,\n        0.052,\n        abs(radiusValue - 0.92)\n      );\n\n    float outerFalloff =\n      1.0 -\n      smoothstep(0.84, 1.0, radiusValue);\n\n    float perspectiveShade =\n      0.93 +\n      clamp(\n        -vViewPosition.z * 0.015,\n        -0.05,\n        0.08\n      );\n\n    float pulseValue =\n      1.0 +\n      sin(\n        uTime * 1.16 +\n        broadNoise * 2.4 +\n        uPhase\n      ) *\n      uPulse;\n\n    float energy =\n      softCloud * 0.12 +\n      primaryFilament * 0.54 +\n      sharpFilament * 0.145 +\n      innerHalo * 0.14 +\n      inwardStreaks * 0.7 +\n      angularStreaks * 0.18 +\n      sinkGlow * 0.27;\n\n    vec3 deepColor = mix(\n      uAccentColor * 0.075,\n      uCoreColor * 0.14,\n      0.32\n    );\n\n    vec3 color = mix(\n      deepColor,\n      uGlowColor,\n      clamp(energy, 0.0, 1.0)\n    );\n\n    color = mix(\n      color,\n      uCoreColor,\n      sinkGlow * 0.34 +\n      innerHalo * 0.16\n    );\n\n    color = mix(\n      color,\n      uHotColor,\n      eventHorizon *\n        (0.76 + uLayer * 0.1) +\n      inwardStreaks * 0.15 +\n      angularStreaks * 0.18 +\n      outerRim * 0.12 +\n      sharpFilament * 0.08 * uLayer\n    );\n\n    float centerDarkening =\n      mix(0.028, 1.0, centerVoid);\n\n    color *=\n      centerDarkening *\n      perspectiveShade *\n      pulseValue;\n\n    float bodyAlpha =\n      outerFalloff *\n      centerVoid *\n      (\n        0.075 +\n        softCloud * 0.1 +\n        primaryFilament * 0.36 +\n        sharpFilament * 0.12 +\n        innerHalo * 0.13 +\n        inwardStreaks * 0.48 +\n        angularStreaks * 0.14\n      );\n\n    float alpha =\n      uOpacity *\n      (\n        bodyAlpha +\n        eventHorizon * 0.34 +\n        outerRim * 0.14\n      ) *\n      pulseValue;\n\n    gl_FragColor = vec4(color, alpha);\n  }\n";
-function An(e) {
+var Xn = "\n  varying vec2 vUv;\n  varying vec3 vViewPosition;\n\n  void main() {\n    vUv = uv;\n\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vViewPosition = mvPosition.xyz;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", Zn = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uFlowSpeed;\n  uniform float uTurbulence;\n  uniform float uPulse;\n  uniform float uLayer;\n  uniform float uPhase;\n  uniform float uDirection;\n  uniform vec3 uCoreColor;\n  uniform vec3 uGlowColor;\n  uniform vec3 uAccentColor;\n  uniform vec3 uHotColor;\n\n  varying vec2 vUv;\n  varying vec3 vViewPosition;\n\n  float hash21(vec2 pointValue) {\n    pointValue = fract(pointValue * vec2(123.34, 345.45));\n    pointValue += dot(pointValue, pointValue + 34.345);\n    return fract(pointValue.x * pointValue.y);\n  }\n\n  float noise21(vec2 pointValue) {\n    vec2 integerPart = floor(pointValue);\n    vec2 fractionalPart = fract(pointValue);\n    fractionalPart =\n      fractionalPart *\n      fractionalPart *\n      (3.0 - 2.0 * fractionalPart);\n\n    float a = hash21(integerPart);\n    float b = hash21(integerPart + vec2(1.0, 0.0));\n    float c = hash21(integerPart + vec2(0.0, 1.0));\n    float d = hash21(integerPart + vec2(1.0, 1.0));\n\n    return mix(\n      mix(a, b, fractionalPart.x),\n      mix(c, d, fractionalPart.x),\n      fractionalPart.y\n    );\n  }\n\n  float fbm(vec2 pointValue) {\n    float value = 0.0;\n    float amplitude = 0.5;\n\n    for (int index = 0; index < 6; index++) {\n      value += noise21(pointValue) * amplitude;\n      pointValue =\n        pointValue * 2.03 +\n        vec2(17.1, 11.7);\n      amplitude *= 0.5;\n    }\n\n    return value;\n  }\n\n  float softBand(float value, float center, float width) {\n    return exp(-pow((value - center) / width, 2.0));\n  }\n\n  void main() {\n    vec2 pointValue = (vUv - 0.5) * 2.0;\n    float radiusValue = length(pointValue);\n\n    if (radiusValue > 1.0) {\n      discard;\n    }\n\n    float safeRadius = max(radiusValue, 0.045);\n    float angleValue = atan(pointValue.y, pointValue.x);\n\n    float timeValue =\n      uTime *\n      uFlowSpeed *\n      uDirection +\n      uPhase;\n\n    /*\n     * Пространственная закрутка отделена от времени. Раньше время\n     * умножалось на radial acceleration, из-за чего с каждой секундой\n     * вихрь становился всё плотнее и начинал давать муар и дрожание.\n     */\n    float inwardAcceleration =\n      1.0 +\n      pow(1.0 - radiusValue, 1.55) * 2.85;\n\n    float radialTwist =\n      pow(1.0 - radiusValue, 1.38) *\n      (2.7 + uLayer * 0.58);\n\n    float flowRotation =\n      timeValue *\n      (0.86 + uLayer * 0.24);\n\n    float boundedPull =\n      sin(\n        timeValue * 0.62 +\n        radiusValue * 5.4 +\n        uPhase\n      ) *\n      (1.0 - radiusValue) *\n      0.065;\n\n    float advectedAngle =\n      angleValue +\n      radialTwist +\n      flowRotation +\n      boundedPull;\n\n    vec2 rotatedPoint =\n      vec2(\n        cos(advectedAngle),\n        sin(advectedAngle)\n      ) * radiusValue;\n\n    vec2 broadPoint =\n      rotatedPoint *\n      (1.72 + uTurbulence * 1.08);\n\n    /*\n     * ВАЖНО: любые гармоники от atan-угла должны иметь целое\n     * количество повторов за полный оборот. Дробные множители\n     * создают разрыв на границе -PI / PI, который визуально\n     * превращается в движущийся конус от центра к краю.\n     */\n    broadPoint += vec2(\n      cos(\n        advectedAngle * 2.0 -\n        timeValue * 0.42\n      ),\n      sin(\n        advectedAngle * 3.0 +\n        timeValue * 0.34\n      )\n    ) * (0.11 + uTurbulence * 0.085);\n\n    /*\n     * Основной рисунок строится на крупных массах. Detail и micro\n     * сохранены, но больше не формируют мелкую песочную поверхность.\n     */\n    float broadNoise = fbm(\n      broadPoint +\n      timeValue * vec2(0.085, -0.058)\n    );\n\n    float detailNoise = fbm(\n      broadPoint * 1.82 -\n      timeValue * vec2(0.14, 0.085)\n    );\n\n    float microNoise = fbm(\n      broadPoint * 3.15 +\n      timeValue * vec2(-0.19, 0.13)\n    );\n\n    float spiralCoordinate =\n      advectedAngle * 4.0 -\n      log(safeRadius + 0.07) * 10.9 +\n      broadNoise * 4.25 +\n      detailNoise * 1.08;\n\n    float spiralWave =\n      0.5 +\n      0.5 * sin(spiralCoordinate);\n\n    float spiralWaveTwo =\n      0.5 +\n      0.5 * sin(\n        advectedAngle * 6.0 -\n        log(safeRadius + 0.09) * 14.6 +\n        timeValue *\n          (1.16 + uLayer * 0.16) +\n        radialTwist * 1.28 +\n        detailNoise * 2.85\n      );\n\n    float primaryFilament =\n      smoothstep(0.42, 0.89, spiralWave) *\n      (0.58 + spiralWaveTwo * 0.42);\n\n    float sharpFilament =\n      pow(\n        smoothstep(0.55, 0.93, spiralWaveTwo),\n        1.28\n      ) *\n      (0.78 + microNoise * 0.22);\n\n    /*\n     * Две широкие волны идут от внешнего края к горизонту. Их частота\n     * ниже прежней, поэтому движение читается как втягивание, а не шум.\n     */\n    float suctionPhase = fract(\n      radiusValue * 6.45 +\n      timeValue *\n        (1.42 + uLayer * 0.31) +\n      sin(\n        angleValue * 3.0 +\n        uPhase\n      ) * 0.085 +\n      broadNoise * 0.31\n    );\n\n    float suctionBand =\n      softBand(suctionPhase, 0.84, 0.118) *\n      smoothstep(0.12, 0.96, radiusValue);\n\n    float fastSuctionPhase = fract(\n      radiusValue * 10.4 +\n      timeValue *\n        (2.16 + uLayer * 0.44) +\n      sin(\n        advectedAngle * 4.0 -\n        uPhase\n      ) * 0.07 +\n      detailNoise * 0.22\n    );\n\n    float fastSuctionBand =\n      softBand(\n        fastSuctionPhase,\n        0.88,\n        0.082\n      ) *\n      smoothstep(0.17, 0.94, radiusValue);\n\n    float inwardStreaks =\n      (\n        suctionBand * 0.78 +\n        fastSuctionBand * 0.5\n      ) *\n      (\n        0.42 +\n        primaryFilament * 0.46 +\n        sharpFilament * 0.22\n      ) *\n      (\n        0.74 +\n        (1.0 - radiusValue) * 1.08\n      );\n\n    float angularStreaks =\n      pow(\n        0.5 +\n        0.5 * sin(\n          advectedAngle * 14.0 +\n          detailNoise * 2.55 -\n          timeValue * 1.82\n        ),\n        2.65\n      ) *\n      inwardStreaks;\n\n    float softCloud =\n      broadNoise * 0.78 +\n      detailNoise * 0.205 +\n      microNoise * 0.015;\n\n    float centerVoid =\n      smoothstep(0.07, 0.255, radiusValue);\n\n    float horizonRadius =\n      0.222 +\n      (broadNoise - 0.5) * 0.015 +\n      sin(\n        timeValue * 2.0 +\n        angleValue * 4.0\n      ) * 0.004;\n\n    float eventHorizon =\n      1.0 -\n      smoothstep(\n        0.014,\n        0.059,\n        abs(radiusValue - horizonRadius)\n      );\n\n    float innerHalo =\n      softBand(radiusValue, 0.36, 0.205);\n\n    float sinkGlow =\n      softBand(radiusValue, 0.292, 0.122) *\n      (\n        0.66 +\n        primaryFilament * 0.34\n      );\n\n    float outerRim =\n      1.0 -\n      smoothstep(\n        0.014,\n        0.052,\n        abs(radiusValue - 0.92)\n      );\n\n    float outerFalloff =\n      1.0 -\n      smoothstep(0.84, 1.0, radiusValue);\n\n    float perspectiveShade =\n      0.93 +\n      clamp(\n        -vViewPosition.z * 0.015,\n        -0.05,\n        0.08\n      );\n\n    float pulseValue =\n      1.0 +\n      sin(\n        uTime * 1.16 +\n        broadNoise * 2.4 +\n        uPhase\n      ) *\n      uPulse;\n\n    float energy =\n      softCloud * 0.12 +\n      primaryFilament * 0.54 +\n      sharpFilament * 0.145 +\n      innerHalo * 0.14 +\n      inwardStreaks * 0.7 +\n      angularStreaks * 0.18 +\n      sinkGlow * 0.27;\n\n    vec3 deepColor = mix(\n      uAccentColor * 0.075,\n      uCoreColor * 0.14,\n      0.32\n    );\n\n    vec3 color = mix(\n      deepColor,\n      uGlowColor,\n      clamp(energy, 0.0, 1.0)\n    );\n\n    color = mix(\n      color,\n      uCoreColor,\n      sinkGlow * 0.34 +\n      innerHalo * 0.16\n    );\n\n    color = mix(\n      color,\n      uHotColor,\n      eventHorizon *\n        (0.76 + uLayer * 0.1) +\n      inwardStreaks * 0.15 +\n      angularStreaks * 0.18 +\n      outerRim * 0.12 +\n      sharpFilament * 0.08 * uLayer\n    );\n\n    float centerDarkening =\n      mix(0.028, 1.0, centerVoid);\n\n    color *=\n      centerDarkening *\n      perspectiveShade *\n      pulseValue;\n\n    float bodyAlpha =\n      outerFalloff *\n      centerVoid *\n      (\n        0.075 +\n        softCloud * 0.1 +\n        primaryFilament * 0.36 +\n        sharpFilament * 0.12 +\n        innerHalo * 0.13 +\n        inwardStreaks * 0.48 +\n        angularStreaks * 0.14\n      );\n\n    float alpha =\n      uOpacity *\n      (\n        bodyAlpha +\n        eventHorizon * 0.34 +\n        outerRim * 0.14\n      ) *\n      pulseValue;\n\n    gl_FragColor = vec4(color, alpha);\n  }\n";
+function Qn(e) {
 	switch (e) {
 		case "low": return 56;
 		case "high": return 160;
 		default: return 96;
 	}
 }
-function jn(e, t, n, r, i, a, o) {
+function $n(e, t, n, r, i, a, o) {
 	return {
 		uTime: { value: 0 },
 		uOpacity: { value: t * o * e.opacityScale },
@@ -4187,11 +4469,11 @@ function jn(e, t, n, r, i, a, o) {
 		uHotColor: { value: a.hot.clone() }
 	};
 }
-function Mn(e, t) {
+function er(e, t) {
 	let n = new u.ShaderMaterial({
 		uniforms: e,
-		vertexShader: On,
-		fragmentShader: kn,
+		vertexShader: Xn,
+		fragmentShader: Zn,
 		transparent: !0,
 		depthTest: !0,
 		depthWrite: !1,
@@ -4200,7 +4482,7 @@ function Mn(e, t) {
 	});
 	return n.name = `PortalMembrane-${t.name}`, n.toneMapped = !1, n;
 }
-var Nn = {
+var tr = {
 	name: "back",
 	opacityScale: .96,
 	flowScale: 1.08,
@@ -4210,7 +4492,7 @@ var Nn = {
 	phase: 0,
 	direction: 1,
 	blending: u.NormalBlending
-}, Pn = {
+}, nr = {
 	name: "middle",
 	opacityScale: .64,
 	flowScale: 1.58,
@@ -4220,7 +4502,7 @@ var Nn = {
 	phase: 2.15,
 	direction: 1,
 	blending: u.AdditiveBlending
-}, Fn = {
+}, rr = {
 	name: "front",
 	opacityScale: .44,
 	flowScale: 2.08,
@@ -4231,29 +4513,29 @@ var Nn = {
 	direction: 1,
 	blending: u.AdditiveBlending
 };
-function In({ radius: r, opacity: i, flowSpeed: s, turbulence: l, pulse: d, depth: f, colors: p, quality: m, speed: h, glowFactor: g }) {
-	let _ = n(null), v = n(null), y = n(null), b = t(() => new u.CircleGeometry(r, An(m)), [m, r]), x = t(() => jn(Nn, i, s, l, d, p, g), [
+function ir({ radius: r, opacity: i, flowSpeed: s, turbulence: l, pulse: d, depth: f, colors: p, quality: m, speed: h, glowFactor: g }) {
+	let _ = n(null), v = n(null), y = n(null), b = t(() => new u.CircleGeometry(r, Qn(m)), [m, r]), x = t(() => $n(tr, i, s, l, d, p, g), [
 		p,
 		s,
 		g,
 		i,
 		d,
 		l
-	]), S = t(() => jn(Pn, i, s, l, d, p, g), [
+	]), S = t(() => $n(nr, i, s, l, d, p, g), [
 		p,
 		s,
 		g,
 		i,
 		d,
 		l
-	]), C = t(() => jn(Fn, i, s, l, d, p, g), [
+	]), C = t(() => $n(rr, i, s, l, d, p, g), [
 		p,
 		s,
 		g,
 		i,
 		d,
 		l
-	]), w = t(() => Mn(x, Nn), [x]), T = t(() => Mn(S, Pn), [S]), E = t(() => Mn(C, Fn), [C]);
+	]), w = t(() => er(x, tr), [x]), T = t(() => er(S, nr), [S]), E = t(() => er(C, rr), [C]);
 	return e(() => () => {
 		b.dispose(), w.dispose(), T.dispose(), E.dispose();
 	}, [
@@ -4330,8 +4612,8 @@ function In({ radius: r, opacity: i, flowSpeed: s, turbulence: l, pulse: d, dept
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/PortalRing.tsx
-var Ln = 1.3, Rn = "\n  varying vec2 vUv;\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n  varying vec2 vWorldPosition;\n\n  void main() {\n    vUv = uv;\n\n    vec4 worldPosition = modelMatrix * vec4(position, 1.0);\n    vec4 mvPosition = viewMatrix * worldPosition;\n\n    vViewPosition = mvPosition.xyz;\n    vViewNormal = normalize(normalMatrix * normal);\n\n    /*\n     * Передаём непрерывные координаты, а не уже вычисленный угол.\n     * Угол, интерполированный между вершинами около -PI / PI, создавал\n     * заметную радиальную линию-склейку на вращающихся кольцах.\n     */\n    vWorldPosition = worldPosition.xy;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", zn = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uPhase;\n  uniform float uAccentMix;\n  uniform float uHotMix;\n  uniform float uRingRole;\n  uniform vec3 uBaseColor;\n  uniform vec3 uAccentColor;\n  uniform vec3 uHotColor;\n\n  varying vec2 vUv;\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n  varying vec2 vWorldPosition;\n\n  float loopDistance(float a, float b) {\n    float distanceValue = abs(a - b);\n    return min(distanceValue, 1.0 - distanceValue);\n  }\n\n  void main() {\n    vec3 viewDirection = normalize(-vViewPosition);\n    vec3 normalValue = normalize(vViewNormal);\n\n    float fresnel = pow(\n      1.0 -\n      abs(dot(normalValue, viewDirection)),\n      1.62\n    );\n\n    float faceLight = pow(\n      clamp(\n        dot(\n          normalValue,\n          normalize(vec3(-0.36, 0.58, 0.74))\n        ) * 0.5 + 0.5,\n        0.0,\n        1.0\n      ),\n      1.28\n    );\n\n    float worldAngle =\n      atan(vWorldPosition.y, vWorldPosition.x) /\n      6.28318530718 +\n      0.5;\n\n    float along = fract(\n      worldAngle +\n      uPhase -\n      uTime * (0.052 + uRingRole * 0.019)\n    );\n\n    float hotHead = exp(\n      -pow(\n        loopDistance(along, 0.19) / 0.032,\n        2.0\n      )\n    );\n\n    float warmTail = exp(\n      -pow(\n        loopDistance(along, 0.285) / 0.13,\n        2.0\n      )\n    ) * 0.3;\n\n    float secondaryHead = exp(\n      -pow(\n        loopDistance(along, 0.67) / 0.055,\n        2.0\n      )\n    ) *\n      (0.24 + uRingRole * 0.08);\n\n    float crossSection =\n      abs(vUv.y - 0.5) * 2.0;\n\n    float tubeBand = pow(\n      max(1.0 - crossSection, 0.0),\n      0.4\n    );\n\n    float edgeBand =\n      1.0 -\n      smoothstep(0.78, 1.0, crossSection);\n\n    float technicalScan =\n      0.5 +\n      0.5 * sin(\n        vUv.x * 17.0 -\n        uTime * 0.68 +\n        vUv.y * 5.0 +\n        uPhase * 6.2831\n      );\n\n    float machinedBand =\n      0.5 +\n      0.5 * sin(\n        vUv.x * 46.0 +\n        vUv.y * 8.0 +\n        uPhase * 11.0\n      );\n\n    float microBand =\n      0.5 +\n      0.5 * sin(\n        vUv.y * 36.0 +\n        vUv.x * 5.0 +\n        uPhase * 9.0\n      );\n\n    vec3 metalShadow = mix(\n      uAccentColor * 0.075,\n      uBaseColor * 0.065,\n      0.45\n    );\n\n    vec3 metalBody = mix(\n      uAccentColor *\n        (0.32 + uAccentMix * 0.13),\n      uBaseColor *\n        (0.38 + uRingRole * 0.08),\n      0.36\n    );\n\n    float metalLight = clamp(\n      0.14 +\n      faceLight * 0.5 +\n      fresnel * 0.52 +\n      technicalScan * 0.07 +\n      machinedBand * 0.028,\n      0.0,\n      1.0\n    );\n\n    vec3 color = mix(\n      metalShadow,\n      metalBody,\n      metalLight\n    );\n\n    color +=\n      uBaseColor *\n      (\n        fresnel *\n          (0.12 + uRingRole * 0.035) +\n        microBand * 0.022\n      );\n\n    float hotAmount = clamp(\n      (\n        hotHead * 0.9 +\n        warmTail * 0.34 +\n        secondaryHead * 0.5\n      ) *\n      uHotMix +\n      fresnel *\n        (0.045 + uRingRole * 0.022),\n      0.0,\n      0.88\n    );\n\n    color = mix(\n      color,\n      uHotColor,\n      hotAmount\n    );\n\n    float alpha =\n      uOpacity *\n      tubeBand *\n      edgeBand *\n      (\n        0.76 +\n        fresnel * 0.2 +\n        faceLight * 0.09 +\n        hotHead * 0.12 +\n        secondaryHead * 0.05\n      );\n\n    gl_FragColor = vec4(color, alpha);\n  }\n";
-function Bn(e) {
+var ar = 1.3, or = "\n  varying vec2 vUv;\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n  varying vec2 vWorldPosition;\n\n  void main() {\n    vUv = uv;\n\n    vec4 worldPosition = modelMatrix * vec4(position, 1.0);\n    vec4 mvPosition = viewMatrix * worldPosition;\n\n    vViewPosition = mvPosition.xyz;\n    vViewNormal = normalize(normalMatrix * normal);\n\n    /*\n     * Передаём непрерывные координаты, а не уже вычисленный угол.\n     * Угол, интерполированный между вершинами около -PI / PI, создавал\n     * заметную радиальную линию-склейку на вращающихся кольцах.\n     */\n    vWorldPosition = worldPosition.xy;\n\n    gl_Position = projectionMatrix * mvPosition;\n  }\n", sr = "\n  uniform float uTime;\n  uniform float uOpacity;\n  uniform float uPhase;\n  uniform float uAccentMix;\n  uniform float uHotMix;\n  uniform float uRingRole;\n  uniform vec3 uBaseColor;\n  uniform vec3 uAccentColor;\n  uniform vec3 uHotColor;\n\n  varying vec2 vUv;\n  varying vec3 vViewNormal;\n  varying vec3 vViewPosition;\n  varying vec2 vWorldPosition;\n\n  float loopDistance(float a, float b) {\n    float distanceValue = abs(a - b);\n    return min(distanceValue, 1.0 - distanceValue);\n  }\n\n  void main() {\n    vec3 viewDirection = normalize(-vViewPosition);\n    vec3 normalValue = normalize(vViewNormal);\n\n    float fresnel = pow(\n      1.0 -\n      abs(dot(normalValue, viewDirection)),\n      1.62\n    );\n\n    float faceLight = pow(\n      clamp(\n        dot(\n          normalValue,\n          normalize(vec3(-0.36, 0.58, 0.74))\n        ) * 0.5 + 0.5,\n        0.0,\n        1.0\n      ),\n      1.28\n    );\n\n    float worldAngle =\n      atan(vWorldPosition.y, vWorldPosition.x) /\n      6.28318530718 +\n      0.5;\n\n    float along = fract(\n      worldAngle +\n      uPhase -\n      uTime * (0.052 + uRingRole * 0.019)\n    );\n\n    float hotHead = exp(\n      -pow(\n        loopDistance(along, 0.19) / 0.032,\n        2.0\n      )\n    );\n\n    float warmTail = exp(\n      -pow(\n        loopDistance(along, 0.285) / 0.13,\n        2.0\n      )\n    ) * 0.3;\n\n    float secondaryHead = exp(\n      -pow(\n        loopDistance(along, 0.67) / 0.055,\n        2.0\n      )\n    ) *\n      (0.24 + uRingRole * 0.08);\n\n    float crossSection =\n      abs(vUv.y - 0.5) * 2.0;\n\n    float tubeBand = pow(\n      max(1.0 - crossSection, 0.0),\n      0.4\n    );\n\n    float edgeBand =\n      1.0 -\n      smoothstep(0.78, 1.0, crossSection);\n\n    float technicalScan =\n      0.5 +\n      0.5 * sin(\n        vUv.x * 17.0 -\n        uTime * 0.68 +\n        vUv.y * 5.0 +\n        uPhase * 6.2831\n      );\n\n    float machinedBand =\n      0.5 +\n      0.5 * sin(\n        vUv.x * 46.0 +\n        vUv.y * 8.0 +\n        uPhase * 11.0\n      );\n\n    float microBand =\n      0.5 +\n      0.5 * sin(\n        vUv.y * 36.0 +\n        vUv.x * 5.0 +\n        uPhase * 9.0\n      );\n\n    vec3 metalShadow = mix(\n      uAccentColor * 0.075,\n      uBaseColor * 0.065,\n      0.45\n    );\n\n    vec3 metalBody = mix(\n      uAccentColor *\n        (0.32 + uAccentMix * 0.13),\n      uBaseColor *\n        (0.38 + uRingRole * 0.08),\n      0.36\n    );\n\n    float metalLight = clamp(\n      0.14 +\n      faceLight * 0.5 +\n      fresnel * 0.52 +\n      technicalScan * 0.07 +\n      machinedBand * 0.028,\n      0.0,\n      1.0\n    );\n\n    vec3 color = mix(\n      metalShadow,\n      metalBody,\n      metalLight\n    );\n\n    color +=\n      uBaseColor *\n      (\n        fresnel *\n          (0.12 + uRingRole * 0.035) +\n        microBand * 0.022\n      );\n\n    float hotAmount = clamp(\n      (\n        hotHead * 0.9 +\n        warmTail * 0.34 +\n        secondaryHead * 0.5\n      ) *\n      uHotMix +\n      fresnel *\n        (0.045 + uRingRole * 0.022),\n      0.0,\n      0.88\n    );\n\n    color = mix(\n      color,\n      uHotColor,\n      hotAmount\n    );\n\n    float alpha =\n      uOpacity *\n      tubeBand *\n      edgeBand *\n      (\n        0.76 +\n        fresnel * 0.2 +\n        faceLight * 0.09 +\n        hotHead * 0.12 +\n        secondaryHead * 0.05\n      );\n\n    gl_FragColor = vec4(color, alpha);\n  }\n";
+function cr(e) {
 	switch (e) {
 		case "low": return {
 			radialSegments: 6,
@@ -4347,8 +4629,8 @@ function Bn(e) {
 		};
 	}
 }
-function Vn({ config: r, colors: s, quality: l, speed: d, glowFactor: f, index: p }) {
-	let m = n(null), h = Math.max(3, Math.round(r.segments)), g = Math.PI * 2 / h, _ = g * u.MathUtils.clamp(1 - r.gapRatio, .5, .997), v = Bn(l), y = t(() => new u.TorusGeometry(r.radius, r.thickness, v.radialSegments, v.tubularSegments, _), [
+function lr({ config: r, colors: s, quality: l, speed: d, glowFactor: f, index: p }) {
+	let m = n(null), h = Math.max(3, Math.round(r.segments)), g = Math.PI * 2 / h, _ = g * u.MathUtils.clamp(1 - r.gapRatio, .5, .997), v = cr(l), y = t(() => new u.TorusGeometry(r.radius, r.thickness, v.radialSegments, v.tubularSegments, _), [
 		r.radius,
 		r.thickness,
 		v.radialSegments,
@@ -4387,8 +4669,8 @@ function Vn({ config: r, colors: s, quality: l, speed: d, glowFactor: f, index: 
 	]), w = t(() => {
 		let e = new u.ShaderMaterial({
 			uniforms: C,
-			vertexShader: Rn,
-			fragmentShader: zn,
+			vertexShader: or,
+			fragmentShader: sr,
 			transparent: !0,
 			depthTest: !0,
 			depthWrite: !0,
@@ -4447,7 +4729,7 @@ function Vn({ config: r, colors: s, quality: l, speed: d, glowFactor: f, index: 
 		k
 	]), c((e) => {
 		let t = e.clock.getElapsedTime(), n = Math.max(d, .2);
-		m.current && (m.current.position.z = r.depthOffset, m.current.rotation.set(r.tiltX, r.tiltY, r.tiltZ + t * r.spinSpeed * r.direction * n * Ln + r.phase)), w.uniforms.uTime.value = t * n, w.uniforms.uOpacity.value = r.opacity * f * (.99 + Math.sin(t * .44 + p * 1.37) * .016), k.opacity = r.opacity * f * (.21 + S * .04 + (.5 + .5 * Math.sin(t * (1.1 + S * .22) * n + r.phase * 8)) * .18), A.opacity = r.opacity * f * (.3 + (.5 + .5 * Math.sin(t * (1.54 + S * .28) * n + r.phase * 11)) * .4);
+		m.current && (m.current.position.z = r.depthOffset, m.current.rotation.set(r.tiltX, r.tiltY, r.tiltZ + t * r.spinSpeed * r.direction * n * ar + r.phase)), w.uniforms.uTime.value = t * n, w.uniforms.uOpacity.value = r.opacity * f * (.99 + Math.sin(t * .44 + p * 1.37) * .016), k.opacity = r.opacity * f * (.21 + S * .04 + (.5 + .5 * Math.sin(t * (1.1 + S * .22) * n + r.phase * 8)) * .18), A.opacity = r.opacity * f * (.3 + (.5 + .5 * Math.sin(t * (1.54 + S * .28) * n + r.phase * 11)) * .4);
 	});
 	let j = Math.max(1, Math.round(r.markerEvery)), M = (.5 - S * .12) * r.opacity * f;
 	return /* @__PURE__ */ a("group", {
@@ -4560,8 +4842,8 @@ function Vn({ config: r, colors: s, quality: l, speed: d, glowFactor: f, index: 
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/PortalGate.tsx
-var Hn = 1.3;
-function Un() {
+var ur = 1.3;
+function dr() {
 	if (typeof document > "u") return null;
 	let e = document.createElement("canvas");
 	e.width = 256, e.height = 256;
@@ -4572,36 +4854,36 @@ function Un() {
 	let r = new u.CanvasTexture(e);
 	return r.needsUpdate = !0, r.minFilter = u.LinearFilter, r.magFilter = u.LinearFilter, r;
 }
-function Wn(e) {
+function fr(e) {
 	return {
 		radial: e === "high" ? 14 : e === "low" ? 7 : 10,
 		tubular: e === "high" ? 128 : e === "low" ? 56 : 88
 	};
 }
-function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
-	let f = n(null), p = n(null), m = n(null), h = n(null), g = n(null), _ = n(null), v = n(null), y = t(() => Un(), []), b = r.rings[0]?.radius ?? r.membraneRadius * 1.64, x = r.rings[1]?.radius ?? r.membraneRadius * 1.33, S = r.rings[2]?.radius ?? r.membraneRadius * 1.11, C = Math.max(6, Math.round(r.rings[0]?.segments ?? 10)), w = Math.max(8, Math.round((r.rings[1]?.segments ?? 16) * .75)), T = Math.PI * 2 / C, E = Math.PI * 2 / w, D = T * .73, O = E * .62, k = D * .72, A = O * .68, j = x + Math.max(r.rings[1]?.thickness ?? .04, .035) * 1.35, M = b - Math.max(r.rings[0]?.thickness ?? .08, .06) * 1.28, N = r.membraneRadius * 1.055, P = Math.max(S - Math.max(r.rings[2]?.thickness ?? .018, .016) * 1.8, N + .045), ee = t(() => new u.RingGeometry(j, M, s === "high" ? 48 : 30, 1, 0, D), [
+function pr({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
+	let f = n(null), p = n(null), m = n(null), h = n(null), g = n(null), _ = n(null), v = n(null), y = t(() => dr(), []), b = r.rings[0]?.radius ?? r.membraneRadius * 1.64, x = r.rings[1]?.radius ?? r.membraneRadius * 1.33, S = r.rings[2]?.radius ?? r.membraneRadius * 1.11, C = Math.max(6, Math.round(r.rings[0]?.segments ?? 10)), w = Math.max(8, Math.round((r.rings[1]?.segments ?? 16) * .75)), T = Math.PI * 2 / C, E = Math.PI * 2 / w, D = T * .73, O = E * .62, k = D * .72, A = O * .68, j = x + Math.max(r.rings[1]?.thickness ?? .04, .035) * 1.35, M = b - Math.max(r.rings[0]?.thickness ?? .08, .06) * 1.28, N = r.membraneRadius * 1.055, P = Math.max(S - Math.max(r.rings[2]?.thickness ?? .018, .016) * 1.8, N + .045), F = t(() => new u.RingGeometry(j, M, s === "high" ? 48 : 30, 1, 0, D), [
 		D,
 		j,
 		M,
 		s
-	]), F = t(() => new u.RingGeometry(N, P, s === "high" ? 42 : 26, 1, 0, O), [
+	]), I = t(() => new u.RingGeometry(N, P, s === "high" ? 42 : 26, 1, 0, O), [
 		O,
 		N,
 		P,
 		s
-	]), te = t(() => new u.RingGeometry(Math.max(M - .024, j + .01), Math.max(M - .005, j + .027), s === "high" ? 48 : 30, 1, 0, k), [
+	]), L = t(() => new u.RingGeometry(Math.max(M - .024, j + .01), Math.max(M - .005, j + .027), s === "high" ? 48 : 30, 1, 0, k), [
 		k,
 		j,
 		M,
 		s
-	]), I = t(() => new u.RingGeometry(N + .005, Math.min(N + .022, P - .007), s === "high" ? 42 : 26, 1, 0, A), [
+	]), R = t(() => new u.RingGeometry(N + .005, Math.min(N + .022, P - .007), s === "high" ? 42 : 26, 1, 0, A), [
 		A,
 		N,
 		P,
 		s
-	]), L = Math.max(j - P - .03 * 2, .05), R = t(() => new u.BoxGeometry(L, .026, .02), [L]), ne = t(() => new u.BoxGeometry(L * .58, .008, .006), [L]), re = t(() => new u.BoxGeometry(L * .2, .012, .008), [L]), z = t(() => i.glow.clone().lerp(i.hot, .34), [i.glow, i.hot]), ie = t(() => i.accent.clone().multiplyScalar(.16).lerp(i.glow.clone().multiplyScalar(.12), .26), [i.accent, i.glow]), ae = t(() => i.accent.clone().lerp(i.glow, .22).multiplyScalar(.56), [i.accent, i.glow]), oe = t(() => i.accent.clone().multiplyScalar(.055), [i.accent]), se = t(() => i.glow.clone().lerp(i.hot, .38), [i.glow, i.hot]), ce = t(() => i.hot.clone().lerp(i.glow, .12), [i.glow, i.hot]), le = t(() => {
+	]), z = Math.max(j - P - .03 * 2, .05), B = t(() => new u.BoxGeometry(z, .026, .02), [z]), ee = t(() => new u.BoxGeometry(z * .58, .008, .006), [z]), V = t(() => new u.BoxGeometry(z * .2, .012, .008), [z]), H = t(() => i.glow.clone().lerp(i.hot, .34), [i.glow, i.hot]), te = t(() => i.accent.clone().multiplyScalar(.16).lerp(i.glow.clone().multiplyScalar(.12), .26), [i.accent, i.glow]), ne = t(() => i.accent.clone().lerp(i.glow, .22).multiplyScalar(.56), [i.accent, i.glow]), re = t(() => i.accent.clone().multiplyScalar(.055), [i.accent]), ie = t(() => i.glow.clone().lerp(i.hot, .38), [i.glow, i.hot]), ae = t(() => i.hot.clone().lerp(i.glow, .12), [i.glow, i.hot]), oe = t(() => {
 		let e = new u.MeshBasicMaterial({
-			color: ie,
+			color: te,
 			transparent: !0,
 			opacity: .72,
 			side: u.DoubleSide,
@@ -4610,9 +4892,9 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateHousingMaterial", e;
-	}, [ie]), ue = t(() => {
+	}, [te]), se = t(() => {
 		let e = new u.MeshBasicMaterial({
-			color: ae,
+			color: ne,
 			transparent: !0,
 			opacity: .34,
 			side: u.DoubleSide,
@@ -4621,9 +4903,9 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateInnerHousingMaterial", e;
-	}, [ae]), de = t(() => {
+	}, [ne]), ce = t(() => {
 		let e = new u.MeshBasicMaterial({
-			color: ie.clone().multiplyScalar(.8),
+			color: te.clone().multiplyScalar(.8),
 			transparent: !0,
 			opacity: .82,
 			depthTest: !0,
@@ -4631,9 +4913,9 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateBridgeMaterial", e;
-	}, [ie]), fe = t(() => {
+	}, [te]), le = t(() => {
 		let e = new u.MeshBasicMaterial({
-			color: z,
+			color: H,
 			transparent: !0,
 			opacity: .52 * d,
 			blending: u.AdditiveBlending,
@@ -4642,9 +4924,9 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateBridgeLightMaterial", e;
-	}, [d, z]), pe = t(() => {
+	}, [d, H]), ue = t(() => {
 		let e = new u.MeshBasicMaterial({
-			color: ce,
+			color: ae,
 			transparent: !0,
 			opacity: .64 * d,
 			blending: u.AdditiveBlending,
@@ -4653,9 +4935,9 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateBridgeHotMaterial", e;
-	}, [ce, d]), me = t(() => {
+	}, [ae, d]), de = t(() => {
 		let e = new u.MeshBasicMaterial({
-			color: se,
+			color: ie,
 			transparent: !0,
 			opacity: .4 * d,
 			side: u.DoubleSide,
@@ -4665,9 +4947,9 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateOuterPanelGlowMaterial", e;
-	}, [d, se]), B = t(() => {
+	}, [d, ie]), fe = t(() => {
 		let e = new u.MeshBasicMaterial({
-			color: z,
+			color: H,
 			transparent: !0,
 			opacity: .44 * d,
 			side: u.DoubleSide,
@@ -4677,7 +4959,7 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateInnerPanelGlowMaterial", e;
-	}, [d, z]), he = t(() => {
+	}, [d, H]), pe = t(() => {
 		let e = new u.MeshBasicMaterial({
 			color: i.hot,
 			transparent: !0,
@@ -4688,9 +4970,9 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateRimPulseMaterialA", e;
-	}, [i.hot, d]), V = t(() => {
+	}, [i.hot, d]), U = t(() => {
 		let e = new u.MeshBasicMaterial({
-			color: z,
+			color: H,
 			transparent: !0,
 			opacity: .46 * d,
 			blending: u.AdditiveBlending,
@@ -4699,7 +4981,7 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 			toneMapped: !1
 		});
 		return e.name = "PortalGateRimPulseMaterialB", e;
-	}, [d, z]), ge = t(() => {
+	}, [d, H]), me = t(() => {
 		let e = new u.MeshBasicMaterial({
 			color: i.glow,
 			transparent: !0,
@@ -4712,33 +4994,33 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 		return e.name = "PortalGateRimPulseMaterialC", e;
 	}, [i.glow, d]);
 	e(() => () => {
-		y?.dispose(), ee.dispose(), F.dispose(), te.dispose(), I.dispose(), R.dispose(), ne.dispose(), re.dispose(), le.dispose(), ue.dispose(), de.dispose(), fe.dispose(), pe.dispose(), me.dispose(), B.dispose(), he.dispose(), V.dispose(), ge.dispose();
+		y?.dispose(), F.dispose(), I.dispose(), L.dispose(), R.dispose(), B.dispose(), ee.dispose(), V.dispose(), oe.dispose(), se.dispose(), ce.dispose(), le.dispose(), ue.dispose(), de.dispose(), fe.dispose(), pe.dispose(), U.dispose(), me.dispose();
 	}, [
-		R,
-		re,
-		pe,
-		ne,
-		fe,
-		de,
-		le,
-		ue,
-		F,
-		I,
 		B,
-		ee,
-		te,
-		me,
-		y,
-		he,
 		V,
-		ge
+		ue,
+		ee,
+		le,
+		ce,
+		oe,
+		se,
+		I,
+		R,
+		fe,
+		F,
+		L,
+		de,
+		y,
+		pe,
+		U,
+		me
 	]), c((e) => {
 		let t = e.clock.getElapsedTime(), n = Math.max(l, .2);
-		f.current && f.current.rotation.set(r.frameTiltX + Math.sin(t * .13 * n) * .007, r.frameTiltY + Math.cos(t * .1 * n) * .009, r.frameTiltZ + t * r.frameRotationSpeed * n + Math.sin(t * .08 * n) * .006), p.current && (p.current.rotation.z = -t * .008 * n * Hn), m.current && (m.current.rotation.z = t * .014 * n * Hn), h.current && (h.current.rotation.z = t * .11 * n), g.current && (g.current.rotation.z = t * .58 * n), _.current && (_.current.rotation.z = t * .39 * n + 2.2), v.current && (v.current.rotation.z = t * .76 * n + 4.1);
+		f.current && f.current.rotation.set(r.frameTiltX + Math.sin(t * .13 * n) * .007, r.frameTiltY + Math.cos(t * .1 * n) * .009, r.frameTiltZ + t * r.frameRotationSpeed * n + Math.sin(t * .08 * n) * .006), p.current && (p.current.rotation.z = -t * .008 * n * ur), m.current && (m.current.rotation.z = t * .014 * n * ur), h.current && (h.current.rotation.z = t * .11 * n), g.current && (g.current.rotation.z = t * .58 * n), _.current && (_.current.rotation.z = t * .39 * n + 2.2), v.current && (v.current.rotation.z = t * .76 * n + 4.1);
 		let i = .5 + .5 * Math.sin(t * .84 * n), a = .5 + .5 * Math.sin(t * 1.22 * n + 1.7);
-		ue.opacity = .27 + i * .09, fe.opacity = (.4 + i * .3) * d, pe.opacity = (.36 + a * .46) * d, me.opacity = (.3 + i * .28) * d, B.opacity = (.32 + a * .3) * d, he.opacity = (.44 + i * .34) * d, V.opacity = (.3 + a * .3) * d, ge.opacity = (.2 + i * .22) * d;
+		se.opacity = .27 + i * .09, le.opacity = (.4 + i * .3) * d, ue.opacity = (.36 + a * .46) * d, de.opacity = (.3 + i * .28) * d, fe.opacity = (.32 + a * .3) * d, pe.opacity = (.44 + i * .34) * d, U.opacity = (.3 + a * .3) * d, me.opacity = (.2 + i * .22) * d;
 	});
-	let H = Wn(s), _e = (P + j) / 2, ve = T * .5 + .02, ye = r.membraneRadius * 1.005;
+	let W = fr(s), he = (P + j) / 2, ge = T * .5 + .02, _e = r.membraneRadius * 1.005;
 	return /* @__PURE__ */ o("group", {
 		ref: f,
 		children: [
@@ -4772,7 +5054,7 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 				],
 				renderOrder: 2,
 				children: [/* @__PURE__ */ a("circleGeometry", { args: [r.membraneRadius * 1.025, s === "high" ? 128 : 72] }), /* @__PURE__ */ a("meshBasicMaterial", {
-					color: oe,
+					color: re,
 					transparent: !0,
 					opacity: .9,
 					depthWrite: !1,
@@ -4780,7 +5062,7 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 					toneMapped: !1
 				})]
 			}),
-			/* @__PURE__ */ a(In, {
+			/* @__PURE__ */ a(ir, {
 				radius: r.membraneRadius,
 				opacity: r.membraneOpacity,
 				flowSpeed: r.membraneFlowSpeed,
@@ -4803,18 +5085,18 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 				children: Array.from({ length: w }, (e, t) => {
 					let n = t * E + .08, r = n + (O - A) / 2;
 					return /* @__PURE__ */ o("group", { children: [/* @__PURE__ */ a("mesh", {
-						geometry: F,
+						geometry: I,
 						rotation: [
 							0,
 							0,
 							n
 						],
 						children: /* @__PURE__ */ a("primitive", {
-							object: ue,
+							object: se,
 							attach: "material"
 						})
 					}), /* @__PURE__ */ a("mesh", {
-						geometry: I,
+						geometry: R,
 						rotation: [
 							0,
 							0,
@@ -4827,7 +5109,7 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 						],
 						renderOrder: 13,
 						children: /* @__PURE__ */ a("primitive", {
-							object: B,
+							object: fe,
 							attach: "material"
 						})
 					})] }, `portal-inner-panel-${t}`);
@@ -4844,18 +5126,18 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 				children: [Array.from({ length: C }, (e, t) => {
 					let n = t * T + .025, r = n + (D - k) / 2;
 					return /* @__PURE__ */ o("group", { children: [/* @__PURE__ */ a("mesh", {
-						geometry: ee,
+						geometry: F,
 						rotation: [
 							0,
 							0,
 							n
 						],
 						children: /* @__PURE__ */ a("primitive", {
-							object: le,
+							object: oe,
 							attach: "material"
 						})
 					}), /* @__PURE__ */ a("mesh", {
-						geometry: te,
+						geometry: L,
 						rotation: [
 							0,
 							0,
@@ -4868,12 +5150,12 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 						],
 						renderOrder: 12,
 						children: /* @__PURE__ */ a("primitive", {
-							object: me,
+							object: de,
 							attach: "material"
 						})
 					})] }, `portal-outer-panel-${t}`);
 				}), Array.from({ length: 6 }, (e, t) => {
-					let n = t * (Math.PI * 2 / 6) + ve, r = t % 2 == 0;
+					let n = t * (Math.PI * 2 / 6) + ge, r = t % 2 == 0;
 					return /* @__PURE__ */ o("group", {
 						rotation: [
 							0,
@@ -4882,41 +5164,41 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 						],
 						children: [
 							/* @__PURE__ */ a("mesh", {
-								geometry: R,
+								geometry: B,
 								position: [
-									_e,
+									he,
 									0,
 									-.014
 								],
 								renderOrder: 5,
 								children: /* @__PURE__ */ a("primitive", {
-									object: de,
+									object: ce,
 									attach: "material"
 								})
 							}),
 							/* @__PURE__ */ a("mesh", {
-								geometry: ne,
+								geometry: ee,
 								position: [
-									_e,
+									he,
 									0,
 									.004
 								],
 								renderOrder: 13,
 								children: /* @__PURE__ */ a("primitive", {
-									object: fe,
+									object: le,
 									attach: "material"
 								})
 							}),
 							r ? /* @__PURE__ */ a("mesh", {
-								geometry: re,
+								geometry: V,
 								position: [
-									_e + L * .12,
+									he + z * .12,
 									0,
 									.009
 								],
 								renderOrder: 15,
 								children: /* @__PURE__ */ a("primitive", {
-									object: pe,
+									object: ue,
 									attach: "material"
 								})
 							}) : null
@@ -4934,12 +5216,12 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 				renderOrder: 17,
 				children: [
 					/* @__PURE__ */ o("mesh", { children: [/* @__PURE__ */ a("torusGeometry", { args: [
-						ye,
+						_e,
 						.015,
-						H.radial,
-						H.tubular
+						W.radial,
+						W.tubular
 					] }), /* @__PURE__ */ a("meshBasicMaterial", {
-						color: z,
+						color: H,
 						transparent: !0,
 						opacity: .48 * d,
 						blending: u.AdditiveBlending,
@@ -4954,10 +5236,10 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 						],
 						renderOrder: 16,
 						children: [/* @__PURE__ */ a("torusGeometry", { args: [
-							ye,
+							_e,
 							.006,
-							H.radial,
-							H.tubular
+							W.radial,
+							W.tubular
 						] }), /* @__PURE__ */ a("meshBasicMaterial", {
 							color: i.glow,
 							transparent: !0,
@@ -4972,13 +5254,13 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 						children: /* @__PURE__ */ o("mesh", {
 							renderOrder: 22,
 							children: [/* @__PURE__ */ a("torusGeometry", { args: [
-								ye,
+								_e,
 								.012,
-								H.radial,
-								Math.max(Math.round(H.tubular * .42), 28),
+								W.radial,
+								Math.max(Math.round(W.tubular * .42), 28),
 								.58
 							] }), /* @__PURE__ */ a("primitive", {
-								object: he,
+								object: pe,
 								attach: "material"
 							})]
 						})
@@ -4988,13 +5270,13 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 						children: /* @__PURE__ */ o("mesh", {
 							renderOrder: 21,
 							children: [/* @__PURE__ */ a("torusGeometry", { args: [
-								ye * 1.018,
+								_e * 1.018,
 								.008,
-								H.radial,
-								Math.max(Math.round(H.tubular * .36), 24),
+								W.radial,
+								Math.max(Math.round(W.tubular * .36), 24),
 								.4
 							] }), /* @__PURE__ */ a("primitive", {
-								object: V,
+								object: U,
 								attach: "material"
 							})]
 						})
@@ -5004,13 +5286,13 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 						children: /* @__PURE__ */ o("mesh", {
 							renderOrder: 20,
 							children: [/* @__PURE__ */ a("torusGeometry", { args: [
-								ye * .987,
+								_e * .987,
 								.006,
-								H.radial,
-								Math.max(Math.round(H.tubular * .28), 20),
+								W.radial,
+								Math.max(Math.round(W.tubular * .28), 20),
 								.28
 							] }), /* @__PURE__ */ a("primitive", {
-								object: ge,
+								object: me,
 								attach: "material"
 							})]
 						})
@@ -5027,8 +5309,8 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 				children: [/* @__PURE__ */ a("torusGeometry", { args: [
 					r.membraneRadius * .938,
 					.0065,
-					H.radial,
-					H.tubular
+					W.radial,
+					W.tubular
 				] }), /* @__PURE__ */ a("meshBasicMaterial", {
 					color: i.glow,
 					transparent: !0,
@@ -5038,7 +5320,7 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 					toneMapped: !1
 				})]
 			}),
-			r.rings.map((e, t) => /* @__PURE__ */ a(Vn, {
+			r.rings.map((e, t) => /* @__PURE__ */ a(lr, {
 				config: e,
 				colors: i,
 				quality: s,
@@ -5051,20 +5333,20 @@ function Gn({ config: r, colors: i, quality: s, speed: l, glowFactor: d }) {
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/three/OrbitalScene.tsx
-function Kn(e) {
+function mr(e) {
 	return new u.Color(`rgb(${e.split(" ").join(", ")})`);
 }
-function Q(e, t) {
+function $(e, t) {
 	return `rgba(${Math.round(e.r * 255)}, ${Math.round(e.g * 255)}, ${Math.round(e.b * 255)}, ${t})`;
 }
-function qn(e) {
+function hr(e) {
 	switch (e) {
 		case "low": return .82;
 		case "high": return 1.16;
 		default: return 1;
 	}
 }
-function Jn() {
+function gr() {
 	if (typeof document > "u") return null;
 	let e = document.createElement("canvas");
 	e.width = 256, e.height = 256;
@@ -5075,7 +5357,7 @@ function Jn() {
 	let r = new u.CanvasTexture(e);
 	return r.needsUpdate = !0, r.minFilter = u.LinearFilter, r.magFilter = u.LinearFilter, r;
 }
-function Yn(e, t, n) {
+function _r(e, t, n) {
 	if (typeof document > "u") return null;
 	let r = 1024, i = document.createElement("canvas");
 	i.width = r, i.height = r;
@@ -5083,7 +5365,7 @@ function Yn(e, t, n) {
 	if (!a) return null;
 	r / 2;
 	let o = t.clone().lerp(n, .32), s = a.createRadialGradient(512, 512, 0, 512, 512, 512);
-	s.addColorStop(0, "rgba(255,255,255,1)"), s.addColorStop(.08, "rgba(255,255,255,0.998)"), s.addColorStop(.2, "rgba(245,252,255,0.99)"), s.addColorStop(.38, Q(e, .96)), s.addColorStop(.6, Q(t, .74)), s.addColorStop(.82, Q(o, .24)), s.addColorStop(1, Q(o, 0)), a.clearRect(0, 0, r, r), a.fillStyle = s, a.fillRect(0, 0, r, r);
+	s.addColorStop(0, "rgba(255,255,255,1)"), s.addColorStop(.08, "rgba(255,255,255,0.998)"), s.addColorStop(.2, "rgba(245,252,255,0.99)"), s.addColorStop(.38, $(e, .96)), s.addColorStop(.6, $(t, .74)), s.addColorStop(.82, $(o, .24)), s.addColorStop(1, $(o, 0)), a.clearRect(0, 0, r, r), a.fillStyle = s, a.fillRect(0, 0, r, r);
 	let c = a.getImageData(0, 0, r, r), l = c.data;
 	for (let e = 0; e < l.length; e += 4) if (l[e + 3] > 0) {
 		let t = (Math.random() - .5) * 8;
@@ -5093,18 +5375,18 @@ function Yn(e, t, n) {
 	let d = new u.CanvasTexture(i);
 	return d.needsUpdate = !0, d.minFilter = u.LinearFilter, d.magFilter = u.LinearFilter, d;
 }
-function Xn(e) {
+function vr(e) {
 	if (typeof document > "u") return null;
 	let t = document.createElement("canvas");
 	t.width = 512, t.height = 512;
 	let n = t.getContext("2d");
 	if (!n) return null;
 	let r = n.createRadialGradient(256, 256, 0, 256, 256, 256);
-	r.addColorStop(0, "rgba(255,255,255,1)"), r.addColorStop(.22, "rgba(255,255,255,0.96)"), r.addColorStop(.5, Q(e, .34)), r.addColorStop(.78, Q(e, .08)), r.addColorStop(1, Q(e, 0)), n.clearRect(0, 0, 512, 512), n.fillStyle = r, n.fillRect(0, 0, 512, 512);
+	r.addColorStop(0, "rgba(255,255,255,1)"), r.addColorStop(.22, "rgba(255,255,255,0.96)"), r.addColorStop(.5, $(e, .34)), r.addColorStop(.78, $(e, .08)), r.addColorStop(1, $(e, 0)), n.clearRect(0, 0, 512, 512), n.fillStyle = r, n.fillRect(0, 0, 512, 512);
 	let i = new u.CanvasTexture(t);
 	return i.needsUpdate = !0, i.minFilter = u.LinearFilter, i.magFilter = u.LinearFilter, i;
 }
-function Zn({ family: e, speed: t, glowFactor: r, ringStyle: i, usePlanetRing: o, splitDepthLayers: s, planetDust: l }) {
+function yr({ family: e, speed: t, glowFactor: r, ringStyle: i, usePlanetRing: o, splitDepthLayers: s, planetDust: l }) {
 	let u = n(null);
 	return c(() => {
 		u.current && (u.current.rotation.set(0, 0, 0), u.current.scale.setScalar(1));
@@ -5120,7 +5402,7 @@ function Zn({ family: e, speed: t, glowFactor: r, ringStyle: i, usePlanetRing: o
 				1,
 				1
 			],
-			children: o ? /* @__PURE__ */ a(Dn, {
+			children: o ? /* @__PURE__ */ a(Yn, {
 				radius: n.radius,
 				thickness: n.thickness,
 				ellipseX: n.ellipseX,
@@ -5139,7 +5421,7 @@ function Zn({ family: e, speed: t, glowFactor: r, ringStyle: i, usePlanetRing: o
 				glowFactor: r,
 				splitDepthLayers: s,
 				dust: l
-			}) : /* @__PURE__ */ a(nn, {
+			}) : /* @__PURE__ */ a(Tn, {
 				radius: n.radius,
 				thickness: n.thickness,
 				ellipseX: n.ellipseX,
@@ -5165,17 +5447,17 @@ function Zn({ family: e, speed: t, glowFactor: r, ringStyle: i, usePlanetRing: o
 		}, `${e.key}-${c}`))
 	});
 }
-function Qn({ presetConfig: r, quality: i, glowIntensity: s, speed: l, visualScale: d }) {
-	let f = n(null), p = n(null), m = qn(s), h = r.coreKind ?? "atomic", g = h === "atomic", _ = h === "planet", v = h === "gyro", y = h === "portal", b = _ ? "planetary" : r.ringStyle ?? "energy", x = t(() => ({
-		core: Kn(r.coreRgb),
-		glow: Kn(r.glowRgb),
-		accent: Kn(r.accentRgb),
-		hot: Kn(r.hotRgb)
-	}), [r]), S = t(() => Jn(), []), C = t(() => Yn(x.core, x.glow, x.accent), [
+function br({ presetConfig: r, quality: i, glowIntensity: s, speed: l, visualScale: d }) {
+	let f = n(null), p = n(null), m = hr(s), h = r.coreKind ?? "atomic", g = h === "atomic", _ = h === "planet", v = h === "gyro", y = h === "portal", b = _ ? "planetary" : r.ringStyle ?? "energy", x = t(() => ({
+		core: mr(r.coreRgb),
+		glow: mr(r.glowRgb),
+		accent: mr(r.accentRgb),
+		hot: mr(r.hotRgb)
+	}), [r]), S = t(() => gr(), []), C = t(() => _r(x.core, x.glow, x.accent), [
 		x.core,
 		x.glow,
 		x.accent
-	]), w = t(() => Xn(x.core), [x.core]);
+	]), w = t(() => vr(x.core), [x.core]);
 	e(() => () => {
 		S?.dispose(), C?.dispose(), w?.dispose();
 	}, [
@@ -5262,13 +5544,13 @@ function Qn({ presetConfig: r, quality: i, glowIntensity: s, speed: l, visualSca
 					toneMapped: !1
 				})
 			}) : null,
-			_ ? /* @__PURE__ */ a(cn, {
+			_ ? /* @__PURE__ */ a(An, {
 				coreSize: r.coreSize,
 				colors: x,
 				speed: l,
 				glowFactor: m
 			}) : null,
-			v && r.gyro ? /* @__PURE__ */ a(Kt, {
+			v && r.gyro ? /* @__PURE__ */ a(hn, {
 				coreSize: r.coreSize,
 				config: r.gyro,
 				colors: x,
@@ -5276,14 +5558,14 @@ function Qn({ presetConfig: r, quality: i, glowIntensity: s, speed: l, visualSca
 				speed: l,
 				glowFactor: m
 			}) : null,
-			y && r.portal ? /* @__PURE__ */ a(Gn, {
+			y && r.portal ? /* @__PURE__ */ a(pr, {
 				config: r.portal,
 				colors: x,
 				quality: i,
 				speed: l,
 				glowFactor: m
 			}) : null,
-			T.map((e) => /* @__PURE__ */ a(Zn, {
+			T.map((e) => /* @__PURE__ */ a(yr, {
 				family: e,
 				speed: l,
 				glowFactor: m,
@@ -5353,15 +5635,15 @@ function Qn({ presetConfig: r, quality: i, glowIntensity: s, speed: l, visualSca
 }
 //#endregion
 //#region src/components/OrbitalVisual/renderers/ThreeOrbitalCanvas.tsx
-var $n = {
+var xr = {
 	low: 1,
 	medium: [1, 1.5],
 	high: [1, 2]
 };
-function er({ quality: e, visualScale: t, frameloop: n, ...r }) {
+function Sr({ quality: e, visualScale: t, frameloop: n, ...r }) {
 	return /* @__PURE__ */ a(s, {
 		frameloop: n,
-		dpr: $n[e],
+		dpr: xr[e],
 		camera: {
 			position: [
 				0,
@@ -5383,7 +5665,7 @@ function er({ quality: e, visualScale: t, frameloop: n, ...r }) {
 			height: "100%",
 			pointerEvents: "none"
 		},
-		children: /* @__PURE__ */ a(Qn, {
+		children: /* @__PURE__ */ a(br, {
 			quality: e,
 			visualScale: t,
 			...r
@@ -5392,13 +5674,13 @@ function er({ quality: e, visualScale: t, frameloop: n, ...r }) {
 }
 //#endregion
 //#region src/components/OrbitalVisual/OrbitalVisual.tsx
-var tr = 440;
-function nr({ size: e = 420, width: t, height: n, preset: r = "atomic-orb", quality: i = "medium", glowIntensity: o = "medium", speed: s = 1, background: c = "dark", frameloop: l = "always", className: u }) {
-	let d = t ?? e, f = n ?? e, p = zt[r], m = e / tr;
+var Cr = 440;
+function wr({ size: e = 420, width: t, height: n, preset: r = "atomic-orb", quality: i = "medium", glowIntensity: o = "medium", speed: s = 1, background: c = "dark", frameloop: l = "always", className: u }) {
+	let d = t ?? e, f = n ?? e, p = cn[r], m = e / Cr;
 	return /* @__PURE__ */ a("div", {
 		className: [
-			St.root,
-			c === "dark" ? St.darkBackground : "",
+			Ut.root,
+			c === "dark" ? Ut.darkBackground : "",
 			u ?? ""
 		].filter(Boolean).join(" "),
 		style: {
@@ -5406,8 +5688,8 @@ function nr({ size: e = 420, width: t, height: n, preset: r = "atomic-orb", qual
 			height: f
 		},
 		children: /* @__PURE__ */ a("div", {
-			className: St.stage,
-			children: /* @__PURE__ */ a(er, {
+			className: Ut.stage,
+			children: /* @__PURE__ */ a(Sr, {
 				presetConfig: p,
 				quality: i,
 				glowIntensity: o,
@@ -5418,7 +5700,7 @@ function nr({ size: e = 420, width: t, height: n, preset: r = "atomic-orb", qual
 		})
 	});
 }
-var $ = [
+var Tr = [
 	{
 		id: "atomic-orb",
 		title: "Atomic Orb",
@@ -5675,23 +5957,23 @@ var $ = [
 			}
 		]
 	}
-], rr = $.flatMap((e) => e.presets.map((e) => e.preset)), ir = $.map((e) => ({
+], Er = Tr.flatMap((e) => e.presets.map((e) => e.preset)), Dr = Tr.map((e) => ({
 	value: e.id,
 	label: e.selectLabel
 }));
-function ar(e) {
-	return $.find((t) => t.id === e) ?? $[0];
+function Or(e) {
+	return Tr.find((t) => t.id === e) ?? Tr[0];
 }
-function or(e) {
-	return $.find((t) => t.presets.some((t) => t.preset === e))?.id ?? "atomic-orb";
+function kr(e) {
+	return Tr.find((t) => t.presets.some((t) => t.preset === e))?.id ?? "atomic-orb";
 }
-function sr(e) {
-	return ar(e).presets.map((e) => ({
+function Ar(e) {
+	return Or(e).presets.map((e) => ({
 		value: e.preset,
 		label: e.selectLabel
 	}));
 }
 //#endregion
-export { nr as OrbitalVisual, Be as SphereVisual, vt as WaterRippleVisual, ar as getOrbitalObjectById, or as getOrbitalObjectIdForPreset, sr as getOrbitalPresetOptions, $ as orbitalObjectCatalog, ir as orbitalObjectOptions, rr as orbitalPresetNames, yt as spherePresetCatalog, bt as spherePresetNames, xt as spherePresetOptions };
+export { wr as OrbitalVisual, Be as SphereVisual, zt as WaterRippleVisual, Or as getOrbitalObjectById, kr as getOrbitalObjectIdForPreset, Ar as getOrbitalPresetOptions, Tr as orbitalObjectCatalog, Dr as orbitalObjectOptions, Er as orbitalPresetNames, Bt as spherePresetCatalog, Vt as spherePresetNames, Ht as spherePresetOptions };
 
 //# sourceMappingURL=index.js.map
