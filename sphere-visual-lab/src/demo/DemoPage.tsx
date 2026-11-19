@@ -44,6 +44,7 @@ import {
 import LazyOrbitalVisual from './LazyOrbitalVisual';
 import { useDeferredOrbitalVisual } from './useDeferredOrbitalVisual';
 import { useViewportRenderMode } from './useViewportRenderMode';
+import WaterRipplePlayground from './WaterRipplePlayground';
 
 type PreviewKind = 'sphere' | OrbitalPreviewKind;
 
@@ -357,6 +358,7 @@ export default function DemoPage() {
             с настраиваемыми параметрами, чистой архитектурой и заделом на
             будущие режимы, новые пресеты и другие visual family.
           </p>
+          <a className="waterJump" href="#water-ripple">Новый объект: круги на воде ↓</a>
         </header>
 
         <section ref={sphereSectionRef} className="demoLayout demoAnchor">
@@ -570,6 +572,7 @@ export default function DemoPage() {
             );
           })}
         </section>
+        <WaterRipplePlayground />
       </div>
     </main>
   );

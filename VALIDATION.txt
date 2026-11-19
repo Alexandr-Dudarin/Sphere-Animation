@@ -1,0 +1,45 @@
+Sphere Visual Lab — WaterRippleVisual REVIEW V4, 2026-11-19
+Git base: c221cc55cdf4b946c0e81a3b89987063061c2916 (main).
+User confirmed that the v3 installer applied 26 files to their main Windows project.
+The user video also confirms the v3 droplet running there. A commit was not confirmed.
+Canonical project: C:\Users\User\Desktop\Sphere Animation\sphere-visual-lab
+
+PASS: npm run check:all — 66 tests in 10 files, TypeScript, demo and library builds.
+PASS: npm run consumer:smoke — packed library imported and built in a clean React/Vite app.
+PASS: targeted ESLint for water components, playground and the water E2E specification.
+PASS: git diff --check.
+PASS: sequence tests cover continuous source growth during falling/wave phases,
+      interval-dependent startup, no phantom startup drop, detachment/contact continuity,
+      upper tip extension, accelerating fall, wobble, followers, periodicity and framing.
+PASS: SHA-256 equality with v3 for rippleShaders.ts, rippleConfig.ts,
+      WaterRippleVisual.tsx, rippleTiming.ts and spoutGeometry.ts.
+PASS: standalone GLSL compilation/linking for water, droplet and pouring lip.
+PASS: 601 frames through EGL/Mesa llvmpipe using actual source shaders, Three.js
+      geometries, camera transforms and getDropletSequence at default settings.
+      Formation, detachment, descent and next-drop growth during waves were inspected.
+      WATER_RIPPLE_V4_PREVIEW.mp4 contains about 20 seconds at 30 fps.
+
+Changes affect the droplet variant: slow accumulation throughout almost the entire
+cycle and a slightly extended upper tip in flight. Ballistic descent, liquid wobble,
+two small followers, pouring lip and water-only rendering/defaults are preserved.
+
+NOT EXECUTED HERE: browser Playwright E2E and live browser UI review of v4.
+Standalone rendering validates shader appearance/timing, not browser integration.
+The user's supplied video is evidence for v3, not for this new v4 build.
+Four water E2E scenarios remain available for local execution.
+
+Build warning: the shared Three.js/R3F chunk exceeds 500 kB. The water component
+remains a separate lazy-loaded chunk (11.86 kB raw, 4.87 kB gzip).
+
+DELIVERY: incremental v3-to-v4 installer in Sphere_Water_Update_V4.zip, eight files.
+The installer verifies the Git base and normalized source hashes before writing,
+backs up original bytes in .git/water-ripple-backups, verifies writes and avoids
+overwriting unexpected local edits. It makes no commit, push or deployment.
+Installation is tested in a disposable v3 checkout, including CRLF files and a
+path with spaces, dry run, repeat invocation and rejection of a local conflict.
+
+V4 installation and visual acceptance were confirmed by the user on 2026-11-19.
+Release preparation re-ran check:all and consumer:smoke successfully from the
+archived accepted sources. Visual source bytes are unchanged in this release.
+GitHub main triggers CI and the existing Vercel demo integration. No npm publication
+is included. The Windows working copy is synchronized separately in its existing path.

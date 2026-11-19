@@ -1,4 +1,6 @@
 export { SphereVisual } from './components/SphereVisual';
+export { WaterRippleVisual } from './components/WaterRippleVisual';
+export type { WaterRippleVisualProps, WaterRippleQuality, WaterRippleBackground, WaterRippleVariant } from './components/WaterRippleVisual';
 export type {
   GlowIntensity,
   SphereBackground,

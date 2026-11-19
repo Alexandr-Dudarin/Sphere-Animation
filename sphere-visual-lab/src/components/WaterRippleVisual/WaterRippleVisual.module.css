@@ -1,0 +1,18 @@
+.root {
+  position: relative;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 24px;
+}
+.dark { background: #02040a; }
+.root canvas { display: block; }
+.fallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 24px;
+  color: #9bc9ec;
+  text-align: center;
+}

@@ -1,0 +1,15 @@
+.waterSection { margin-top: 64px; scroll-margin-top: 24px; }
+.waterStage { position: relative; height: 580px; border-radius: 22px; overflow: hidden; background: #02040a; }
+.waterStage--transparent { background: radial-gradient(ellipse at 50% 50%, #263953, #0b1120 75%); }
+.waterStageLabel { position: absolute; bottom: 24px; left: 28px; color: #638299; font-size: 10px; letter-spacing: 0.22em; pointer-events: none; }
+.waterLoading { display: grid; place-items: center; height: 100%; margin: 0; color: #8aa2b9; }
+.waterActions { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 24px; }
+.waterVariants { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.waterVariants button { padding: 11px 10px; border: 1px solid #253e52; border-radius: 12px; color: #a1b8c9; background: #0b1723; font: inherit; font-size: 13px; cursor: pointer; }
+.waterVariants button[aria-pressed="true"] { border-color: #57b8e9; background: #14354b; color: #e4f6ff; }
+.waterVariants button:focus-visible { outline: 2px solid #7cd9ff; outline-offset: 3px; }
+.waterActions button, .waterJump { padding: 11px 18px; border: 1px solid #36556d; border-radius: 12px; color: #c9eaff; background: #102537; font: inherit; cursor: pointer; text-decoration: none; }
+.waterActions button:hover, .waterJump:hover { background: #173a52; }
+.waterActions button:focus-visible, .waterJump:focus-visible { outline: 2px solid #7cd9ff; outline-offset: 4px; }
+.waterJump { display: inline-block; margin-top: 18px; font-size: 14px; }
+@media (max-width: 700px) { .waterStage { height: 340px; } .waterSection { margin-top: 40px; } }

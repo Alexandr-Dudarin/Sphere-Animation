@@ -1,0 +1,3 @@
+import type { WaterRippleVisualProps } from './WaterRippleVisual.types';
+export default function WaterRippleVisual({ size, width, height, quality, background, color, speed, glowIntensity, amplitude, lineWidth, variant, damping, rippleInterval, tilt, paused, dropKey, frameloop, className, }: WaterRippleVisualProps): import("react/jsx-runtime").JSX.Element;
+//# sourceMappingURL=WaterRippleVisual.d.ts.map

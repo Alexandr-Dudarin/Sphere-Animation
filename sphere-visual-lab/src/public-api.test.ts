@@ -9,6 +9,7 @@ import {
   orbitalObjectOptions,
   orbitalPresetNames,
   SphereVisual,
+  WaterRippleVisual,
   spherePresetCatalog,
   spherePresetNames,
   spherePresetOptions,
@@ -22,9 +23,10 @@ import type {
 } from './index';
 
 describe('public library API', () => {
-  it('exports both visual components from one entry point', () => {
+  it('exports all visual components from one entry point', () => {
     expect(SphereVisual).toBeTypeOf('function');
     expect(OrbitalVisual).toBeTypeOf('function');
+    expect(WaterRippleVisual).toBeTypeOf('function');
   });
 
   it('exports the SphereVisual catalog through the public entry point', () => {

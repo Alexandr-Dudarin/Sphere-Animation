@@ -1,4 +1,6 @@
 export { SphereVisual } from './components/SphereVisual';
+export { WaterRippleVisual } from './components/WaterRippleVisual';
+export type { WaterRippleVisualProps, WaterRippleQuality, WaterRippleBackground, WaterRippleVariant } from './components/WaterRippleVisual';
 export type { GlowIntensity, SphereBackground, SphereMode, SpherePresetName, SphereQuality, SphereRendererType, SphereVisualProps, } from './components/SphereVisual';
 export { spherePresetCatalog, spherePresetNames, spherePresetOptions, } from './components/SphereVisual/catalog';
 export type { SpherePresetCatalogItem } from './components/SphereVisual/catalog';
