@@ -26,6 +26,20 @@ describe('WaterRippleVisual', () => {
     });
   });
 
+  it('uses four seconds for the drop and crown, preserving ring timing and explicit overrides', () => {
+    const view = render(<WaterRippleVisual />);
+    const interval = () => JSON.parse(screen.getByTestId('scene').textContent!).rippleInterval;
+    expect(interval()).toBe(4);
+    view.rerender(<WaterRippleVisual variant="crown" />);
+    expect(interval()).toBe(4);
+    view.rerender(<WaterRippleVisual variant="ripples" />);
+    expect(interval()).toBe(4.8);
+    view.rerender(<WaterRippleVisual variant="crown" rippleInterval={6} />);
+    expect(interval()).toBe(6);
+    view.rerender(<WaterRippleVisual variant="crown" rippleInterval={NaN} />);
+    expect(interval()).toBe(4);
+  });
+
   it('supports keyboard waves and disables interaction while paused', () => {
     const view = render(<WaterRippleVisual variant="interactive" />);
     fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });

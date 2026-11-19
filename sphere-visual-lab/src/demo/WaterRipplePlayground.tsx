@@ -16,7 +16,8 @@ export default function WaterRipplePlayground() {
   const [intensity, setIntensity] = useState(1);
   const [glow, setGlow] = useState(1.3);
   const [tilt, setTilt] = useState(22);
-  const [interval, setInterval] = useState(4.8);
+  const [dropInterval, setDropInterval] = useState(4);
+  const [ringInterval, setRingInterval] = useState<number>(rippleDefaults.rippleInterval);
   const [damping, setDamping] = useState(0.55);
   const [paused, setPaused] = useState(false);
   const [dropKey, setDropKey] = useState(0);
@@ -25,7 +26,9 @@ export default function WaterRipplePlayground() {
   const frameloop = useViewportRenderMode(stage, '200px 0px');
   const selected = waterVariants.find((item) => item.id === variant)!;
   const isClassic = variant === 'droplet' || variant === 'ripples' || variant === 'crown';
-  const intensityTitle = variant === 'rain' ? 'Плотность дождя' : variant === 'vortex' ? 'Глубина воронки' : 'Сила потока';
+  const interval = variant === 'ripples' ? ringInterval : dropInterval;
+  const setInterval = variant === 'ripples' ? setRingInterval : setDropInterval;
+  const intensityTitle = variant === 'rain' ? 'Плотность дождя' : 'Сила потока';
   const action = isClassic ? 'Новая капля' : variant === 'interactive' ? 'Новая волна' : 'Начать заново';
 
   useEffect(() => {
@@ -49,7 +52,7 @@ export default function WaterRipplePlayground() {
     { id: 'water-line-width', title: 'Толщина линий', value: Number((lineWidth / rippleDefaults.lineWidth).toFixed(2)), set: (value: number) => setLineWidth(value * rippleDefaults.lineWidth), min: 0.2, max: 2, step: 0.05, suffix: '×' },
     { id: 'water-tilt', title: 'Угол обзора', value: tilt, set: setTilt, min: 10, max: 75, step: 1, suffix: '°' },
     ...(isClassic ? [{ id: 'water-interval', title: 'Интервал между каплями', value: interval, set: setInterval, min: 3, max: 10, step: 0.1, suffix: ' с' }] : []),
-    ...(variant !== 'vortex' ? [{ id: 'water-damping', title: 'Затухание', value: damping, set: setDamping, min: 0.2, max: 2, step: 0.05, suffix: '' }] : []),
+    { id: 'water-damping', title: 'Затухание', value: damping, set: setDamping, min: 0.2, max: 2, step: 0.05, suffix: '' },
     ...(!isClassic && variant !== 'interactive' ? [{ id: 'water-intensity', title: intensityTitle, value: intensity, set: setIntensity, min: 0.3, max: 2, step: 0.1, suffix: '×' }] : []),
   ];
 
@@ -58,7 +61,7 @@ export default function WaterRipplePlayground() {
       <header className="pageHeader">
         <p className="eyebrow">Water Visual Lab</p>
         <h2 id="water-title" className="pageTitle orbitalTitle">Движение воды</h2>
-        <p className="pageSubtitle">От одной капли до целого водопада. Семь способов оживить воду тонкими светящимися линиями.</p>
+        <p className="pageSubtitle">От одной капли до целого водопада. Шесть способов оживить воду тонкими светящимися линиями.</p>
       </header>
       <div className="demoLayout">
         <div className="panel previewPanel">

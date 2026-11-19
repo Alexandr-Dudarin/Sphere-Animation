@@ -11,8 +11,6 @@ export const waterVariants: { id: WaterRippleVariant; title: string; label: stri
     description: 'Проведи курсором по воде или коснись её. С клавиатуры — Enter или пробел, когда выделена сцена.' },
   { id: 'crown', title: 'Всплеск-корона', label: 'SPLASH CROWN / 05',
     description: 'После удара капли поднимается тонкая водяная корона, опадает и уступает место кругам.' },
-  { id: 'vortex', title: 'Водоворот', label: 'VORTEX / 06',
-    description: 'Светящиеся струи закручиваются к центру и уходят в глубину воронки.' },
-  { id: 'waterfall', title: 'Водопад', label: 'WATERFALL / 07',
-    description: 'Тонкая завеса воды непрерывно стекает с края. У подножия расходится мелкая рябь.' },
+  { id: 'waterfall', title: 'Водопад', label: 'WATERFALL / 06',
+    description: 'Переплетающиеся потоки падают с края. Внизу поднимаются водяные короны и расходится рябь.' },
 ];

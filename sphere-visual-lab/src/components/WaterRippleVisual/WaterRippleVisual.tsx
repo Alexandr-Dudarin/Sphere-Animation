@@ -14,7 +14,7 @@ export default function WaterRippleVisual({
   size = 520, width, height, quality = 'medium', background = 'dark',
   color = '#168dff', speed = rippleDefaults.speed, glowIntensity = 1.3, amplitude = rippleDefaults.amplitude,
   lineWidth = rippleDefaults.lineWidth, variant = 'droplet', intensity = 1,
-  damping = 0.55, rippleInterval = 4.8, tilt = 22, paused = false,
+  damping = 0.55, rippleInterval, tilt = 22, paused = false,
   dropKey = 0, frameloop = 'always', className = '',
 }: WaterRippleVisualProps) {
   const reducedMotion = useReducedMotion();
@@ -25,6 +25,7 @@ export default function WaterRippleVisual({
   const loop = stopped && frameloop === 'always' ? 'demand' : frameloop;
   const interactive = variant === 'interactive';
   const isClassic = variant === 'ripples' || variant === 'droplet' || variant === 'crown';
+  const defaultInterval = variant === 'ripples' ? rippleDefaults.rippleInterval : 4;
   const sceneProps = {
     size: safeSize, quality, color, variant, speed: safeSpeed,
     glowIntensity: bounded(glowIntensity, 1.3, 0, 2),
@@ -53,7 +54,7 @@ export default function WaterRippleVisual({
         style={{ width: '100%', height: '100%', pointerEvents: interactive ? 'auto' : 'none', touchAction: 'pan-y' }}>
         {isClassic ? <WaterRippleScene {...sceneProps}
           amplitude={bounded(amplitude, rippleDefaults.amplitude, 0, 0.15)}
-          rippleInterval={bounded(rippleInterval, 4.8, 3, 10)} /> :
+          rippleInterval={bounded(rippleInterval ?? defaultInterval, defaultInterval, 3, 10)} /> :
           <WaterCollectionScene key={variant} {...sceneProps} intensity={bounded(intensity, 1, 0.3, 2)} />}
       </Canvas>
     </div>

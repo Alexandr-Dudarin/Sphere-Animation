@@ -1,6 +1,8 @@
 export declare const MAX_WATER_IMPACTS = 24;
 export declare const IMPACT_LIFETIME = 5.5;
 export declare const RAIN_FALL_SECONDS = 0.62;
+export declare const RAIN_DROP_SCALE = 1.5;
+export declare const CROWN_LIFETIME = 0.88;
 export interface WaterImpact {
     x: number;
     y: number;
