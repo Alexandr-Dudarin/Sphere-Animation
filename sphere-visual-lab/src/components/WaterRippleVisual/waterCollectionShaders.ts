@@ -77,9 +77,13 @@ void main() {
   // Integer angular winding keeps the atan seam continuous.
   float phase = r * 16.0 - angle * 3.0 + uTime * 2.1;
   float d = abs(sin(phase * 0.5));
-  float aa = max(fwidth(d), 0.007);
-  float width = uLineWidth * 2.0;
-  float core = 1.0 - smoothstep(width, width + aa, d);
+  // Differentiate the continuous phase analytically: differentiating abs(sin)
+  // loses coverage at thin crests, and differentiating atan introduces a seam.
+  vec2 gradient = 16.0 * vPoint / max(r, 0.01) - 3.0 * vec2(-vPoint.y, vPoint.x) / max(r * r, 0.0001);
+  float aa = max(length(vec2(dot(gradient, dFdx(vPoint)), dot(gradient, dFdy(vPoint)))) * 0.5, 0.007);
+  float width = uLineWidth * 3.0;
+  float core = (1.0 - smoothstep(max(0.0, width - aa * 0.5), width + aa * 0.5, d))
+    * min(1.0, width / max(aa * 0.5, 0.007));
   float halo = exp(-pow(d / (width * 3.0 + aa), 2.0));
   float edge = smoothstep(0.09, 0.26, r) * (1.0 - smoothstep(1.7, 2.65, r));
   float flow = 0.55 + 0.45 * pow(0.5 + 0.5 * sin(r * 7.0 + uTime * 3.2), 3.0);

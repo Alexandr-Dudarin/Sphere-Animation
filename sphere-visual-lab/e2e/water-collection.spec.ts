@@ -30,14 +30,15 @@ for (const [variant, title] of variants) {
       await page.keyboard.press('Enter');
     }
     if (variant === 'crown') {
-      await page.locator('#water-speed').fill('2');
+      await page.locator('#water-speed').fill('1');
+      await page.clock.install();
+      await page.clock.pauseAt(new Date(Date.now() + 500));
       await page.getByRole('button', { name: 'Новая капля', exact: true }).click();
       await surface.scrollIntoViewIfNeeded();
-      // Observe the full formation → fall → splash sequence, not just an idle frame.
-      for (let index = 0; index < 5; index++) {
-        await page.waitForTimeout(800);
-        await testInfo.attach(`crown-phase-${index}`, { body: await canvas.screenshot(), contentType: 'image/png' });
-      }
+      // Advance every animation frame, then hold the short splash for inspection.
+      await page.clock.runFor(5800);
+      await testInfo.attach('crown-impact', { body: await canvas.screenshot(), contentType: 'image/png' });
+      await page.clock.resume();
     } else {
       await page.waitForTimeout(550);
     }
