@@ -26,17 +26,17 @@ describe('WaterRippleVisual', () => {
     });
   });
 
-  it('uses four seconds for the drop and crown, preserving ring timing and explicit overrides', () => {
+  it('uses four seconds for the drop, preserving ring timing and explicit overrides', () => {
     const view = render(<WaterRippleVisual />);
     const interval = () => JSON.parse(screen.getByTestId('scene').textContent!).rippleInterval;
     expect(interval()).toBe(4);
-    view.rerender(<WaterRippleVisual variant="crown" />);
+    view.rerender(<WaterRippleVisual variant="droplet" />);
     expect(interval()).toBe(4);
     view.rerender(<WaterRippleVisual variant="ripples" />);
     expect(interval()).toBe(4.8);
-    view.rerender(<WaterRippleVisual variant="crown" rippleInterval={6} />);
+    view.rerender(<WaterRippleVisual variant="droplet" rippleInterval={6} />);
     expect(interval()).toBe(6);
-    view.rerender(<WaterRippleVisual variant="crown" rippleInterval={NaN} />);
+    view.rerender(<WaterRippleVisual variant="droplet" rippleInterval={NaN} />);
     expect(interval()).toBe(4);
   });
 
@@ -51,7 +51,7 @@ describe('WaterRippleVisual', () => {
   });
 
   it('bounds intensity and uses the shared pause policy for new effects', () => {
-    render(<WaterRippleVisual variant="waterfall" intensity={Infinity} paused />);
+    render(<WaterRippleVisual variant="rain" intensity={Infinity} paused />);
     expect(JSON.parse(screen.getByTestId('collection').textContent!)).toMatchObject({ intensity: 1, paused: true });
     expect(screen.getByTestId('canvas')).toHaveAttribute('data-loop', 'demand');
   });

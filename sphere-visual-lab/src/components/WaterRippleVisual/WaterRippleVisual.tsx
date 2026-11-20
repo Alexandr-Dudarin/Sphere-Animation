@@ -24,7 +24,7 @@ export default function WaterRippleVisual({
   const stopped = paused || reducedMotion || safeSpeed === 0;
   const loop = stopped && frameloop === 'always' ? 'demand' : frameloop;
   const interactive = variant === 'interactive';
-  const isClassic = variant === 'ripples' || variant === 'droplet' || variant === 'crown';
+  const isClassic = variant === 'ripples' || variant === 'droplet';
   const defaultInterval = variant === 'ripples' ? rippleDefaults.rippleInterval : 4;
   const sceneProps = {
     size: safeSize, quality, color, variant, speed: safeSpeed,

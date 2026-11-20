@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const variants = [
-  ['rain', 'Дождь'], ['interactive', 'Касание воды'], ['crown', 'Всплеск-корона'],
-  ['waterfall', 'Водопад'],
+  ['rain', 'Дождь'], ['interactive', 'Касание воды'],
 ] as const;
 
 for (const [variant, title] of variants) {
@@ -16,7 +15,7 @@ for (const [variant, title] of variants) {
     await section.scrollIntoViewIfNeeded();
     await expect(surface).toHaveAttribute('data-water-variant', 'droplet');
     const before = await surface.boundingBox();
-    await page.getByRole('button', { name: title, exact: true }).click();
+    await page.locator('#water-ripple').getByRole('button', { name: title, exact: true }).click();
     await expect(surface).toHaveAttribute('data-water-variant', variant);
     await surface.scrollIntoViewIfNeeded();
     const after = await surface.boundingBox();
@@ -29,27 +28,9 @@ for (const [variant, title] of variants) {
       await surface.focus();
       await page.keyboard.press('Enter');
     }
-    if (variant === 'crown') {
-      await page.locator('#water-speed').fill('1');
-      await page.clock.install();
-      await page.clock.pauseAt(new Date(Date.now() + 500));
-      await page.getByRole('button', { name: 'Новая капля', exact: true }).click();
-      await surface.scrollIntoViewIfNeeded();
-      // Advance every animation frame, then hold the short splash for inspection.
-      await page.clock.runFor(5000);
-      await testInfo.attach('crown-impact', { body: await canvas.screenshot(), contentType: 'image/png' });
-      await page.clock.resume();
-    } else {
-      await page.waitForTimeout(550);
-    }
+    await page.waitForTimeout(550);
     await testInfo.attach(`${variant}-desktop`, { body: await canvas.screenshot(), contentType: 'image/png' });
-    if (variant === 'waterfall') {
-      for (let frame = 1; frame <= 3; frame++) {
-        await page.waitForTimeout(250);
-        await testInfo.attach(`waterfall-flow-${frame}`, { body: await canvas.screenshot(), contentType: 'image/png' });
-      }
-    }
-    await page.getByRole('button', { name: 'Пауза', exact: true }).click();
+    await page.locator('#water-ripple').getByRole('button', { name: 'Пауза', exact: true }).click();
     await expect(surface).toHaveAttribute('data-frameloop', 'demand');
     await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     const frozen = await canvas.screenshot();
@@ -91,14 +72,12 @@ test('touch water stays still until interaction, including when revisiting it', 
   expect((await canvas.screenshot()).equals(idle)).toBe(false);
 });
 
-test('six water variants preserve independent ring and drop interval settings', async ({ page }) => {
+test('four water variants preserve independent ring and drop interval settings', async ({ page }) => {
   await page.goto('/#water-ripple');
   const section = page.locator('#water-ripple');
   await section.scrollIntoViewIfNeeded();
-  await expect(section.getByRole('group', { name: 'Вариант воды' }).getByRole('button')).toHaveCount(6);
+  await expect(section.getByRole('group', { name: 'Вариант воды' }).getByRole('button')).toHaveCount(4);
   const interval = section.locator('#water-interval');
-  await expect(interval).toHaveValue('4');
-  await section.getByRole('button', { name: 'Всплеск-корона', exact: true }).click();
   await expect(interval).toHaveValue('4');
   await interval.fill('5');
   await section.getByRole('button', { name: 'Только круги', exact: true }).click();

@@ -1,0 +1,3 @@
+.root { position: relative; overflow: hidden; isolation: isolate; }
+.dark { background: #02040a; }
+.fallback { display: grid; place-items: center; height: 100%; padding: 24px; color: #bed8ef; text-align: center; }

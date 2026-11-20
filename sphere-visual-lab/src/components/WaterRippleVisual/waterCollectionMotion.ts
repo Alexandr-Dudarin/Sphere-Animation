@@ -1,8 +1,7 @@
-export const MAX_WATER_IMPACTS = 24;
+export const MAX_WATER_IMPACTS = 64;
 export const IMPACT_LIFETIME = 5.5;
 export const RAIN_FALL_SECONDS = 0.62;
 export const RAIN_DROP_SCALE = 1.5;
-export const CROWN_LIFETIME = 0.88;
 
 export interface WaterImpact { x: number; y: number; time: number; strength: number }
 export interface ImpactSchedule { next: number; index: number; impacts: WaterImpact[] }
@@ -21,18 +20,18 @@ export function retainImpacts(impacts: WaterImpact[], time: number) {
 }
 
 /** A bounded schedule shared by falling streaks and their water impacts. */
-export function scheduleImpacts(state: ImpactSchedule, time: number, intensity: number, waterfall = false) {
-  const rate = (waterfall ? 3.4 : 3.15) * Math.min(2, Math.max(0.3, intensity));
+export function scheduleImpacts(state: ImpactSchedule, time: number, intensity: number) {
+  const rate = 4.725 * Math.min(2, Math.max(0.3, intensity));
   // Only a short look-ahead is needed to show a drop before it touches the water.
   for (let count = 0; state.next <= time + RAIN_FALL_SECONDS && count < MAX_WATER_IMPACTS; count++) {
     const index = state.index++;
     const angle = random(index, 1) * Math.PI * 2;
     const radius = Math.sqrt(random(index, 2)) * 1.7;
     state.impacts.push({
-      x: waterfall ? (random(index, 3) - 0.5) * 1.7 : Math.cos(angle) * radius,
-      y: waterfall ? (random(index, 4) - 0.5) * 0.12 : Math.sin(angle) * radius,
+      x: Math.cos(angle) * radius,
+      y: Math.sin(angle) * radius,
       time: state.next,
-      strength: waterfall ? 0.20 + random(index, 5) * 0.10 : 0.55 + random(index, 5) * 0.4,
+      strength: 0.55 + random(index, 5) * 0.4,
     });
     state.next += (0.82 + random(index, 6) * 0.36) / rate;
   }

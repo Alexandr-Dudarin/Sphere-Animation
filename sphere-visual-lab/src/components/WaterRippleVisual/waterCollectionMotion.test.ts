@@ -26,15 +26,15 @@ describe('water collection impacts', () => {
     expect(rainHeight(t + 0.01, t)).toBeNull();
   });
 
-  it('bounds long-running effects and places waterfall impacts under the curtain', () => {
+  it('keeps the denser rain bounded over long runs without expiring impacts early', () => {
     const state = createImpactSchedule();
     for (let frame = 0; frame <= 6000; frame++) {
-      scheduleImpacts(state, frame / 20, 2, true);
+      scheduleImpacts(state, frame / 20, 2);
       expect(state.impacts.length).toBeLessThanOrEqual(MAX_WATER_IMPACTS);
     }
+    expect(state.impacts[0].time).toBeLessThan(300 - IMPACT_LIFETIME + 0.25);
     for (const impact of state.impacts) {
-      expect(Math.abs(impact.x)).toBeLessThanOrEqual(0.85);
-      expect(Math.abs(impact.y)).toBeLessThanOrEqual(0.06);
+      expect(Math.hypot(impact.x, impact.y)).toBeLessThanOrEqual(1.7);
       expect(300 - impact.time).toBeLessThanOrEqual(IMPACT_LIFETIME);
     }
   });

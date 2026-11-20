@@ -7,7 +7,6 @@ import { rippleFragmentShader, rippleVertexShader } from './rippleShaders';
 import { getRippleDiameter, rippleDefaults } from './rippleConfig';
 import { fitDropletDiameter, getDropletStartTime } from './dropletSequence';
 import DropletSource from './DropletSource';
-import WaterCrown from './WaterCrown';
 
 type SceneProps = Required<Pick<WaterRippleVisualProps,
   'size' | 'quality' | 'color' | 'speed' | 'glowIntensity' | 'amplitude' |
@@ -16,7 +15,7 @@ type SceneProps = Required<Pick<WaterRippleVisualProps,
 const segments = { low: 64, medium: 112, high: 176 } as const;
 
 export default function WaterRippleScene(props: SceneProps) {
-  const hasDrop = props.variant === 'droplet' || props.variant === 'crown';
+  const hasDrop = props.variant === 'droplet';
   const material = useRef<ShaderMaterial>(null);
   const time = useRef(hasDrop ? getDropletStartTime(props.rippleInterval) : 3.5);
   const previousDrop = useRef(props.dropKey);
@@ -87,8 +86,6 @@ export default function WaterRippleScene(props: SceneProps) {
       </mesh>
       {hasDrop && <DropletSource time={time} interval={props.rippleInterval}
         color={props.color} glow={props.glowIntensity} quality={props.quality} />}
-      {props.variant === 'crown' && <WaterCrown time={time} interval={props.rippleInterval}
-        color={props.color} glow={props.glowIntensity} lineWidth={props.lineWidth} />}
     </group>
   );
 }

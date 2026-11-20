@@ -25,10 +25,9 @@ export default function WaterRipplePlayground() {
   const [transparent, setTransparent] = useState(false);
   const frameloop = useViewportRenderMode(stage, '200px 0px');
   const selected = waterVariants.find((item) => item.id === variant)!;
-  const isClassic = variant === 'droplet' || variant === 'ripples' || variant === 'crown';
+  const isClassic = variant === 'droplet' || variant === 'ripples';
   const interval = variant === 'ripples' ? ringInterval : dropInterval;
   const setInterval = variant === 'ripples' ? setRingInterval : setDropInterval;
-  const intensityTitle = variant === 'rain' ? 'Плотность дождя' : 'Сила потока';
   const action = isClassic ? 'Новая капля' : variant === 'interactive' ? 'Новая волна' : 'Начать заново';
 
   useEffect(() => {
@@ -53,7 +52,7 @@ export default function WaterRipplePlayground() {
     { id: 'water-tilt', title: 'Угол обзора', value: tilt, set: setTilt, min: 10, max: 75, step: 1, suffix: '°' },
     ...(isClassic ? [{ id: 'water-interval', title: 'Интервал между каплями', value: interval, set: setInterval, min: 3, max: 10, step: 0.1, suffix: ' с' }] : []),
     { id: 'water-damping', title: 'Затухание', value: damping, set: setDamping, min: 0.2, max: 2, step: 0.05, suffix: '' },
-    ...(!isClassic && variant !== 'interactive' ? [{ id: 'water-intensity', title: intensityTitle, value: intensity, set: setIntensity, min: 0.3, max: 2, step: 0.1, suffix: '×' }] : []),
+    ...(!isClassic && variant !== 'interactive' ? [{ id: 'water-intensity', title: 'Плотность дождя', value: intensity, set: setIntensity, min: 0.3, max: 2, step: 0.1, suffix: '×' }] : []),
   ];
 
   return (
@@ -61,7 +60,7 @@ export default function WaterRipplePlayground() {
       <header className="pageHeader">
         <p className="eyebrow">Water Visual Lab</p>
         <h2 id="water-title" className="pageTitle orbitalTitle">Движение воды</h2>
-        <p className="pageSubtitle">От одной капли до целого водопада. Шесть способов оживить воду тонкими светящимися линиями.</p>
+        <p className="pageSubtitle">Капля, тихая рябь, дождь и касание. Четыре способа оживить воду тонкими светящимися линиями.</p>
       </header>
       <div className="demoLayout">
         <div className="panel previewPanel">

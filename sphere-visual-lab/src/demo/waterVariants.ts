@@ -9,8 +9,4 @@ export const waterVariants: { id: WaterRippleVariant; title: string; label: stri
     description: 'Лёгкий дождь рисует пересекающиеся круги. У каждой капли своя точка падения.' },
   { id: 'interactive', title: 'Касание воды', label: 'TOUCH THE WATER / 04',
     description: 'Проведи курсором по воде или коснись её. С клавиатуры — Enter или пробел, когда выделена сцена.' },
-  { id: 'crown', title: 'Всплеск-корона', label: 'SPLASH CROWN / 05',
-    description: 'После удара капли поднимается тонкая водяная корона, опадает и уступает место кругам.' },
-  { id: 'waterfall', title: 'Водопад', label: 'WATERFALL / 06',
-    description: 'Переплетающиеся потоки падают с края. Внизу поднимаются водяные короны и расходится рябь.' },
 ];

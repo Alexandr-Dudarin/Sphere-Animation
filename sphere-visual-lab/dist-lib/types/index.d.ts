@@ -1,4 +1,6 @@
 export { SphereVisual } from './components/SphereVisual';
+export { BinaryPlanetVisual, binaryPlanetPresets } from './components/BinaryPlanetVisual';
+export type { BinaryPlanetVisualProps, BinaryPlanetPreset, BinaryPlanetQuality } from './components/BinaryPlanetVisual';
 export { WaterRippleVisual } from './components/WaterRippleVisual';
 export type { WaterRippleVisualProps, WaterRippleQuality, WaterRippleBackground, WaterRippleVariant } from './components/WaterRippleVisual';
 export type { GlowIntensity, SphereBackground, SphereMode, SpherePresetName, SphereQuality, SphereRendererType, SphereVisualProps, } from './components/SphereVisual';
