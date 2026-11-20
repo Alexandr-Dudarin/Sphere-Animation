@@ -56,7 +56,7 @@ uniform float uGlow;
 varying vec3 vNormal, vView;
 void main() {
   float facing = abs(dot(normalize(vNormal), normalize(vView)));
-  float rim = pow(1.0 - facing, 3.2);
+  float rim = pow(1.0 - facing, 3.2) * smoothstep(0.0, 0.28, facing);
   float light = 0.6 + 0.4 * max(dot(normalize(vNormal), normalize(vec3(-0.65, 0.8, 1.15))), 0.0);
   gl_FragColor = vec4(uAtmosphere * 1.1, rim * light * 0.55 * uGlow);
   #include <colorspace_fragment>

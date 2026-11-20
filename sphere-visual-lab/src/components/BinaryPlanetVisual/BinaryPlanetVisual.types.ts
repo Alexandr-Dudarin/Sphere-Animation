@@ -11,7 +11,7 @@ export interface BinaryPlanetVisualProps {
   background?: 'transparent' | 'dark';
   /** Animation speed, 0–2. Zero freezes both the orbit and surface rotation. */
   speed?: number;
-  /** Distance between the two orbital ellipses' semimajor axes, 2.5–4.5 scene units. */
+  /** Semimajor axis of the relative orbit, 2.5–4.5 scene units. */
   separation?: number;
   /** Orbital plane tilt away from a face-on view, 10–70 degrees. */
   tilt?: number;

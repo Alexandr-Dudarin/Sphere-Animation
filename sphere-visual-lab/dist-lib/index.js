@@ -1675,11 +1675,11 @@ function $e(e) {
 }
 //#endregion
 //#region src/components/BinaryPlanetVisual/binaryShaders.ts
-var et = "\nvarying vec3 vNormal, vView, vLocal;\nvoid main() {\n  vec4 view = modelViewMatrix * vec4(position, 1.0);\n  vNormal = normalize(normalMatrix * normal);\n  vView = -view.xyz;\n  vLocal = normalize(position);\n  gl_Position = projectionMatrix * view;\n}", tt = "\nuniform vec3 uColor, uAccent, uAtmosphere;\nuniform float uSeed, uBands, uGlow;\nvarying vec3 vNormal, vView, vLocal;\nfloat hash(vec3 p) {\n  p = fract(p * 0.1031);\n  p += dot(p, p.yzx + 33.33);\n  return fract((p.x + p.y) * p.z);\n}\nfloat noise3(vec3 p) {\n  vec3 i = floor(p), f = fract(p);\n  f = f * f * (3.0 - 2.0 * f);\n  return mix(mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x),\n    mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),\n    mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),\n    mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);\n}\nfloat fbm(vec3 p) {\n  return noise3(p) * 0.56 + noise3(p * 2.03 + 4.1) * 0.28 + noise3(p * 4.07 + 7.8) * 0.16;\n}\nvoid main() {\n  vec3 p = normalize(vLocal);\n  float broad = fbm(p * 3.8 + uSeed);\n  float detail = fbm(p * 12.0 + uSeed * 2.0);\n  float land = smoothstep(0.43, 0.66, broad + (detail - 0.5) * 0.18);\n  float belts = 0.5 + 0.5 * sin(p.y * 38.0 + broad * 9.0 + detail * 3.0);\n  float pattern = mix(land, smoothstep(0.12, 0.92, belts), uBands);\n  vec3 albedo = mix(uColor * 0.38, uAccent, pattern * 0.79);\n  float clouds = smoothstep(0.64, 0.80, fbm(p * 6.2 + vec3(uSeed, 4.0, 1.0)));\n  albedo = mix(albedo, uAccent, clouds * 0.52 * (1.0 - uBands));\n  vec3 n = normalize(vNormal), view = normalize(vView);\n  vec3 light = normalize(vec3(-0.65, 0.8, 1.15));\n  float daylight = max(dot(n, light), 0.0);\n  float rim = pow(1.0 - max(dot(n, view), 0.0), 3.6);\n  float sheen = pow(max(dot(n, normalize(light + view)), 0.0), 42.0) * (1.0 - pattern);\n  vec3 color = albedo * (0.12 + daylight * 1.12);\n  color += uAtmosphere * rim * (0.26 + daylight * 0.45) * uGlow;\n  color += uAccent * sheen * 0.24;\n  gl_FragColor = vec4(color, 1.0);\n  #include <colorspace_fragment>\n}", nt = "\nuniform vec3 uAtmosphere;\nuniform float uGlow;\nvarying vec3 vNormal, vView;\nvoid main() {\n  float facing = abs(dot(normalize(vNormal), normalize(vView)));\n  float rim = pow(1.0 - facing, 3.2);\n  float light = 0.6 + 0.4 * max(dot(normalize(vNormal), normalize(vec3(-0.65, 0.8, 1.15))), 0.0);\n  gl_FragColor = vec4(uAtmosphere * 1.1, rim * light * 0.55 * uGlow);\n  #include <colorspace_fragment>\n}", rt = "\nvarying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}", it = "\nuniform vec3 uColor;\nuniform float uTime, uGlow, uOpacity, uOffset;\nvarying vec2 vUv;\nvoid main() {\n  float flow = pow(0.5 + 0.5 * cos(vUv.x * 6.2831853 - uTime * 0.38 + uOffset), 12.0);\n  gl_FragColor = vec4(uColor * (0.75 + flow * 0.55), (0.27 + flow * 0.6) * uOpacity * uGlow);\n  #include <colorspace_fragment>\n}";
+var et = "\nvarying vec3 vNormal, vView, vLocal;\nvoid main() {\n  vec4 view = modelViewMatrix * vec4(position, 1.0);\n  vNormal = normalize(normalMatrix * normal);\n  vView = -view.xyz;\n  vLocal = normalize(position);\n  gl_Position = projectionMatrix * view;\n}", tt = "\nuniform vec3 uColor, uAccent, uAtmosphere;\nuniform float uSeed, uBands, uGlow;\nvarying vec3 vNormal, vView, vLocal;\nfloat hash(vec3 p) {\n  p = fract(p * 0.1031);\n  p += dot(p, p.yzx + 33.33);\n  return fract((p.x + p.y) * p.z);\n}\nfloat noise3(vec3 p) {\n  vec3 i = floor(p), f = fract(p);\n  f = f * f * (3.0 - 2.0 * f);\n  return mix(mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x),\n    mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),\n    mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),\n    mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);\n}\nfloat fbm(vec3 p) {\n  return noise3(p) * 0.56 + noise3(p * 2.03 + 4.1) * 0.28 + noise3(p * 4.07 + 7.8) * 0.16;\n}\nvoid main() {\n  vec3 p = normalize(vLocal);\n  float broad = fbm(p * 3.8 + uSeed);\n  float detail = fbm(p * 12.0 + uSeed * 2.0);\n  float land = smoothstep(0.43, 0.66, broad + (detail - 0.5) * 0.18);\n  float belts = 0.5 + 0.5 * sin(p.y * 38.0 + broad * 9.0 + detail * 3.0);\n  float pattern = mix(land, smoothstep(0.12, 0.92, belts), uBands);\n  vec3 albedo = mix(uColor * 0.38, uAccent, pattern * 0.79);\n  float clouds = smoothstep(0.64, 0.80, fbm(p * 6.2 + vec3(uSeed, 4.0, 1.0)));\n  albedo = mix(albedo, uAccent, clouds * 0.52 * (1.0 - uBands));\n  vec3 n = normalize(vNormal), view = normalize(vView);\n  vec3 light = normalize(vec3(-0.65, 0.8, 1.15));\n  float daylight = max(dot(n, light), 0.0);\n  float rim = pow(1.0 - max(dot(n, view), 0.0), 3.6);\n  float sheen = pow(max(dot(n, normalize(light + view)), 0.0), 42.0) * (1.0 - pattern);\n  vec3 color = albedo * (0.12 + daylight * 1.12);\n  color += uAtmosphere * rim * (0.26 + daylight * 0.45) * uGlow;\n  color += uAccent * sheen * 0.24;\n  gl_FragColor = vec4(color, 1.0);\n  #include <colorspace_fragment>\n}", nt = "\nuniform vec3 uAtmosphere;\nuniform float uGlow;\nvarying vec3 vNormal, vView;\nvoid main() {\n  float facing = abs(dot(normalize(vNormal), normalize(vView)));\n  float rim = pow(1.0 - facing, 3.2) * smoothstep(0.0, 0.28, facing);\n  float light = 0.6 + 0.4 * max(dot(normalize(vNormal), normalize(vec3(-0.65, 0.8, 1.15))), 0.0);\n  gl_FragColor = vec4(uAtmosphere * 1.1, rim * light * 0.55 * uGlow);\n  #include <colorspace_fragment>\n}", rt = "\nvarying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}", it = "\nuniform vec3 uColor;\nuniform float uTime, uGlow, uOpacity, uOffset;\nvarying vec2 vUv;\nvoid main() {\n  float flow = pow(0.5 + 0.5 * cos(vUv.x * 6.2831853 - uTime * 0.38 + uOffset), 12.0);\n  gl_FragColor = vec4(uColor * (0.75 + flow * 0.55), (0.27 + flow * 0.6) * uOpacity * uGlow);\n  #include <colorspace_fragment>\n}";
 //#endregion
 //#region src/components/BinaryPlanetVisual/BinaryPlanetScene.tsx
-function at({ appearance: e, time: r, glow: i, segments: s, index: l }) {
-	let u = n(null), p = t(() => ({
+function at({ appearance: e, time: r, glow: i, segments: s, index: l, planeTilt: u }) {
+	let p = n(null), h = t(() => ({
 		uColor: { value: new m(e.color) },
 		uAccent: { value: new m(e.accent) },
 		uAtmosphere: { value: new m(e.atmosphere) },
@@ -1688,35 +1688,42 @@ function at({ appearance: e, time: r, glow: i, segments: s, index: l }) {
 		uGlow: { value: i }
 	}), [e, i]);
 	return c(() => {
-		u.current && u.current.rotation.set(.22 + l * .18, r.current * (l === 0 ? .12 : -.15) + l * 1.7, -.15);
-	}), /* @__PURE__ */ o("group", {
-		ref: u,
-		children: [/* @__PURE__ */ o("mesh", { children: [/* @__PURE__ */ a("sphereGeometry", { args: [
-			e.radius,
-			s,
-			s / 2
-		] }), /* @__PURE__ */ a("shaderMaterial", {
-			uniforms: p,
-			vertexShader: et,
-			fragmentShader: tt,
-			toneMapped: !1
-		})] }), /* @__PURE__ */ o("mesh", {
-			scale: 1.09,
-			children: [/* @__PURE__ */ a("sphereGeometry", { args: [
+		p.current && p.current.rotation.set(.22 + l * .18, r.current * (l === 0 ? .12 : -.15) + l * 1.7, -.15);
+	}), /* @__PURE__ */ a("group", {
+		rotation: [
+			-u,
+			0,
+			0
+		],
+		children: /* @__PURE__ */ o("group", {
+			ref: p,
+			children: [/* @__PURE__ */ o("mesh", { children: [/* @__PURE__ */ a("sphereGeometry", { args: [
 				e.radius,
 				s,
 				s / 2
 			] }), /* @__PURE__ */ a("shaderMaterial", {
-				uniforms: p,
+				uniforms: h,
 				vertexShader: et,
-				fragmentShader: nt,
-				side: f,
-				transparent: !0,
-				depthWrite: !1,
-				blending: d,
+				fragmentShader: tt,
 				toneMapped: !1
+			})] }), /* @__PURE__ */ o("mesh", {
+				scale: 1.09,
+				children: [/* @__PURE__ */ a("sphereGeometry", { args: [
+					e.radius,
+					s,
+					s / 2
+				] }), /* @__PURE__ */ a("shaderMaterial", {
+					uniforms: h,
+					vertexShader: et,
+					fragmentShader: nt,
+					side: f,
+					transparent: !0,
+					depthWrite: !1,
+					blending: d,
+					toneMapped: !1
+				})]
 			})]
-		})]
+		})
 	});
 }
 function ot({ curve: e, color: r, time: s, glow: l, segments: u, index: f }) {
@@ -1824,7 +1831,8 @@ function st(r) {
 						time: s,
 						glow: r.glowIntensity,
 						segments: y,
-						index: 0
+						index: 0,
+						planeTilt: r.tilt * Math.PI / 180
 					})
 				}),
 				/* @__PURE__ */ a("group", {
@@ -1834,7 +1842,8 @@ function st(r) {
 						time: s,
 						glow: r.glowIntensity,
 						segments: y,
-						index: 1
+						index: 1,
+						planeTilt: r.tilt * Math.PI / 180
 					})
 				})
 			]

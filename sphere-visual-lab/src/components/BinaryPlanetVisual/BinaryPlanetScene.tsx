@@ -11,8 +11,8 @@ import { atmosphereFragment, orbitFragment, orbitVertex, planetFragment, planetV
 type SceneProps = Required<Pick<BinaryPlanetVisualProps, 'size' | 'preset' | 'quality' |
   'speed' | 'separation' | 'tilt' | 'glowIntensity' | 'showOrbits' | 'paused' | 'resetKey'>>;
 
-function Planet({ appearance, time, glow, segments, index }: {
-  appearance: PlanetAppearance; time: RefObject<number>; glow: number; segments: number; index: number;
+function Planet({ appearance, time, glow, segments, index, planeTilt }: {
+  appearance: PlanetAppearance; time: RefObject<number>; glow: number; segments: number; index: number; planeTilt: number;
 }) {
   const spin = useRef<Group>(null);
   const uniforms = useMemo(() => ({
@@ -24,7 +24,8 @@ function Planet({ appearance, time, glow, segments, index }: {
     if (spin.current) spin.current.rotation.set(0.22 + index * 0.18,
       time.current * (index === 0 ? 0.12 : -0.15) + index * 1.7, -0.15);
   });
-  return <group ref={spin}>
+  // Orbital inclination should not tip the planets' spin axes toward the camera.
+  return <group rotation={[-planeTilt, 0, 0]}><group ref={spin}>
     <mesh>
       <sphereGeometry args={[appearance.radius, segments, segments / 2]} />
       <shaderMaterial uniforms={uniforms} vertexShader={planetVertex} fragmentShader={planetFragment}
@@ -35,7 +36,7 @@ function Planet({ appearance, time, glow, segments, index }: {
       <shaderMaterial uniforms={uniforms} vertexShader={planetVertex} fragmentShader={atmosphereFragment}
         side={BackSide} transparent depthWrite={false} blending={AdditiveBlending} toneMapped={false} />
     </mesh>
-  </group>;
+  </group></group>;
 }
 
 function Orbit({ curve, color, time, glow, segments, index }: {
@@ -102,10 +103,12 @@ export default function BinaryPlanetScene(props: SceneProps) {
       {props.showOrbits && curves.map((curve, i) => <Orbit key={i} curve={curve}
         color={config.planets[i].atmosphere} time={time} glow={props.glowIntensity} segments={segments} index={i} />)}
       <group ref={first}>
-        <Planet appearance={config.planets[0]} time={time} glow={props.glowIntensity} segments={segments} index={0} />
+        <Planet appearance={config.planets[0]} time={time} glow={props.glowIntensity} segments={segments} index={0}
+          planeTilt={props.tilt * Math.PI / 180} />
       </group>
       <group ref={second}>
-        <Planet appearance={config.planets[1]} time={time} glow={props.glowIntensity} segments={segments} index={1} />
+        <Planet appearance={config.planets[1]} time={time} glow={props.glowIntensity} segments={segments} index={1}
+          planeTilt={props.tilt * Math.PI / 180} />
       </group>
     </group>
   </group>;
