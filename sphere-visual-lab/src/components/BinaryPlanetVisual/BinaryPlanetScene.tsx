@@ -53,7 +53,7 @@ function SharedRing({ inner, outer, color, time, glow }: {
   ), [inner, outer]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   const uniforms = useMemo(() => ({
-    uTime: { value: 0 }, uOpacity: { value: 1.55 * glow },
+    uTime: { value: 0 }, uOpacity: { value: 0.95 * glow },
     uFlowSpeed: { value: 0.7 }, uShimmerSpeed: { value: 0.6 }, uOffset: { value: 0 },
     uDepthSide: { value: 0 }, uDepthFeather: { value: 0.04 }, uBaseColor: { value: new Color(color) },
   }), [color, glow]);
@@ -93,16 +93,16 @@ export default function BinaryPlanetScene(props: SceneProps) {
   const width = fitBinaryWidth(props.size, dimensions.width, dimensions.height, bounds);
   const scale = width / dimensions.width * viewport.width / (bounds.x * 2);
   return <group scale={scale} rotation={[0, 0, BINARY_ROLL]}>
-    <group rotation={[props.tilt * Math.PI / 180, 0, 0]}>
+    <group rotation={[-props.tilt * Math.PI / 180, 0, 0]}>
       {props.showRing && <SharedRing inner={ring.inner} outer={ring.outer} color={config.ringColor}
         time={time} glow={props.glowIntensity} />}
       <group ref={first}>
         <Planet appearance={config.planets[0]} time={time} glow={props.glowIntensity} segments={segments} index={0}
-          planeTilt={props.tilt * Math.PI / 180} />
+          planeTilt={-props.tilt * Math.PI / 180} />
       </group>
       <group ref={second}>
         <Planet appearance={config.planets[1]} time={time} glow={props.glowIntensity} segments={segments} index={1}
-          planeTilt={props.tilt * Math.PI / 180} />
+          planeTilt={-props.tilt * Math.PI / 180} />
       </group>
     </group>
   </group>;

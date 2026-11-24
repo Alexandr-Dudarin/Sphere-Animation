@@ -1762,7 +1762,7 @@ function ct({ inner: r, outer: i, color: o, time: s, glow: l }) {
 	e(() => () => d.dispose(), [d]);
 	let f = t(() => ({
 		uTime: { value: 0 },
-		uOpacity: { value: 1.55 * l },
+		uOpacity: { value: .95 * l },
 		uFlowSpeed: { value: .7 },
 		uShimmerSpeed: { value: .6 },
 		uOffset: { value: 0 },
@@ -1821,7 +1821,7 @@ function lt(t) {
 		],
 		children: /* @__PURE__ */ o("group", {
 			rotation: [
-				t.tilt * Math.PI / 180,
+				-t.tilt * Math.PI / 180,
 				0,
 				0
 			],
@@ -1841,7 +1841,7 @@ function lt(t) {
 						glow: t.glowIntensity,
 						segments: g,
 						index: 0,
-						planeTilt: t.tilt * Math.PI / 180
+						planeTilt: -t.tilt * Math.PI / 180
 					})
 				}),
 				/* @__PURE__ */ a("group", {
@@ -1852,7 +1852,7 @@ function lt(t) {
 						glow: t.glowIntensity,
 						segments: g,
 						index: 1,
-						planeTilt: t.tilt * Math.PI / 180
+						planeTilt: -t.tilt * Math.PI / 180
 					})
 				})
 			]

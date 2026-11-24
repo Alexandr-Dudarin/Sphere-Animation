@@ -83,7 +83,7 @@ test('binary scene sleeps outside the viewport and respects reduced motion', asy
 });
 
 // Time-spaced review frames cover conjunctions as well as the initial side-by-side view.
-test('shared ring surrounds the moving pair throughout a revolution', async ({ page }, testInfo) => {
+test('shared ring surrounds the moving pair at several orbital phases', async ({ page }, testInfo) => {
   await page.goto('/#binary-planets');
   const section = page.locator('#binary-planets');
   await section.scrollIntoViewIfNeeded();
