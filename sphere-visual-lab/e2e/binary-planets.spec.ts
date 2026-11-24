@@ -30,7 +30,7 @@ for (const [preset, name] of [['ice-twins', 'Ледяные близнецы'], 
   });
 }
 
-test('binary controls resize inside a stable stage and allow transparent, orbit-free export', async ({ page }, testInfo) => {
+test('binary controls resize inside a stable stage and allow transparent, ring-free export', async ({ page }, testInfo) => {
   await page.goto('/#binary-planets');
   const section = page.locator('#binary-planets');
   await section.scrollIntoViewIfNeeded();
@@ -48,13 +48,13 @@ test('binary controls resize inside a stable stage and allow transparent, orbit-
   const after = await surface.boundingBox();
   expect(after!.width).toBe(before!.width);
   expect(after!.height).toBe(before!.height);
-  await section.getByLabel('Показывать орбиты').uncheck();
+  await section.getByLabel('Показывать общее кольцо').uncheck();
   await section.getByLabel('Прозрачный фон', { exact: true }).check();
-  await page.locator('#binary-tilt').fill('70');
-  await page.locator('#binary-separation').fill('4.5');
+  await page.locator('#binary-tilt').fill('80');
+  await page.locator('#binary-separation').fill('1.9');
   await page.locator('#binary-quality').selectOption('high');
   await surface.scrollIntoViewIfNeeded();
-  await testInfo.attach('binary-transparent-no-orbits', { body: await canvas.screenshot(), contentType: 'image/png' });
+  await testInfo.attach('binary-transparent-no-ring', { body: await canvas.screenshot(), contentType: 'image/png' });
   await section.getByRole('button', { name: 'В начало орбиты' }).click();
   await surface.scrollIntoViewIfNeeded();
   const reset = await canvas.screenshot();
@@ -80,4 +80,32 @@ test('binary scene sleeps outside the viewport and respects reduced motion', asy
   await page.locator('#binary-speed').fill('0');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect(surface).toHaveAttribute('data-frameloop', 'demand');
+});
+
+// Time-spaced review frames cover conjunctions as well as the initial side-by-side view.
+test('shared ring surrounds the moving pair throughout a revolution', async ({ page }, testInfo) => {
+  await page.goto('/#binary-planets');
+  const section = page.locator('#binary-planets');
+  await section.scrollIntoViewIfNeeded();
+  const surface = section.locator('[data-binary-planet]');
+  await page.locator('#binary-speed').fill('2');
+  await section.getByRole('button', { name: 'В начало орбиты' }).click();
+  await surface.scrollIntoViewIfNeeded();
+  const canvas = surface.locator('canvas');
+  for (let phase = 0; phase < 4; phase++) {
+    await testInfo.attach(`binary-shared-ring-phase-${phase}`, {
+      body: await canvas.screenshot(), contentType: 'image/png',
+    });
+    if (phase < 3) await page.waitForTimeout(2100);
+  }
+  await section.getByRole('button', { name: 'Пауза', exact: true }).click();
+  await section.getByRole('button', { name: 'В начало орбиты' }).click();
+  await surface.scrollIntoViewIfNeeded();
+  const ringVisible = await canvas.screenshot();
+  await section.getByLabel('Показывать общее кольцо').uncheck();
+  await surface.scrollIntoViewIfNeeded();
+  expect((await canvas.screenshot()).equals(ringVisible)).toBe(false);
+  await section.getByLabel('Показывать общее кольцо').check();
+  await surface.scrollIntoViewIfNeeded();
+  expect((await canvas.screenshot()).equals(ringVisible)).toBe(true);
 });

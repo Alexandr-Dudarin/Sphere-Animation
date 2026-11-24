@@ -61,19 +61,3 @@ void main() {
   gl_FragColor = vec4(uAtmosphere * 1.1, rim * light * 0.55 * uGlow);
   #include <colorspace_fragment>
 }`;
-
-export const orbitVertex = /* glsl */ `
-varying vec2 vUv;
-void main() {
-  vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}`;
-export const orbitFragment = /* glsl */ `
-uniform vec3 uColor;
-uniform float uTime, uGlow, uOpacity, uOffset;
-varying vec2 vUv;
-void main() {
-  float flow = pow(0.5 + 0.5 * cos(vUv.x * 6.2831853 - uTime * 0.38 + uOffset), 12.0);
-  gl_FragColor = vec4(uColor * (0.75 + flow * 0.55), (0.27 + flow * 0.6) * uOpacity * uGlow);
-  #include <colorspace_fragment>
-}`;

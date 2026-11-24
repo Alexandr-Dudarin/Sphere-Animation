@@ -7,6 +7,11 @@ export declare function clampBinary(value: number, fallback: number, min: number
 export declare function eccentricAnomaly(mean: number, eccentricity: number): number;
 export declare function binaryPositions(mean: number, separation: number, massRatio: number, eccentricity: number): readonly [readonly [number, number, 0], readonly [number, number, 0]];
 export declare function advanceBinaryTime(time: number, delta: number, speed: number): number;
+/** Both complete orbits (including atmospheres) stay inside a common clear centre. */
+export declare function binaryRingDimensions(config: BinaryPresetConfig, separation: number): {
+    inner: number;
+    outer: number;
+};
 /** Exact projected ellipse bounds plus a spherical atmosphere, covering every orbital phase. */
 export declare function binaryBounds(config: BinaryPresetConfig, separation: number, tilt: number): {
     x: number;

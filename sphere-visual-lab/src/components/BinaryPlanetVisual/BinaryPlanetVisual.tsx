@@ -7,8 +7,8 @@ import BinaryPlanetScene from './BinaryPlanetScene';
 import styles from './BinaryPlanetVisual.module.css';
 
 export default function BinaryPlanetVisual({ size = 620, width, height, preset = 'ice-twins',
-  quality = 'medium', background = 'dark', speed = 0.65, separation = 3.2, tilt = 48,
-  glowIntensity = 1, showOrbits = true, paused = false, resetKey = 0,
+  quality = 'medium', background = 'dark', speed = 0.65, separation = 1.5, tilt = 68,
+  glowIntensity = 1, showRing, showOrbits, paused = false, resetKey = 0,
   frameloop = 'always', className = '',
 }: BinaryPlanetVisualProps) {
   const reducedMotion = useReducedMotion();
@@ -28,8 +28,8 @@ export default function BinaryPlanetVisual({ size = 620, width, height, preset =
       fallback={<div className={styles.fallback}>Для планет требуется поддержка WebGL.</div>}
       style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
       <BinaryPlanetScene size={safeSize} preset={selected.id} quality={quality} speed={safeSpeed}
-        separation={clampBinary(separation, 3.2, 2.5, 4.5)} tilt={clampBinary(tilt, 48, 10, 70)}
-        glowIntensity={clampBinary(glowIntensity, 1, 0, 2)} showOrbits={showOrbits}
+        separation={clampBinary(separation, 1.5, 1.35, 1.9)} tilt={clampBinary(tilt, 68, 10, 80)}
+        glowIntensity={clampBinary(glowIntensity, 1, 0, 2)} showRing={showRing ?? showOrbits ?? true}
         paused={stopped} resetKey={resetKey} />
     </Canvas>
   </div>;

@@ -12,11 +12,11 @@ export default function BinaryPlanetPlayground() {
   const [preset, setPreset] = useState<BinaryPlanetPreset>('ice-twins');
   const [size, setSize] = useState(680);
   const [speed, setSpeed] = useState(0.65);
-  const [separation, setSeparation] = useState(3.2);
-  const [tilt, setTilt] = useState(48);
+  const [separation, setSeparation] = useState(1.5);
+  const [tilt, setTilt] = useState(68);
   const [glow, setGlow] = useState(1);
   const [paused, setPaused] = useState(false);
-  const [showOrbits, setShowOrbits] = useState(true);
+  const [showRing, setShowRing] = useState(true);
   const [transparent, setTransparent] = useState(false);
   const [quality, setQuality] = useState<BinaryPlanetQuality>('medium');
   const [resetKey, setResetKey] = useState(0);
@@ -35,15 +35,15 @@ export default function BinaryPlanetPlayground() {
   const controls = [
     { id: 'binary-size', title: 'Размер системы', value: size, set: setSize, min: 280, max: 800, step: 10, suffix: ' px' },
     { id: 'binary-speed', title: 'Скорость движения', value: speed, set: setSpeed, min: 0, max: 2, step: 0.05, suffix: '×' },
-    { id: 'binary-separation', title: 'Расстояние между планетами', value: separation, set: setSeparation, min: 2.5, max: 4.5, step: 0.1, suffix: '' },
-    { id: 'binary-tilt', title: 'Наклон орбит', value: tilt, set: setTilt, min: 10, max: 70, step: 1, suffix: '°' },
+    { id: 'binary-separation', title: 'Расстояние между планетами', value: separation, set: setSeparation, min: 1.35, max: 1.9, step: 0.05, suffix: '' },
+    { id: 'binary-tilt', title: 'Наклон общего кольца', value: tilt, set: setTilt, min: 10, max: 80, step: 1, suffix: '°' },
     { id: 'binary-glow', title: 'Свечение', value: glow, set: setGlow, min: 0, max: 2, step: 0.1, suffix: '' },
   ];
   return <section id="binary-planets" className="binarySection" aria-labelledby="binary-title">
     <header className="pageHeader">
-      <p className="eyebrow">Two worlds · one orbiting system</p>
+      <p className="eyebrow">Two worlds · one shared ring</p>
       <h2 id="binary-title" className="pageTitle orbitalTitle">Binary Planet System</h2>
-      <p className="pageSubtitle">Два мира в общем ритме. Объёмные поверхности, светящиеся атмосферы и орбиты вокруг общего центра.</p>
+      <p className="pageSubtitle">Две планеты внутри одного широкого кольца. Вращение вокруг своих осей и плавный полёт вокруг общего центра.</p>
     </header>
     <div className="demoLayout">
       <div className="panel previewPanel">
@@ -51,7 +51,7 @@ export default function BinaryPlanetPlayground() {
           {mounted ? <Suspense fallback={<p className="binaryLoading">Подготавливаем планеты…</p>}>
             <LazyBinaryPlanet width="100%" height="100%" size={size} preset={preset} speed={speed}
               separation={separation} tilt={tilt} glowIntensity={glow} quality={quality} paused={paused}
-              showOrbits={showOrbits} resetKey={resetKey} frameloop={frameloop}
+              showRing={showRing} resetKey={resetKey} frameloop={frameloop}
               background={transparent ? 'transparent' : 'dark'} />
           </Suspense> : <p className="binaryLoading">Две планеты · общий центр</p>}
           <span className="binaryStageLabel" aria-hidden="true">BINARY / {preset.replaceAll('-', ' ').toUpperCase()}</span>
@@ -88,8 +88,8 @@ export default function BinaryPlanetPlayground() {
             <option value="low">Низкое</option><option value="medium">Среднее</option><option value="high">Высокое</option>
           </select>
         </div>
-        <label className="binaryCheck"><input type="checkbox" checked={showOrbits}
-          onChange={(event) => setShowOrbits(event.target.checked)} />Показывать орбиты</label>
+        <label className="binaryCheck"><input type="checkbox" checked={showRing}
+          onChange={(event) => setShowRing(event.target.checked)} />Показывать общее кольцо</label>
         <label className="binaryCheck"><input type="checkbox" checked={transparent}
           onChange={(event) => setTransparent(event.target.checked)} />Прозрачный фон</label>
       </aside>

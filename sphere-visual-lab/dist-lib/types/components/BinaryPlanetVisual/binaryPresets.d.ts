@@ -14,6 +14,7 @@ export interface BinaryPresetConfig {
     /** Secondary mass divided by primary mass. */
     massRatio: number;
     eccentricity: number;
+    ringColor: string;
     planets: readonly [PlanetAppearance, PlanetAppearance];
 }
 export declare const binaryPlanetPresets: readonly BinaryPresetConfig[];

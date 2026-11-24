@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { AdditiveBlending, BackSide, CatmullRomCurve3, Color, Vector3,
+import { AdditiveBlending, BackSide, Color, DoubleSide,
   type Group, type ShaderMaterial } from 'three';
 import type { BinaryPlanetVisualProps } from './BinaryPlanetVisual.types';
 import { getBinaryPreset, type PlanetAppearance } from './binaryPresets';
-import { advanceBinaryTime, BINARY_ROLL, binaryBounds, binaryPositions,
+import { advanceBinaryTime, BINARY_ROLL, binaryBounds, binaryPositions, binaryRingDimensions,
   fitBinaryWidth, INITIAL_ANOMALY, ORBIT_RATE } from './binaryMotion';
-import { atmosphereFragment, orbitFragment, orbitVertex, planetFragment, planetVertex } from './binaryShaders';
+import { atmosphereFragment, planetFragment, planetVertex } from './binaryShaders';
+import { createPlanetRingGeometry } from '../shared/planetRing/planetRingGeometry';
+import { planetRingVertex, planetRingFragment } from '../shared/planetRing/planetRingShaders';
 
 type SceneProps = Required<Pick<BinaryPlanetVisualProps, 'size' | 'preset' | 'quality' |
-  'speed' | 'separation' | 'tilt' | 'glowIntensity' | 'showOrbits' | 'paused' | 'resetKey'>>;
+  'speed' | 'separation' | 'tilt' | 'glowIntensity' | 'showRing' | 'paused' | 'resetKey'>>;
 
 function Planet({ appearance, time, glow, segments, index, planeTilt }: {
   appearance: PlanetAppearance; time: RefObject<number>; glow: number; segments: number; index: number; planeTilt: number;
@@ -39,30 +41,28 @@ function Planet({ appearance, time, glow, segments, index, planeTilt }: {
   </group></group>;
 }
 
-function Orbit({ curve, color, time, glow, segments, index }: {
-  curve: CatmullRomCurve3; color: string; time: RefObject<number>; glow: number; segments: number; index: number;
+/** One broad annulus, using the same striped material as the original Ring Planet.
+ * Real depth testing works for both moving opaque planets; no fixed front/back overlay.
+ */
+function SharedRing({ inner, outer, color, time, glow }: {
+  inner: number; outer: number; color: string; time: RefObject<number>; glow: number;
 }) {
   const material = useRef<ShaderMaterial>(null);
-  const halo = useRef<ShaderMaterial>(null);
-  const uniforms = useMemo(() => ({ uColor: { value: new Color(color) }, uTime: { value: 0 },
-    uGlow: { value: glow }, uOpacity: { value: 0.72 }, uOffset: { value: index * Math.PI },
-  }), [color, glow, index]);
-  const haloUniforms = useMemo(() => ({ ...uniforms, uOpacity: { value: 0.08 } }), [uniforms]);
-  useFrame(() => {
-    for (const ref of [material, halo]) if (ref.current) ref.current.uniforms.uTime.value = time.current;
-  });
-  return <>
-    <mesh>
-      <tubeGeometry args={[curve, segments * 2, 0.007, 6, true]} />
-      <shaderMaterial ref={material} uniforms={uniforms} vertexShader={orbitVertex} fragmentShader={orbitFragment}
-        transparent depthWrite={false} toneMapped={false} />
-    </mesh>
-    <mesh>
-      <tubeGeometry args={[curve, segments * 2, 0.025, 6, true]} />
-      <shaderMaterial ref={halo} uniforms={haloUniforms} vertexShader={orbitVertex} fragmentShader={orbitFragment}
-        transparent depthWrite={false} blending={AdditiveBlending} toneMapped={false} />
-    </mesh>
-  </>;
+  const geometry = useMemo(() => createPlanetRingGeometry(
+    (inner + outer) / 2, (outer - inner) / 8.4, 1, 1, 0, 0,
+  ), [inner, outer]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  const uniforms = useMemo(() => ({
+    uTime: { value: 0 }, uOpacity: { value: 1.55 * glow },
+    uFlowSpeed: { value: 0.7 }, uShimmerSpeed: { value: 0.6 }, uOffset: { value: 0 },
+    uDepthSide: { value: 0 }, uDepthFeather: { value: 0.04 }, uBaseColor: { value: new Color(color) },
+  }), [color, glow]);
+  useFrame(() => { if (material.current) material.current.uniforms.uTime.value = time.current; });
+  return <mesh geometry={geometry}>
+    <shaderMaterial ref={material} uniforms={uniforms} vertexShader={planetRingVertex}
+      fragmentShader={planetRingFragment} side={DoubleSide} transparent depthWrite={false}
+      depthTest toneMapped={false} />
+  </mesh>;
 }
 
 export default function BinaryPlanetScene(props: SceneProps) {
@@ -72,13 +72,7 @@ export default function BinaryPlanetScene(props: SceneProps) {
   const skipDelta = useRef(true);
   const { viewport, size: dimensions, invalidate, frameloop } = useThree();
   const segments = { low: 32, medium: 64, high: 96 }[props.quality];
-  const curves = useMemo(() => [0, 1].map((planet) => new CatmullRomCurve3(
-    Array.from({ length: 128 }, (_, i) => {
-      const point = binaryPositions(i / 128 * Math.PI * 2, props.separation,
-        config.massRatio, config.eccentricity)[planet];
-      return new Vector3(...point);
-    }), true, 'centripetal',
-  )), [props.separation, config]);
+  const ring = binaryRingDimensions(config, props.separation);
 
   useEffect(() => { time.current = 0; skipDelta.current = true; invalidate(); },
     [props.resetKey, config, invalidate]);
@@ -100,8 +94,8 @@ export default function BinaryPlanetScene(props: SceneProps) {
   const scale = width / dimensions.width * viewport.width / (bounds.x * 2);
   return <group scale={scale} rotation={[0, 0, BINARY_ROLL]}>
     <group rotation={[props.tilt * Math.PI / 180, 0, 0]}>
-      {props.showOrbits && curves.map((curve, i) => <Orbit key={i} curve={curve}
-        color={config.planets[i].atmosphere} time={time} glow={props.glowIntensity} segments={segments} index={i} />)}
+      {props.showRing && <SharedRing inner={ring.inner} outer={ring.outer} color={config.ringColor}
+        time={time} glow={props.glowIntensity} />}
       <group ref={first}>
         <Planet appearance={config.planets[0]} time={time} glow={props.glowIntensity} segments={segments} index={0}
           planeTilt={props.tilt * Math.PI / 180} />
