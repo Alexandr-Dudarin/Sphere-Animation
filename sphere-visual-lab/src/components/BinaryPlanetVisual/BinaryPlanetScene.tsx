@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { AdditiveBlending, BackSide, Color, DoubleSide,
+import { Color, DoubleSide,
   type Group, type ShaderMaterial } from 'three';
 import type { BinaryPlanetVisualProps } from './BinaryPlanetVisual.types';
 import { getBinaryPreset, type PlanetAppearance } from './binaryPresets';
 import { advanceBinaryTime, BINARY_ROLL, binaryBounds, binaryPositions, binaryRingDimensions,
   fitBinaryWidth, INITIAL_ANOMALY, ORBIT_RATE } from './binaryMotion';
-import { atmosphereFragment, planetFragment, planetVertex } from './binaryShaders';
+import { planetFragment, planetVertex } from './binaryShaders';
 import { createPlanetRingGeometry } from '../shared/planetRing/planetRingGeometry';
 import { planetRingVertex, planetRingFragment } from '../shared/planetRing/planetRingShaders';
 
@@ -32,11 +32,6 @@ function Planet({ appearance, time, glow, segments, index, planeTilt }: {
       <sphereGeometry args={[appearance.radius, segments, segments / 2]} />
       <shaderMaterial uniforms={uniforms} vertexShader={planetVertex} fragmentShader={planetFragment}
         toneMapped={false} />
-    </mesh>
-    <mesh scale={1.09}>
-      <sphereGeometry args={[appearance.radius, segments, segments / 2]} />
-      <shaderMaterial uniforms={uniforms} vertexShader={planetVertex} fragmentShader={atmosphereFragment}
-        side={BackSide} transparent depthWrite={false} blending={AdditiveBlending} toneMapped={false} />
     </mesh>
   </group></group>;
 }

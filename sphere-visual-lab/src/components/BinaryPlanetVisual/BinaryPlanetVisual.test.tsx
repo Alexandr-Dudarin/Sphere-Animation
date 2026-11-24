@@ -38,9 +38,21 @@ it('stops orbit and spin together for pause, zero speed and reduced motion', () 
 it('shows a compact pair inside the common ring by default and accepts the old visibility alias', () => {
   const view = render(<BinaryPlanetVisual />);
   const props = () => JSON.parse(screen.getByTestId('scene').textContent!);
-  expect(props()).toMatchObject({ separation: 1.5, tilt: 68, showRing: true });
+  expect(props()).toMatchObject({ separation: 1.4, tilt: 68, showRing: true });
   view.rerender(<BinaryPlanetVisual showOrbits={false} />);
   expect(props().showRing).toBe(false);
   view.rerender(<BinaryPlanetVisual showRing showOrbits={false} />);
   expect(props().showRing).toBe(true);
+});
+
+it('uses the chosen preset spacing unless explicitly overridden', () => {
+  const view = render(<BinaryPlanetVisual preset="ice-twins" />);
+  const props = () => JSON.parse(screen.getByTestId('scene').textContent!);
+  expect(props().separation).toBe(1.4);
+  view.rerender(<BinaryPlanetVisual preset="violet-duet" />);
+  expect(props().separation).toBe(1.5);
+  view.rerender(<BinaryPlanetVisual preset="ice-fire" separation={1.7} />);
+  expect(props().separation).toBe(1.7);
+  view.rerender(<BinaryPlanetVisual preset="ice-twins" separation={NaN} />);
+  expect(props().separation).toBe(1.4);
 });

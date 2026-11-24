@@ -32,16 +32,16 @@ export function advanceBinaryTime(time: number, delta: number, speed: number) {
   return time + (Number.isFinite(delta) ? Math.min(0.05, Math.max(0, delta)) : 0) * speed;
 }
 
-/** Both complete orbits (including atmospheres) stay inside a common clear centre. */
+/** Both complete orbits stay inside a common clear centre. */
 export function binaryRingDimensions(config: BinaryPresetConfig, separation: number) {
   const fractions = [config.massRatio / (1 + config.massRatio), 1 / (1 + config.massRatio)];
   const reach = Math.max(...fractions.map((fraction, i) =>
-    separation * fraction * (1 + config.eccentricity) + config.planets[i].radius * 1.12));
+    separation * fraction * (1 + config.eccentricity) + config.planets[i].radius));
   const inner = Math.max(1.5, reach + 0.14);
   return { inner, outer: inner + 0.58 };
 }
 
-/** Exact projected ellipse bounds plus a spherical atmosphere, covering every orbital phase. */
+/** Projected orbit bounds plus each solid planet, covering every orbital phase. */
 export function binaryBounds(config: BinaryPresetConfig, separation: number, tilt: number) {
   const xRotation = tilt * Math.PI / 180;
   const c = Math.cos(BINARY_ROLL), s = Math.sin(BINARY_ROLL), ct = Math.cos(xRotation);
@@ -53,9 +53,9 @@ export function binaryBounds(config: BinaryPresetConfig, separation: number, til
   axes.forEach((fraction, i) => {
     const a = separation * fraction;
     const b = a * Math.sqrt(1 - e * e);
-    const halo = config.planets[i].radius * 1.12;
-    x = Math.max(x, Math.abs(a * e * c) + Math.hypot(a * c, b * s * ct) + halo);
-    y = Math.max(y, Math.abs(a * e * s) + Math.hypot(a * s, b * c * ct) + halo);
+    const body = config.planets[i].radius + 0.02;
+    x = Math.max(x, Math.abs(a * e * c) + Math.hypot(a * c, b * s * ct) + body);
+    y = Math.max(y, Math.abs(a * e * s) + Math.hypot(a * s, b * c * ct) + body);
   });
   return { x, y };
 }

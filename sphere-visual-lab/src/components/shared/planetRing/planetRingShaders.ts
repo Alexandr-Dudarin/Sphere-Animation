@@ -160,11 +160,14 @@ export const planetRingFragment = `
       gapA * 0.74 -
       gapB * 0.64;
 
+    // All angular variation must complete whole turns at the UV seam (u=0/1).
+    float angle = vUv.x * 6.283185307179586;
+
     float slowDrift =
       0.5 +
       0.5 *
         sin(
-          vUv.x * 12.5664 -
+          angle * 2.0 -
           uTime *
             uFlowSpeed *
             0.13 +
@@ -175,7 +178,7 @@ export const planetRingFragment = `
       0.5 +
       0.5 *
         sin(
-          vUv.x * 25.1327 -
+          angle * 4.0 -
           uTime *
             uShimmerSpeed *
             0.045 +
@@ -188,7 +191,7 @@ export const planetRingFragment = `
       0.5 *
         sin(
           radial * 17.0 +
-          vUv.x * 3.0 +
+          angle +
           uOffset * 5.0
         );
 
@@ -197,7 +200,7 @@ export const planetRingFragment = `
       0.5 *
         sin(
           radial * 74.0 -
-          vUv.x * 6.0 +
+          angle +
           uOffset * 11.0
         );
 

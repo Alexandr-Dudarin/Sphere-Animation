@@ -15,6 +15,7 @@ export interface BinaryPresetConfig {
     massRatio: number;
     eccentricity: number;
     ringColor: string;
+    defaultSeparation: number;
     planets: readonly [PlanetAppearance, PlanetAppearance];
 }
 export declare const binaryPlanetPresets: readonly BinaryPresetConfig[];

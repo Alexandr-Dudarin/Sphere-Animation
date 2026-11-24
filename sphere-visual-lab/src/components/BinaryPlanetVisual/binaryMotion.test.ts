@@ -31,12 +31,12 @@ describe('binary planetary motion', () => {
         for (let i = 0; i < 120; i++) {
           const pair = binaryPositions(i / 120 * Math.PI * 2, separation, config.massRatio, config.eccentricity);
           pair.forEach(([x, y], index) => {
-            expect(Math.hypot(x, y) + config.planets[index].radius * 1.09).toBeLessThan(ring.inner);
+            expect(Math.hypot(x, y) + config.planets[index].radius).toBeLessThan(ring.inner);
             const py = y * Math.cos(tilt * Math.PI / 180);
             const sx = x * Math.cos(BINARY_ROLL) - py * Math.sin(BINARY_ROLL);
             const sy = x * Math.sin(BINARY_ROLL) + py * Math.cos(BINARY_ROLL);
-            expect(Math.abs(sx) + config.planets[index].radius * 1.09).toBeLessThan(bounds.x);
-            expect(Math.abs(sy) + config.planets[index].radius * 1.09).toBeLessThan(bounds.y);
+            expect(Math.abs(sx) + config.planets[index].radius).toBeLessThan(bounds.x);
+            expect(Math.abs(sy) + config.planets[index].radius).toBeLessThan(bounds.y);
           });
         }
         for (let i = 0; i < 240; i++) {

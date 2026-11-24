@@ -12,7 +12,7 @@ export default function BinaryPlanetPlayground() {
   const [preset, setPreset] = useState<BinaryPlanetPreset>('ice-twins');
   const [size, setSize] = useState(680);
   const [speed, setSpeed] = useState(0.65);
-  const [separation, setSeparation] = useState(1.5);
+  const [separations, setSeparations] = useState<Partial<Record<BinaryPlanetPreset, number>>>({});
   const [tilt, setTilt] = useState(68);
   const [glow, setGlow] = useState(1);
   const [paused, setPaused] = useState(false);
@@ -22,6 +22,8 @@ export default function BinaryPlanetPlayground() {
   const [resetKey, setResetKey] = useState(0);
   const frameloop = useViewportRenderMode(stage, '200px 0px');
   const selected = getBinaryPreset(preset);
+  const separation = separations[preset] ?? selected.defaultSeparation;
+  const setSeparation = (value: number) => setSeparations((previous) => ({ ...previous, [preset]: value }));
 
   useEffect(() => {
     if (!stage.current || typeof IntersectionObserver === 'undefined') { setMounted(true); return; }

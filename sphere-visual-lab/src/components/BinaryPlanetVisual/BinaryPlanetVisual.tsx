@@ -7,7 +7,7 @@ import BinaryPlanetScene from './BinaryPlanetScene';
 import styles from './BinaryPlanetVisual.module.css';
 
 export default function BinaryPlanetVisual({ size = 620, width, height, preset = 'ice-twins',
-  quality = 'medium', background = 'dark', speed = 0.65, separation = 1.5, tilt = 68,
+  quality = 'medium', background = 'dark', speed = 0.65, separation, tilt = 68,
   glowIntensity = 1, showRing, showOrbits, paused = false, resetKey = 0,
   frameloop = 'always', className = '',
 }: BinaryPlanetVisualProps) {
@@ -28,7 +28,7 @@ export default function BinaryPlanetVisual({ size = 620, width, height, preset =
       fallback={<div className={styles.fallback}>Для планет требуется поддержка WebGL.</div>}
       style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
       <BinaryPlanetScene size={safeSize} preset={selected.id} quality={quality} speed={safeSpeed}
-        separation={clampBinary(separation, 1.5, 1.35, 1.9)} tilt={clampBinary(tilt, 68, 10, 80)}
+        separation={clampBinary(separation ?? selected.defaultSeparation, selected.defaultSeparation, 1.35, 1.9)} tilt={clampBinary(tilt, 68, 10, 80)}
         glowIntensity={clampBinary(glowIntensity, 1, 0, 2)} showRing={showRing ?? showOrbits ?? true}
         paused={stopped} resetKey={resetKey} />
     </Canvas>

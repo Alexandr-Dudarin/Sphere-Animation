@@ -11,6 +11,7 @@ for (const [preset, name] of [['ice-twins', 'Ледяные близнецы'], 
     await section.getByRole('button', { name, exact: true }).click();
     await surface.scrollIntoViewIfNeeded();
     await expect(surface).toHaveAttribute('data-binary-preset', preset);
+    await expect(page.locator('#binary-separation')).toHaveValue(preset === 'ice-twins' ? '1.4' : '1.5');
     const canvas = surface.locator('canvas');
     await expect(canvas).toBeVisible();
     const initial = await canvas.screenshot();
