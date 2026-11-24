@@ -10,6 +10,7 @@ import {
   orbitalPresetNames,
   SphereVisual,
   WaterRippleVisual,
+  BinaryPlanetVisual,
   spherePresetCatalog,
   spherePresetNames,
   spherePresetOptions,
@@ -27,6 +28,7 @@ describe('public library API', () => {
     expect(SphereVisual).toBeTypeOf('function');
     expect(OrbitalVisual).toBeTypeOf('function');
     expect(WaterRippleVisual).toBeTypeOf('function');
+    expect(BinaryPlanetVisual).toBeTypeOf('function');
   });
 
   it('exports the SphereVisual catalog through the public entry point', () => {

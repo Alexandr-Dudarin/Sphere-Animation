@@ -8,6 +8,8 @@
 }
 .dark { background: #02040a; }
 .root canvas { display: block; }
+.root[role='button'] { cursor: crosshair; }
+.root:focus-visible { outline: 2px solid #69c8ff; outline-offset: -4px; }
 .fallback {
   display: grid;
   place-items: center;

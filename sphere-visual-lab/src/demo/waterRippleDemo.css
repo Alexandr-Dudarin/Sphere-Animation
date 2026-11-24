@@ -13,3 +13,10 @@
 .waterActions button:focus-visible, .waterJump:focus-visible { outline: 2px solid #7cd9ff; outline-offset: 4px; }
 .waterJump { display: inline-block; margin-top: 18px; font-size: 14px; }
 @media (max-width: 700px) { .waterStage { height: 340px; } .waterSection { margin-top: 40px; } }
+.waterCaption {
+  margin: 20px 4px 4px;
+  color: #abc4d5;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 3.2em;
+}
